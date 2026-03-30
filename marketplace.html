@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Electrical Products Marketplace — AMPEDGE</title>
+<meta name="description" content="Shop genuine electrical products from top brands. Switches, cables, MCBs, LEDs and more — delivered fast across India."/>
+<link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+<div class="nav-inner">
+  <a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img"/></a>
+  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="marketplace.html" class="active">Marketplace</a></li><li><a href="booking.html">Services</a></li><li><a href="partner.html">Partners</a></li></ul>
+  <div class="nav-right">
+    <a href="booking.html" class="btn btn-outline btn-sm">Book a Service</a>
+    <a href="#" class="btn btn-primary btn-sm">🛒 Cart (0)</a>
+  </div>
+  <div class="hamburger" onclick="openMob()"><span></span><span></span><span></span></div>
+</div>
+</nav>
+<div class="mobile-nav" id="mobNav"><div class="mob-overlay" onclick="closeMob()"></div><div class="mob-drawer"><span class="mob-close" onclick="closeMob()">✕</span><a href="index.html">Home</a><a href="marketplace.html">Marketplace</a><a href="booking.html">Book a Service</a><a href="partner.html">Become a Partner</a></div></div>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Marketplace</span></div>
+    <div class="chip"><span class="dot"></span>Electrical Products</div>
+    <h1>Electrical Products <span class="gradient-text">Marketplace</span></h1>
+    <p style="color:var(--muted);font-size:1.05rem;max-width:500px;margin-top:10px">Genuine, tested, certified products from India's top brands — delivered to your doorstep.</p>
+    <div class="search-bar">
+      <input class="search-input" placeholder="Search products, brands, categories..."/>
+      <button class="btn btn-primary">Search →</button>
+    </div>
+    <div class="chips-row">
+      <span class="chip-item active" onclick="chipClick(this)">All Products</span>
+      <span class="chip-item" onclick="chipClick(this)">Switches</span>
+      <span class="chip-item" onclick="chipClick(this)">Wires & Cables</span>
+      <span class="chip-item" onclick="chipClick(this)">MCB & DB</span>
+      <span class="chip-item" onclick="chipClick(this)">LED Lighting</span>
+      <span class="chip-item" onclick="chipClick(this)">Fans</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="container">
+<div class="mp-layout">
+  <!-- Filters -->
+  <aside>
+    <div class="filter-card">
+      <div class="filter-title">🎛 Filter Products</div>
+      <div class="filter-group">
+        <div class="fg-label">Brand</div>
+        <div class="fc-opt"><input type="checkbox" checked/><label>Havells</label></div>
+        <div class="fc-opt"><input type="checkbox" checked/><label>Legrand</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Anchor</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Finolex</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Philips</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Syska</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Crompton</label></div>
+      </div>
+      <div class="filter-group">
+        <div class="fg-label">Price Range</div>
+        <input type="range" class="range-slider" min="0" max="10000" value="5000" oninput="updatePrice(this.value)"/>
+        <div class="range-labels"><span>₹0</span><span id="priceLabel">Up to ₹5,000</span><span>₹10K+</span></div>
+      </div>
+      <div class="filter-group">
+        <div class="fg-label">Rating</div>
+        <div class="rating-opts">
+          <div class="r-opt"><input type="radio" name="rating" checked/><span class="stars">★★★★★</span><span>5 Star</span></div>
+          <div class="r-opt"><input type="radio" name="rating"/><span class="stars">★★★★☆</span><span>4 Star &amp; above</span></div>
+          <div class="r-opt"><input type="radio" name="rating"/><span class="stars">★★★☆☆</span><span>3 Star &amp; above</span></div>
+        </div>
+      </div>
+      <div class="filter-group">
+        <div class="fg-label">Availability</div>
+        <div class="fc-opt"><input type="checkbox" checked/><label>In Stock</label></div>
+        <div class="fc-opt"><input type="checkbox"/><label>Ships in 24hr</label></div>
+      </div>
+      <button class="btn btn-outline" style="width:100%">Reset Filters</button>
+    </div>
+  </aside>
+
+  <!-- Products -->
+  <div>
+    <div class="mp-toolbar">
+      <div class="mp-count">Showing <strong>48 products</strong></div>
+      <select class="mp-sort"><option>Sort: Featured</option><option>Price: Low to High</option><option>Price: High to Low</option><option>Rating</option><option>Newest</option></select>
+    </div>
+    <div class="product-grid">
+      <!-- Cards -->
+      <div class="product-card"><div class="product-img-wrap">💡<div class="prod-badge"><span class="badge badge-blue">Bestseller</span></div><div class="prod-wish" title="Wishlist">♡</div></div><div class="product-info"><div class="prod-brand">Havells</div><div class="prod-name">Coral Smart Switch 6A</div><div class="prod-rating"><span class="stars">★★★★★</span>4.9 (1,240)</div><div class="prod-footer"><div class="prod-price">₹349<span class="old">₹499</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">🔌<div class="prod-badge"><span class="badge badge-cyan">New</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Legrand</div><div class="prod-name">Arteor USB Socket White</div><div class="prod-rating"><span class="stars">★★★★★</span>4.8 (876)</div><div class="prod-footer"><div class="prod-price">₹1,249<span class="old">₹1,599</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">🪢<div class="prod-badge"><span class="badge badge-green">Top Rated</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Finolex</div><div class="prod-name">FR PVC Wire 2.5sqmm 90m</div><div class="prod-rating"><span class="stars">★★★★★</span>4.9 (2,100)</div><div class="prod-footer"><div class="prod-price">₹2,299<span class="old">₹2,699</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">⚡<div class="prod-badge"><span class="badge badge-orange">Sale</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Havells</div><div class="prod-name">DP MCB 32A Double Pole</div><div class="prod-rating"><span class="stars">★★★★☆</span>4.7 (543)</div><div class="prod-footer"><div class="prod-price">₹784<span class="old">₹1,099</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">💡<div class="prod-badge"><span class="badge badge-blue">Popular</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Philips</div><div class="prod-name">LED Slim Batten 20W White</div><div class="prod-rating"><span class="stars">★★★★★</span>4.8 (3,400)</div><div class="prod-footer"><div class="prod-price">₹449<span class="old">₹599</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">🌀<div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Crompton</div><div class="prod-name">Aura Anti-Dust Fan 1200mm</div><div class="prod-rating"><span class="stars">★★★★★</span>4.7 (980)</div><div class="prod-footer"><div class="prod-price">₹2,499<span class="old">₹2,999</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">🔦<div class="prod-badge"><span class="badge badge-cyan">New</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Syska</div><div class="prod-name">Smart LED Bulb 9W WiFi</div><div class="prod-rating"><span class="stars">★★★★☆</span>4.6 (670)</div><div class="prod-footer"><div class="prod-price">₹699<span class="old">₹899</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">⚡<div class="prod-badge"><span class="badge badge-green">Top Rated</span></div><div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Legrand</div><div class="prod-name">12-Way 63A Distribution Board</div><div class="prod-rating"><span class="stars">★★★★★</span>4.9 (412)</div><div class="prod-footer"><div class="prod-price">₹3,499<span class="old">₹4,200</span></div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+      <div class="product-card"><div class="product-img-wrap">🪢<div class="prod-wish">♡</div></div><div class="product-info"><div class="prod-brand">Polycab</div><div class="prod-name">Flex Cable 4sqmm 100m Coil</div><div class="prod-rating"><span class="stars">★★★★☆</span>4.5 (230)</div><div class="prod-footer"><div class="prod-price">₹5,299</div><button class="add-btn" onclick="addToCart(this)">+ Cart</button></div></div></div>
+    </div>
+    <!-- Pagination -->
+    <div class="pagination">
+      <span class="pg-btn">←</span>
+      <span class="pg-btn active">1</span>
+      <span class="pg-btn">2</span>
+      <span class="pg-btn">3</span>
+      <span class="pg-btn" style="cursor:default;border:none;background:none;color:var(--muted)">...</span>
+      <span class="pg-btn">12</span>
+      <span class="pg-btn">→</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Embedded AI Chatbot Section -->
+<section class="ai-embedded-section" style="padding: 60px 0; background: linear-gradient(180deg, var(--bg) 0%, #f1f5f9 100%);">
+  <div class="container">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div class="chip" style="background:rgba(65,105,225,0.1);color:#4169E1;border-color:rgba(65,105,225,0.2)"><span class="dot" style="background:#4169E1"></span>24/7 AI Support</div>
+        <h2 style="font-size: 32px; margin-top: 12px; margin-bottom: 12px;">Ask AMPEdge AI</h2>
+        <p style="color: var(--text);">Get instant answers to your electrical queries right here.</p>
+      </div>
+      
+      <div class="embedded-chat-window" style="background: #fff; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--s2); overflow: hidden;">
+        <div class="chat-header" style="background: linear-gradient(135deg, #4169E1, #8A2BE2); padding: 16px 20px; color: #fff; display: flex; align-items: center; gap: 16px;">
+          <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px;">🤖</div>
+          <div>
+            <div style="font-weight: 700; font-size: 16px; letter-spacing: 0.5px;">AMPEdge AI</div>
+            <div style="font-size: 13px; opacity: 0.85; margin-top: 2px;">🟢 Online - Ready to help</div>
+          </div>
+        </div>
+        <div class="chat-body" id="embeddedChatBody" style="padding: 24px 20px; height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: #f8fafc;">
+          <div class="chat-msg bot-msg" style="max-width: 85%; padding: 14px 18px; border-radius: 12px; font-size: 14.5px; line-height: 1.5; background: #fff; border: 1px solid #e2e8f0; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.02)">Hello! I'm the AMPEdge AI Assistant. How can I help you with your electrical needs today?</div>
+        </div>
+        <div class="chat-input-area" style="padding: 16px 20px; background: #fff; border-top: 1px solid var(--border); display: flex; gap: 12px;">
+          <input type="text" id="embeddedChatInput" placeholder="Type your question here..." onkeypress="if(event.key==='Enter') sendEmbeddedMsg()" style="flex: 1; padding: 14px 20px; border: 1px solid #cbd5e1; border-radius: 30px; outline: none; font-size: 15px;"/>
+          <button onclick="sendEmbeddedMsg()" style="background: #4169E1; color: #fff; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(65,105,225,0.3); transition: transform 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Google Form Section -->
+<section class="query-section" style="padding: 60px 0; background: var(--bg); border-top: 1px solid var(--border);">
+  <div class="container">
+    <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+      <h2 style="font-size: 28px; margin-bottom: 12px;">Have any Queries?</h2>
+      <p style="color: var(--text); margin-bottom: 32px;">Submit your question directly through our Google Form below and our team will get back to you instantly.</p>
+      
+      <div style="background: #fff; padding: 20px; border-radius: 16px; box-shadow: var(--s2); border: 1px solid var(--border);">
+        <div style="padding: 40px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+          <h3 style="color:#1e293b;margin-bottom:8px;font-size:22px">Submit a Query</h3>
+          <p style="color:#64748b;font-size:15px;margin-bottom:24px">Click the button below to fill out our inquiry form. We'll get back to you shortly!</p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform" target="_blank" class="btn btn-primary" style="display:inline-flex;padding:12px 28px;font-size:16px;box-shadow:0 4px 12px rgba(65,105,225,0.25)">Fill Google Form 📝</a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img footer-logo-img"/></a><p>India's trusted electrical platform.</p><div class="footer-contact" style="font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6;margin-top:16px"><div style="margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>📧</span> ampedge.info@gmail.com</div><div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">💬</span> <span><a href="https://wa.me/919123667258" target="_blank" style="color:inherit;text-decoration:none">+91 91236 67258</a>, <a href="https://wa.me/919748398418" target="_blank" style="color:inherit;text-decoration:none">+91 97483 98418</a> <span style="font-size:11px;font-weight:700;color:#25D366;text-transform:uppercase;letter-spacing:0.5px;margin-left:4px">(WhatsApp)</span></span></div><div style="display:flex;align-items:flex-start;gap:8px"><span>📍</span> <span>West Bauria, Chackasi, Palpara, Howrah 711307</span></div></div><div class="socials"><a class="social-icon">in</a><a class="social-icon">𝕏</a><a class="social-icon">ig</a><a href="https://www.youtube.com/channel/UCl_t66zGTsJYdc9l-c-wzDg" target="_blank" class="social-icon" title="@AmpEdge-i9d">▶</a></div></div><div class="fcol"><h5>Services</h5><ul><li><a href="booking.html">Installation</a></li><li><a href="booking.html">Repair</a></li><li><a href="booking.html">Industrial</a></li></ul></div><div class="fcol"><h5>Marketplace</h5><ul><li><a href="marketplace.html">Switches</a></li><li><a href="marketplace.html">Cables</a></li><li><a href="marketplace.html">MCB & DB</a></li></ul></div><div class="fcol"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="partner.html">Partners</a></li><li><a href="#">Careers</a></li></ul></div><div class="fcol"><h5>Support</h5><ul><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform" target="_blank" style="color:var(--blue);font-weight:600">Raise a Query</a></li><li><a href="#">Help</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 AMPEDGE Technologies Pvt. Ltd.</span><span>Made with ⚡ in India</span></div></div></footer>
+<a href="https://wa.me/919123667258" class="wa-float" target="_blank" aria-label="Chat on WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="30" height="30" fill="#fff"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-2.1-3.6 2.1-3.2 7.6-14.1 1.4-2.8 2.8-5.2 1.4-7.6-1.4-2.3-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+</a>
+
+<script src="js/main.js"></script>
+</body>
+</html>
