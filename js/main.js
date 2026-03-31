@@ -102,15 +102,233 @@ function timeClick(el) {
 }
 
 // ── Add to cart ───────────────────────────────
-let cartCount = 0;
+let cart = JSON.parse(sessionStorage.getItem('ampedge_cart') || '[]');
+
+// Update all cart badges on page load
+function updateCartBadge() {
+  const count = cart.length;
+  document.querySelectorAll('.cart-badge-count').forEach(el => {
+    el.textContent = count;
+  });
+  // Target the nav cart button by id
+  const navBtn = document.getElementById('navCartBtn');
+  if (navBtn) {
+    navBtn.innerHTML = `🛒 Cart (${count})`;
+  }
+  // Also update any other elements that show "Cart (N)"
+  document.querySelectorAll('a, button').forEach(el => {
+    if (el.id === 'navCartBtn') return; // already handled
+    if (el.textContent.match(/🛒\s*Cart\s*\(\d+\)/)) {
+      el.innerHTML = `🛒 Cart (${count})`;
+    }
+  });
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', updateCartBadge);
+// Also run immediately for scripts loaded at bottom
+updateCartBadge();
+
+// Cart popup — show/hide on cart button click
+document.addEventListener('DOMContentLoaded', () => {
+  const navBtn = document.getElementById('navCartBtn');
+  if (navBtn) {
+    navBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleCartPopup();
+    });
+  }
+});
+
+function toggleCartPopup() {
+  let popup = document.getElementById('cartPopup');
+  if (popup) {
+    popup.remove();
+    return;
+  }
+  popup = document.createElement('div');
+  popup.id = 'cartPopup';
+  popup.style.cssText = `
+    position: fixed; top: 72px; right: 24px; width: 380px; max-height: 70vh;
+    background: #fff; border-radius: 20px; box-shadow: 0 20px 60px rgba(10,15,44,.2);
+    z-index: 1001; display: flex; flex-direction: column; overflow: hidden;
+    border: 1px solid rgba(65,105,225,.1);
+    animation: toastIn 0.3s cubic-bezier(.34,1.56,.64,1);
+  `;
+
+  const items = JSON.parse(sessionStorage.getItem('ampedge_cart') || '[]');
+
+  if (items.length === 0) {
+    popup.innerHTML = `
+      <div style="padding:32px;text-align:center">
+        <div style="font-size:48px;margin-bottom:12px;opacity:0.4">🛒</div>
+        <h3 style="font-size:18px;font-weight:800;color:#0a0f2c;margin-bottom:8px">Your cart is empty</h3>
+        <p style="font-size:14px;color:#6b7280;margin-bottom:20px">Browse our marketplace and add products!</p>
+        <a href="marketplace.html" class="btn btn-primary btn-sm" style="display:inline-flex">Explore Products →</a>
+        <div style="margin-top:16px"><span style="cursor:pointer;font-size:13px;color:#6b7280" onclick="document.getElementById('cartPopup')?.remove()">Close</span></div>
+      </div>
+    `;
+  } else {
+    let total = 0;
+    let itemsHTML = items.map((item, i) => {
+      const price = parseInt(item.price.replace(/[₹,]/g, '')) || 0;
+      total += price;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(0,0,0,.06)">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:#0a0f2c">${item.name}</div>
+            <div style="font-size:13px;color:#4169E1;font-weight:600;margin-top:2px">${item.price}</div>
+          </div>
+          <button onclick="removeCartItem(${i})" style="width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.1);border:none;color:#ef4444;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s" onmouseover="this.style.background='#ef4444';this.style.color='#fff'" onmouseout="this.style.background='rgba(239,68,68,.1)';this.style.color='#ef4444'">✕</button>
+        </div>
+      `;
+    }).join('');
+
+    popup.innerHTML = `
+      <div style="padding:20px 24px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between">
+        <h3 style="font-size:16px;font-weight:800;color:#0a0f2c;margin:0">🛒 Your Cart (${items.length})</h3>
+        <span style="cursor:pointer;font-size:20px;color:#6b7280;padding:4px" onclick="document.getElementById('cartPopup')?.remove()">✕</span>
+      </div>
+      <div style="padding:0 24px;overflow-y:auto;flex:1">${itemsHTML}</div>
+      <div style="padding:20px 24px;border-top:1px solid rgba(0,0,0,.06);background:#f8faff">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+          <span style="font-size:14px;font-weight:600;color:#6b7280">Total</span>
+          <span style="font-size:18px;font-weight:900;color:#4169E1">₹${total.toLocaleString('en-IN')}</span>
+        </div>
+        <a href="https://wa.me/919123667258?text=Hi!%20I'd%20like%20to%20order%20these%20products%20from%20AmpEdge:%20${encodeURIComponent(items.map(i => i.name + ' (' + i.price + ')').join(', '))}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,#4169E1,#2c4fd4);color:#fff;border-radius:14px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(65,105,225,0.4);transition:all 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Order via WhatsApp 💬</a>
+        <button onclick="clearCart()" style="width:100%;padding:10px;margin-top:8px;background:none;border:1.5px solid rgba(239,68,68,.3);border-radius:10px;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#ef4444';this.style.color='#fff';this.style.borderColor='#ef4444'" onmouseout="this.style.background='none';this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,.3)'">Clear Cart</button>
+      </div>
+    `;
+  }
+  document.body.appendChild(popup);
+}
+
+function removeCartItem(index) {
+  cart.splice(index, 1);
+  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  updateCartBadge();
+  // Re-render popup
+  document.getElementById('cartPopup')?.remove();
+  toggleCartPopup();
+  // Update product buttons on page
+  refreshAddButtons();
+}
+
+function clearCart() {
+  cart = [];
+  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  updateCartBadge();
+  document.getElementById('cartPopup')?.remove();
+  toggleCartPopup();
+  // Reset all add buttons
+  refreshAddButtons();
+  showCartToast('Cart cleared', 'remove');
+}
+
+function refreshAddButtons() {
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    const card = btn.closest('.product-card');
+    if (!card) return;
+    const name = card.querySelector('.prod-name')?.textContent?.trim();
+    if (name && cart.some(item => item.name === name)) {
+      btn.textContent = '✓ Added';
+      btn.style.background = '#10b981';
+      btn.style.boxShadow = '0 2px 8px rgba(16,185,129,0.35)';
+      btn.dataset.added = 'true';
+    } else {
+      btn.textContent = '+ Cart';
+      btn.style.background = '';
+      btn.style.boxShadow = '';
+      btn.dataset.added = 'false';
+    }
+  });
+}
+
+// Mark already-added products on page load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    const card = btn.closest('.product-card');
+    if (!card) return;
+    const name = card.querySelector('.prod-name')?.textContent?.trim();
+    if (name && cart.some(item => item.name === name)) {
+      btn.textContent = '✓ Added';
+      btn.style.background = '#10b981';
+      btn.style.boxShadow = '0 2px 8px rgba(16,185,129,0.35)';
+      btn.dataset.added = 'true';
+    }
+  });
+});
+
 function addToCart(btn) {
-  cartCount++;
-  btn.textContent = '✓ Added';
-  btn.style.background = '#10b981';
-  setTimeout(() => {
+  const card = btn.closest('.product-card');
+  if (!card) return;
+
+  const name = card.querySelector('.prod-name')?.textContent?.trim() || 'Product';
+  const priceText = card.querySelector('.prod-price')?.childNodes[0]?.textContent?.trim() || '₹0';
+
+  // If already added, remove from cart
+  if (btn.dataset.added === 'true') {
+    cart = cart.filter(item => item.name !== name);
+    sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
     btn.textContent = '+ Cart';
     btn.style.background = '';
-  }, 1800);
+    btn.style.boxShadow = '';
+    btn.dataset.added = 'false';
+    updateCartBadge();
+    showCartToast(`${name} removed from cart`, 'remove');
+    return;
+  }
+
+  // Add to cart
+  cart.push({ name, price: priceText });
+  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  btn.dataset.added = 'true';
+
+  // Visual feedback — stays as "Added"
+  btn.textContent = '✓ Added';
+  btn.style.background = '#10b981';
+  btn.style.boxShadow = '0 2px 8px rgba(16,185,129,0.35)';
+
+  // Update badge
+  updateCartBadge();
+
+  // Toast notification
+  showCartToast(`${name} added to cart!`, 'add');
+}
+
+// Toast notification system
+function showCartToast(message, type) {
+  // Remove any existing toast
+  const existing = document.querySelector('.cart-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'cart-toast';
+  const bgColor = type === 'add' ? '#10b981' : '#ef4444';
+  const icon = type === 'add' ? '🛒' : '✕';
+  toast.innerHTML = `<span style="font-size:18px;margin-right:8px">${icon}</span> ${message}`;
+  toast.style.cssText = `
+    position: fixed; bottom: 100px; right: 24px; z-index: 9999;
+    background: ${bgColor}; color: #fff; padding: 14px 24px; border-radius: 14px;
+    font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    display: flex; align-items: center;
+    animation: toastIn 0.4s cubic-bezier(.34,1.56,.64,1), toastOut 0.3s ease 2.5s forwards;
+  `;
+  document.body.appendChild(toast);
+
+  // Add animation keyframes if not already present
+  if (!document.getElementById('toastCSS')) {
+    const style = document.createElement('style');
+    style.id = 'toastCSS';
+    style.textContent = `
+      @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => toast.remove(), 3000);
 }
 
 // ── Price range label ─────────────────────────
