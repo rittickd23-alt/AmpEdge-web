@@ -2,6 +2,35 @@
    AMPEDGE — Premium Main JavaScript
    ============================================ */
 
+// ── Global Data Store ────────────────────────
+const defaultServices = [
+  { id: 's1', name: 'Wiring Repair', description: 'Fix faulty wires and circuits safely.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true },
+  { id: 's2', name: 'MCB Setup', description: 'Install distribution boards and MCBs.', category: 'INSTALLATION', basePrice: 2299, duration: 120, city: 'Howrah', active: true },
+  { id: 's3', name: 'Smart Home Hub', description: 'Automated lighting and switches.', category: 'INSTALLATION', basePrice: 4999, duration: 180, city: 'Kolkata', active: true },
+  { id: 's4', name: 'Emergency Visit', description: 'Quick dispatch 24/7 for urgent failures.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true },
+];
+
+const defaultProducts = [
+  { id: 'p1', name: 'Havells Coral Smart Switch', description: '6A wifi-enabled smart switch.', category: 'SMART_HOME', basePrice: 349, stock: 50, active: true, image: '💡' },
+  { id: 'p2', name: 'Finolex FR PVC Wire', description: '2.5sqmm 90m coil.', category: 'WIRING_MATERIALS', basePrice: 2299, stock: 35, active: true, image: '🪢' },
+  { id: 'p3', name: 'Legrand Arteor USB', description: 'Fast charging wall socket.', category: 'WIRING_MATERIALS', basePrice: 1249, stock: 15, active: true, image: '🔌' },
+  { id: 'p4', name: 'Philips LED Batten', description: '20W ultra slim LED tube.', category: 'LIGHTING_FIXTURES', basePrice: 449, stock: 100, active: true, image: '💡' },
+  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: '🌀' }
+];
+
+window.getAmpEdgeServices = () => {
+  const data = localStorage.getItem('ampedge_services');
+  if (data) return JSON.parse(data).filter(s => s.active);
+  localStorage.setItem('ampedge_services', JSON.stringify(defaultServices));
+  return defaultServices;
+};
+
+window.getAmpEdgeProducts = () => {
+  const data = localStorage.getItem('ampedge_products');
+  if (data) return JSON.parse(data).filter(p => p.active);
+  localStorage.setItem('ampedge_products', JSON.stringify(defaultProducts));
+  return defaultProducts;
+};
 // ── Navbar scroll ────────────────────────────
 window.addEventListener('scroll', () => {
   const n = document.getElementById('navbar');
@@ -73,18 +102,153 @@ setInterval(() => {
   updateDots();
 }, 5000);
 
+// ── Service logic ────────────────────────────────
+let currentSelectedService = null;
+
+function renderBookingServices() {
+  const container = document.getElementById('serviceChipsContainer');
+  if (!container) return; // not on booking page
+  
+  const services = window.getAmpEdgeServices();
+  if (services.length === 0) {
+    container.innerHTML = '<div style="color:var(--muted)">No services available</div>';
+    return;
+  }
+  
+  container.innerHTML = services.map((s, idx) => `
+    <div class="svc-chip ${idx === 0 ? 'selected' : ''}" onclick="chipSel(this)" data-id="${s.id}">
+      ⚡ ${s.name}
+    </div>
+  `).join('');
+  
+  currentSelectedService = services[0];
+  updateBookingSummary();
+}
+
+function updateBookingSummary() {
+  if (!currentSelectedService) return;
+  
+  const pName = document.getElementById('summarySvcName');
+  const pPrice = document.getElementById('summarySvcPrice');
+  const pGst = document.getElementById('summaryGstPrice');
+  const pTotal = document.getElementById('summaryTotalPrice');
+  
+  if (pName) pName.textContent = `⚡ ${currentSelectedService.name}`;
+  
+  const base = currentSelectedService.basePrice;
+  const platform = 49;
+  const gst = Math.round((base + platform) * 0.18);
+  const total = base + platform + gst;
+  
+  if (pPrice) pPrice.textContent = `₹${base.toLocaleString('en-IN')}`;
+  if (pGst) pGst.textContent = `₹${gst.toLocaleString('en-IN')}`;
+  if (pTotal) pTotal.textContent = `₹${total.toLocaleString('en-IN')}`;
+}
+
 // ── Service Chip Select ───────────────────────
 function chipSel(el) {
   const group = el.closest('div');
   if (!group) return;
   group.querySelectorAll('.svc-chip').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
+  
+  const sid = el.getAttribute('data-id');
+  const services = window.getAmpEdgeServices();
+  const matched = services.find(s => s.id === sid);
+  if (matched) {
+    currentSelectedService = matched;
+    updateBookingSummary();
+  }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderBookingServices();
+});
+
+// ── Marketplace rendering ─────────────────────────────
+let currentCategoryFilter = 'ALL';
+let currentSearchTerm = '';
+let currentPriceLimit = Infinity;
+
+function renderMarketplaceProducts() {
+  const grid = document.getElementById('productGrid');
+  if (!grid) return; // Not on marketplace page
+
+  const products = window.getAmpEdgeProducts();
+  
+  const filtered = products.filter(p => {
+    // filter by search term
+    if (currentSearchTerm && !p.name.toLowerCase().includes(currentSearchTerm.toLowerCase())) return false;
+    
+    // filter by category
+    if (currentCategoryFilter !== 'ALL') {
+      const match = {
+        'Switches': ['SMART_HOME', 'WIRING_MATERIALS'],
+        'Wires & Cables': ['WIRING_MATERIALS'],
+        'MCB & DB': ['WIRING_MATERIALS'],
+        'LED Lighting': ['LIGHTING_FIXTURES'],
+        'Fans': ['APPLIANCES'],
+      }[currentCategoryFilter] || [];
+      if (!match.includes(p.category)) return false;
+    }
+    
+    // filter by price
+    if (p.basePrice > currentPriceLimit) return false;
+    
+    return true;
+  });
+
+  const countDiv = document.querySelector('.mp-count');
+  if (countDiv) countDiv.innerHTML = `Showing <strong>${filtered.length} products</strong>`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted)">No products found matching your criteria.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <span style="font-size:32px">${p.image || '📦'}</span>
+        ${p.stock < 20 ? '<div class="prod-badge"><span class="badge badge-orange">Limited Stock</span></div>' : ''}
+        <div class="prod-wish">♡</div>
+      </div>
+      <div class="product-info">
+        <div class="prod-brand">${p.category.replace('_', ' ')}</div>
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-rating"><span class="stars">★★★★★</span>4.8</div>
+        <div class="prod-footer">
+          <div class="prod-price">₹${p.basePrice.toLocaleString('en-IN')}</div>
+          <button class="add-btn" onclick="addToCart(this)" data-added="false">+ Cart</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  if (typeof refreshAddButtons === 'function') refreshAddButtons();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderMarketplaceProducts();
+  
+  const searchInput = document.querySelector('.search-input');
+  const searchBtn = document.querySelector('.search-bar .btn-primary');
+  
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearchTerm = e.target.value;
+      renderMarketplaceProducts();
+    });
+  }
+});
 
 // ── Category chip ─────────────────────────────
 function chipClick(el) {
   document.querySelectorAll('.chip-item').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  const cat = el.textContent.trim();
+  currentCategoryFilter = cat === 'All Products' ? 'ALL' : cat;
+  renderMarketplaceProducts();
 }
 
 // ── Date select ───────────────────────────────
@@ -102,7 +266,7 @@ function timeClick(el) {
 }
 
 // ── Add to cart ───────────────────────────────
-let cart = JSON.parse(sessionStorage.getItem('ampedge_cart') || '[]');
+let cart = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
 
 // Update all cart badges on page load
 function updateCartBadge() {
@@ -156,7 +320,7 @@ function toggleCartPopup() {
     animation: toastIn 0.3s cubic-bezier(.34,1.56,.64,1);
   `;
 
-  const items = JSON.parse(sessionStorage.getItem('ampedge_cart') || '[]');
+  const items = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
 
   if (items.length === 0) {
     popup.innerHTML = `
@@ -195,7 +359,7 @@ function toggleCartPopup() {
           <span style="font-size:14px;font-weight:600;color:#6b7280">Total</span>
           <span style="font-size:18px;font-weight:900;color:#4169E1">₹${total.toLocaleString('en-IN')}</span>
         </div>
-        <a href="https://wa.me/919123667258?text=Hi!%20I'd%20like%20to%20order%20these%20products%20from%20AmpEdge:%20${encodeURIComponent(items.map(i => i.name + ' (' + i.price + ')').join(', '))}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,#4169E1,#2c4fd4);color:#fff;border-radius:14px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(65,105,225,0.4);transition:all 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Order via WhatsApp 💬</a>
+        <a href="javascript:void(0)" onclick="openCheckout(true)" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:linear-gradient(135deg,#4169E1,#2c4fd4);color:#fff;border-radius:14px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(65,105,225,0.4);transition:all 0.2s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Checkout Now 🔒</a>
         <button onclick="clearCart()" style="width:100%;padding:10px;margin-top:8px;background:none;border:1.5px solid rgba(239,68,68,.3);border-radius:10px;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#ef4444';this.style.color='#fff';this.style.borderColor='#ef4444'" onmouseout="this.style.background='none';this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,.3)'">Clear Cart</button>
       </div>
     `;
@@ -205,7 +369,7 @@ function toggleCartPopup() {
 
 function removeCartItem(index) {
   cart.splice(index, 1);
-  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  localStorage.setItem('ampedge_cart', JSON.stringify(cart));
   updateCartBadge();
   // Re-render popup
   document.getElementById('cartPopup')?.remove();
@@ -216,7 +380,7 @@ function removeCartItem(index) {
 
 function clearCart() {
   cart = [];
-  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  localStorage.setItem('ampedge_cart', JSON.stringify(cart));
   updateCartBadge();
   document.getElementById('cartPopup')?.remove();
   toggleCartPopup();
@@ -269,7 +433,7 @@ function addToCart(btn) {
   // If already added, remove from cart
   if (btn.dataset.added === 'true') {
     cart = cart.filter(item => item.name !== name);
-    sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+    localStorage.setItem('ampedge_cart', JSON.stringify(cart));
     btn.textContent = '+ Cart';
     btn.style.background = '';
     btn.style.boxShadow = '';
@@ -281,7 +445,7 @@ function addToCart(btn) {
 
   // Add to cart
   cart.push({ name, price: priceText });
-  sessionStorage.setItem('ampedge_cart', JSON.stringify(cart));
+  localStorage.setItem('ampedge_cart', JSON.stringify(cart));
   btn.dataset.added = 'true';
 
   // Visual feedback — stays as "Added"
@@ -335,6 +499,10 @@ function showCartToast(message, type) {
 function updatePrice(val) {
   const lbl = document.getElementById('priceLabel');
   if (lbl) lbl.textContent = +val >= 9999 ? 'Any price' : `Up to ₹${parseInt(val).toLocaleString('en-IN')}`;
+  if (typeof currentPriceLimit !== 'undefined') {
+    currentPriceLimit = +val >= 9999 ? Infinity : +val;
+    renderMarketplaceProducts();
+  }
 }
 
 // ── Partner tab ───────────────────────────────
@@ -498,4 +666,138 @@ window.sendEmbeddedMsg = function() {
     b.innerHTML += `<div class="chat-msg bot-msg" style="${botMsgStyle}">${reply}</div>`;
     b.scrollTop = b.scrollHeight;
   }, 1200);
+};
+
+// Checkout & Payment Logic
+window.openCheckout = function(isCart = false) {
+  const modal = document.getElementById('checkoutModal');
+  if(!modal) return;
+  
+  const modalTotal = document.getElementById('checkoutTotalAmount');
+  if (isCart) {
+    const items = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
+    let total = 0;
+    items.forEach(i => total += parseInt(i.price.replace(/[^0-9]/g, '')) || 0);
+    if(modalTotal) modalTotal.textContent = '₹' + total.toLocaleString('en-IN');
+  } else {
+    // Get final price from summary if any
+    const summaryTotal = document.getElementById('summaryTotalPrice');
+    if(summaryTotal && modalTotal) {
+      modalTotal.textContent = summaryTotal.textContent.trim() || '₹1,590';
+    } else if (modalTotal) {
+      modalTotal.textContent = '₹1,590';
+    }
+  }
+  
+  modal.classList.add('active');
+};
+
+window.switchCheckoutTab = function(tabId) {
+  // Update Tabs
+  document.querySelectorAll('.chk-tab').forEach(t => {
+    t.classList.remove('active');
+    t.style.borderBottomColor = 'transparent';
+    t.style.color = 'var(--text-muted)';
+  });
+  const activeBtn = event.currentTarget;
+  activeBtn.classList.add('active');
+  activeBtn.style.borderBottomColor = 'var(--blue)';
+  activeBtn.style.color = 'var(--blue)';
+  
+  // Update Panes
+  document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+  const pane = document.getElementById('tab-' + tabId);
+  if(pane) pane.style.display = 'block';
+};
+
+window.processMockPayment = function() {
+  const btn = document.getElementById('paySecureBtn');
+  const orgText = btn.innerHTML;
+  btn.innerHTML = 'Processing... ⏳';
+  btn.style.opacity = '0.8';
+  btn.style.pointerEvents = 'none';
+  
+  setTimeout(() => {
+    btn.innerHTML = orgText;
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    
+    // Hide checkout, show success
+    document.getElementById('checkoutModal').classList.remove('active');
+    
+    // Generate Random Ref Number
+    const refNumber = Math.floor(100000 + Math.random() * 900000);
+    const refEl = document.getElementById('bookingRefId');
+    if(refEl) refEl.textContent = refNumber; // 6 digits
+    
+    // Determine payment details
+    const amountText = document.getElementById('checkoutTotalAmount')?.textContent || '0';
+    const amount = parseInt(amountText.replace(/[^0-9]/g, '')) || 0;
+    
+    let method = 'UPI';
+    if(document.getElementById('tab-card')?.style.display === 'block') method = 'Card';
+    else if(document.getElementById('tab-netbanking')?.style.display === 'block') method = 'Net Banking';
+    
+    // Try to find customer name from form if it exists
+    const nameInputs = document.querySelectorAll('input[placeholder="Rahul Sharma"], input[placeholder="e.g. Rahul Sharma"]');
+    let customerName = 'Guest User';
+    nameInputs.forEach(input => {
+      if (input.value.trim() !== '') customerName = input.value.trim();
+    });
+    
+    // 1) Save to Payments
+    let payments = JSON.parse(localStorage.getItem('ampedge_payments') || 'null');
+    if (!payments) {
+      payments = [
+        { tx: 'TXN-984210', date: '2026-03-20 14:30', cust: 'Neha Gupta', amt: 548, method: 'UPI', status: 'Success' },
+        { tx: 'TXN-984209', date: '2026-03-19 11:15', cust: 'Vikas Singh', amt: 948, method: 'Credit Card', status: 'Success' },
+        { tx: 'TXN-984208', date: '2026-03-18 09:00', cust: 'Vishal Roy', amt: 1299, method: 'Net Banking', status: 'Refunded' },
+        { tx: 'TXN-984207', date: '2026-03-17 16:45', cust: 'Sunil Das', amt: 349, method: 'UPI', status: 'Success' }
+      ];
+    }
+    
+    const now = new Date();
+    const formattedDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    
+    payments.unshift({
+      tx: 'TXN-' + refNumber,
+      date: formattedDate,
+      cust: customerName,
+      amt: amount,
+      method: method,
+      status: 'Success'
+    });
+    localStorage.setItem('ampedge_payments', JSON.stringify(payments));
+    
+    // 2) Save to Bookings (if on booking page)
+    const isMarketplace = window.location.pathname.includes('marketplace.html');
+    if (!isMarketplace) {
+      let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || 'null');
+      if (!bookings) {
+        bookings = [
+          { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048 },
+          { id: 'B-10041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348 },
+          { id: 'B-10040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548 },
+          { id: 'B-10039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948 },
+          { id: 'B-10038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0 }
+        ];
+      }
+      
+      const serviceName = document.getElementById('summarySvcName')?.textContent.replace('⚡', '').trim() || 'Electrical Service';
+      bookings.unshift({
+        id: 'B-' + refNumber,
+        date: formattedDate.split(' ')[0],
+        customer: customerName,
+        service: serviceName,
+        status: 'Pending',
+        tech: 'Unassigned',
+        amount: amount
+      });
+      localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+    }
+    
+    // Show success Modal
+    const successModal = document.getElementById('successModal');
+    if(successModal) successModal.classList.add('active');
+  }, 2000);
 };
