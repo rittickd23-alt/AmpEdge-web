@@ -31,6 +31,43 @@ window.getAmpEdgeProducts = () => {
   localStorage.setItem('ampedge_products', JSON.stringify(defaultProducts));
   return defaultProducts;
 };
+
+// Initialize Customer List
+const defaultCustomers = [
+  { id: 'C-084', name: 'Rahul Sharma', phone: '+91 98765 43210', loc: 'Howrah', spend: 12500, orders: 4, lastActive: '2 Days Ago' },
+  { id: 'C-085', name: 'Amit Verma', phone: '+91 91234 56789', loc: 'Kolkata', spend: 8900, orders: 2, lastActive: '1 Week Ago' },
+  { id: 'C-086', name: 'Neha Gupta', phone: '+91 99887 76655', loc: 'Salt Lake', spend: 24500, orders: 8, lastActive: 'Today' },
+  { id: 'C-087', name: 'Vikas Singh', phone: '+91 98711 22334', loc: 'Howrah', spend: 1200, orders: 1, lastActive: '1 Month Ago' },
+];
+
+if (!localStorage.getItem('ampedge_customers')) {
+  localStorage.setItem('ampedge_customers', JSON.stringify(defaultCustomers));
+}
+
+// Initialize Payments List
+const defaultPayments = [
+  { tx: 'TXN-984210', date: '2026-03-20 14:30', cust: 'Neha Gupta', amt: 548, method: 'UPI', status: 'Success' },
+  { tx: 'TXN-984209', date: '2026-03-19 11:15', cust: 'Vikas Singh', amt: 948, method: 'Credit Card', status: 'Success' },
+  { tx: 'TXN-984208', date: '2026-03-18 09:00', cust: 'Vishal Roy', amt: 1299, method: 'Net Banking', status: 'Refunded' },
+  { tx: 'TXN-984207', date: '2026-03-17 16:45', cust: 'Sunil Das', amt: 349, method: 'UPI', status: 'Success' }
+];
+
+if (!localStorage.getItem('ampedge_payments')) {
+  localStorage.setItem('ampedge_payments', JSON.stringify(defaultPayments));
+}
+
+// Initialize Bookings List
+const defaultBookings = [
+  { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048 },
+  { id: 'B-1041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348 },
+  { id: 'B-1040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548 },
+  { id: 'B-1039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948 },
+  { id: 'B-1038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0 }
+];
+
+if (!localStorage.getItem('ampedge_bookings')) {
+  localStorage.setItem('ampedge_bookings', JSON.stringify(defaultBookings));
+}
 // ── Navbar scroll ────────────────────────────
 window.addEventListener('scroll', () => {
   const n = document.getElementById('navbar');
@@ -163,6 +200,82 @@ function chipSel(el) {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderBookingServices();
+  renderHomeDynamicSections();
+});
+
+window.renderHomeDynamicSections = () => {
+  const services = window.getAmpEdgeServices();
+  const products = window.getAmpEdgeProducts();
+
+  // 1. Hero Dashboard (Live Service Dashboard)
+  const heroDash = document.querySelector('.hero-main-card');
+  if (heroDash) {
+    const dashServices = services.slice(0, 4);
+    const rows = heroDash.querySelectorAll('.service-row');
+    dashServices.forEach((s, i) => {
+      if (rows[i]) {
+        const nameEl = rows[i].querySelector('.sr-name');
+        const priceEl = rows[i].querySelector('.sr-price');
+        if(nameEl) nameEl.textContent = s.name;
+        if(priceEl) priceEl.textContent = `₹${s.basePrice.toLocaleString('en-IN')}`;
+      }
+    });
+  }
+
+  // 2. Our Services Grid
+  const svcGrid = document.getElementById('homeServicesGrid');
+  if (svcGrid) {
+    const homeServices = services.slice(0, 4);
+    svcGrid.innerHTML = homeServices.map((s, i) => {
+      let icon = '⚡';
+      if (s.category === 'REPAIR') icon = '🔧';
+      else if (s.category === 'INSTALLATION') icon = '🔌';
+      else if (s.category === 'COMMERCIAL') icon = '🏭';
+      else if (s.category === 'EMERGENCY') icon = '🚨';
+      
+      return `
+        <div class="svc-card fade-up" style="transition-delay:${i * 0.08}s">
+          <div class="svc-icon-wrap">${icon}</div>
+          <h3>${s.name}</h3>
+          <p>${s.description}</p>
+          <a href="booking.html" class="svc-link">Book Now <span>→</span></a>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 3. Marketplace Categories Preview
+  const mpGrid = document.getElementById('homeMarketplaceGrid');
+  if (mpGrid) {
+    // Group by category
+    const catsMap = {};
+    products.forEach(p => {
+      if (!catsMap[p.category]) catsMap[p.category] = { count: 0, icon: p.image || '📦' };
+      catsMap[p.category].count++;
+    });
+    
+    const categories = Object.keys(catsMap).slice(0, 5);
+    mpGrid.innerHTML = categories.map((cat, i) => {
+      const data = catsMap[cat];
+      const label = cat.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+      return `
+        <a href="marketplace.html" class="mpc fade-up" style="transition-delay:${i * 0.08}s">
+          <span class="mpc-icon">${data.icon}</span>
+          <h4>${label}</h4>
+          <span class="mpc-count">${data.count > 40 ? data.count : (data.count + 40)}+ Products</span>
+        </a>
+      `;
+    }).join('');
+  }
+};
+
+// Listen for storage changes to sync across tabs instantly
+window.addEventListener('storage', (e) => {
+  if (e.key === 'ampedge_services' || e.key === 'ampedge_products') {
+    renderHomeDynamicSections();
+    renderBookingServices();
+    renderMarketplaceProducts();
+  }
 });
 
 // ── Marketplace rendering ─────────────────────────────
@@ -710,6 +823,52 @@ window.switchCheckoutTab = function(tabId) {
   if(pane) pane.style.display = 'block';
 };
 
+window.processPayment = function() {
+  const rzpKey = localStorage.getItem('ampedge_razorpay_key');
+  if (rzpKey && typeof Razorpay !== 'undefined') {
+    processRazorpayPayment(rzpKey);
+  } else {
+    processMockPayment();
+  }
+};
+
+window.processRazorpayPayment = function(key) {
+  const btn = document.getElementById('paySecureBtn');
+  const amountText = document.getElementById('checkoutTotalAmount')?.textContent || '0';
+  const amount = parseInt(amountText.replace(/[^0-9]/g, '')) || 0;
+  
+  // Get Customer Details
+  let cName = document.querySelector('#checkoutName')?.value.trim() || 
+              document.querySelector('input[placeholder="Rahul Sharma"]')?.value.trim() || "Customer";
+  let cPhone = document.querySelector('#checkoutPhone')?.value.trim() || 
+               document.querySelector('input[placeholder="+91 98765 43210"]')?.value.trim() || "0000000000";
+
+  const options = {
+    "key": key,
+    "amount": amount * 100, // Razorpay takes paisa
+    "currency": "INR",
+    "name": "AMPEdge",
+    "description": "Electrical Service / Product Purchase",
+    "image": "images/admin-logo.png",
+    "handler": function (response){
+      // Success Callback
+      saveTransaction(response.razorpay_payment_id, amount, cName, cPhone, 'Razorpay');
+      completeCheckoutFlow(response.razorpay_payment_id);
+    },
+    "prefill": {
+      "name": cName,
+      "contact": cPhone
+    },
+    "theme": { "color": "#4169E1" }
+  };
+  
+  const rzp = new Razorpay(options);
+  rzp.on('payment.failed', function (response){
+    alert("Payment Failed: " + response.error.description);
+  });
+  rzp.open();
+};
+
 window.processMockPayment = function() {
   const btn = document.getElementById('paySecureBtn');
   const orgText = btn.innerHTML;
@@ -722,82 +881,178 @@ window.processMockPayment = function() {
     btn.style.opacity = '1';
     btn.style.pointerEvents = 'auto';
     
-    // Hide checkout, show success
-    document.getElementById('checkoutModal').classList.remove('active');
-    
     // Generate Random Ref Number
-    const refNumber = Math.floor(100000 + Math.random() * 900000);
-    const refEl = document.getElementById('bookingRefId');
-    if(refEl) refEl.textContent = refNumber; // 6 digits
+    const refId = 'MOCK-' + Math.floor(100000 + Math.random() * 900000);
     
     // Determine payment details
     const amountText = document.getElementById('checkoutTotalAmount')?.textContent || '0';
     const amount = parseInt(amountText.replace(/[^0-9]/g, '')) || 0;
     
-    let method = 'UPI';
-    if(document.getElementById('tab-card')?.style.display === 'block') method = 'Card';
-    else if(document.getElementById('tab-netbanking')?.style.display === 'block') method = 'Net Banking';
-    
-    // Try to find customer name from form if it exists
-    const nameInputs = document.querySelectorAll('input[placeholder="Rahul Sharma"], input[placeholder="e.g. Rahul Sharma"]');
-    let customerName = 'Guest User';
-    nameInputs.forEach(input => {
-      if (input.value.trim() !== '') customerName = input.value.trim();
-    });
-    
-    // 1) Save to Payments
-    let payments = JSON.parse(localStorage.getItem('ampedge_payments') || 'null');
-    if (!payments) {
-      payments = [
-        { tx: 'TXN-984210', date: '2026-03-20 14:30', cust: 'Neha Gupta', amt: 548, method: 'UPI', status: 'Success' },
-        { tx: 'TXN-984209', date: '2026-03-19 11:15', cust: 'Vikas Singh', amt: 948, method: 'Credit Card', status: 'Success' },
-        { tx: 'TXN-984208', date: '2026-03-18 09:00', cust: 'Vishal Roy', amt: 1299, method: 'Net Banking', status: 'Refunded' },
-        { tx: 'TXN-984207', date: '2026-03-17 16:45', cust: 'Sunil Das', amt: 349, method: 'UPI', status: 'Success' }
-      ];
-    }
-    
-    const now = new Date();
-    const formattedDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-    
-    payments.unshift({
-      tx: 'TXN-' + refNumber,
-      date: formattedDate,
-      cust: customerName,
-      amt: amount,
-      method: method,
-      status: 'Success'
-    });
-    localStorage.setItem('ampedge_payments', JSON.stringify(payments));
-    
-    // 2) Save to Bookings (if on booking page)
-    const isMarketplace = window.location.pathname.includes('marketplace.html');
-    if (!isMarketplace) {
-      let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || 'null');
-      if (!bookings) {
-        bookings = [
-          { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048 },
-          { id: 'B-10041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348 },
-          { id: 'B-10040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548 },
-          { id: 'B-10039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948 },
-          { id: 'B-10038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0 }
-        ];
-      }
-      
-      const serviceName = document.getElementById('summarySvcName')?.textContent.replace('⚡', '').trim() || 'Electrical Service';
-      bookings.unshift({
-        id: 'B-' + refNumber,
-        date: formattedDate.split(' ')[0],
-        customer: customerName,
-        service: serviceName,
-        status: 'Pending',
-        tech: 'Unassigned',
-        amount: amount
-      });
-      localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
-    }
-    
-    // Show success Modal
-    const successModal = document.getElementById('successModal');
-    if(successModal) successModal.classList.add('active');
-  }, 2000);
+    let cName = document.querySelector('#checkoutName')?.value.trim() || 
+                document.querySelector('input[placeholder="Rahul Sharma"]')?.value.trim() || "Guest User";
+    let cPhone = document.querySelector('#checkoutPhone')?.value.trim() || 
+                 document.querySelector('input[placeholder="+91 98765 43210"]')?.value.trim() || "No Phone";
+
+    saveTransaction(refId, amount, cName, cPhone, 'Mock UPI');
+    completeCheckoutFlow(refId);
+  }, 1500);
 };
+
+function saveTransaction(id, amount, cName, cPhone, method) {
+  const now = new Date();
+  const formattedDate = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].substring(0, 5);
+  
+  // 1) Save to Payments
+  let payments = JSON.parse(localStorage.getItem('ampedge_payments') || '[]');
+  payments.unshift({ tx: 'TXN-' + id, date: formattedDate, cust: cName, amt: amount, method: method, status: 'Success' });
+  localStorage.setItem('ampedge_payments', JSON.stringify(payments));
+  
+  // 2) Save to Bookings (if on booking page)
+  if (window.location.pathname.includes('booking.html')) {
+    let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+    const svcName = document.getElementById('summarySvcName')?.textContent.replace('⚡ ', '') || 'General Service';
+    bookings.unshift({ 
+      id: 'B-' + id, 
+      date: now.toISOString().split('T')[0], 
+      customer: cName, 
+      service: svcName, 
+      status: 'Pending', 
+      tech: 'Unassigned', 
+      amount: amount 
+    });
+    localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+  }
+  
+  // 3) Update Customers
+  let customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
+  let exist = customers.find(c => c.phone === cPhone);
+  if (exist) {
+    exist.spend += amount;
+    exist.orders += 1;
+    exist.lastActive = 'Today';
+  } else {
+    customers.unshift({ id: 'C-' + Math.floor(100+Math.random()*900), name: cName, phone: cPhone, loc: 'Unknown', spend: amount, orders: 1, lastActive: 'Today' });
+  }
+  localStorage.setItem('ampedge_customers', JSON.stringify(customers));
+}
+
+function completeCheckoutFlow(id) {
+  // Hide checkout, show success
+  document.getElementById('checkoutModal').classList.remove('active');
+  const refEl = document.getElementById('bookingRefId');
+  if(refEl) refEl.textContent = id;
+  
+  // Show success modal if exists
+  const successModal = document.getElementById('successModal');
+  if (successModal) {
+    successModal.classList.add('active');
+  } else {
+    alert("Payment Successful! Ref ID: " + id);
+  }
+  
+  localStorage.removeItem('ampedge_cart');
+  if (typeof updateCartBadge === 'function') updateCartBadge();
+}
+
+// ── Technician Portal Logic ───────────────────
+window.openTechLogin = () => {
+  const modal = document.getElementById('techLoginModal');
+  if(modal) modal.classList.add('active');
+};
+
+window.logoutTech = () => {
+  sessionStorage.removeItem('tech_auth');
+  document.getElementById('techPortal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.processTechLogin = () => {
+  const pass = document.getElementById('techPass').value;
+  const err = document.getElementById('techLoginError');
+  
+  if (pass === 'Tech2026') {
+    sessionStorage.setItem('tech_auth', 'true');
+    document.getElementById('techLoginModal').classList.remove('active');
+    showTechPortal();
+  } else {
+    if(err) err.style.display = 'block';
+  }
+};
+
+function showTechPortal() {
+  const portal = document.getElementById('techPortal');
+  if(!portal) return;
+  portal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  renderTechJobs();
+}
+
+window.renderTechJobs = () => {
+  const bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+  const availableList = document.getElementById('availableJobsList');
+  const myJobsList = document.getElementById('myJobsList');
+  
+  if(!availableList || !myJobsList) return;
+  
+  // Available Jobs (Unassigned)
+  const available = bookings.filter(b => b.tech === 'Unassigned' && b.status !== 'Cancelled');
+  availableList.innerHTML = available.length ? available.map(b => `
+    <div style="background:#fff; padding:18px; border-radius:12px; border:1px solid #e2e8f0">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+        <span style="font-size:12px; font-weight:700; color:#1e56a0">${b.id}</span>
+        <span style="font-size:12px; font-weight:700; color:#059669">₹${b.amount}</span>
+      </div>
+      <h4 style="margin:0 0 4px 0; font-size:15px">${b.service}</h4>
+      <p style="margin:0; font-size:13px; color:#64748b">📅 ${b.date} · 📍 4.2km away</p>
+      <button class="btn btn-primary btn-sm" style="width:100%; margin-top:14px; padding:10px" onclick="acceptJob('${b.id}')">Accept Job</button>
+    </div>
+  `).join('') : '<p style="text-align:center; color:#64748b; font-size:14px; padding:20px">No new jobs available right now.</p>';
+
+  // My Jobs (Assigned to Ramesh Kumar - Mock Name)
+  const myJobs = bookings.filter(b => b.tech === 'Ramesh K.' || b.tech === 'Ramesh Kumar');
+  myJobsList.innerHTML = myJobs.length ? myJobs.map(b => `
+    <div style="background:#fff; padding:18px; border-radius:12px; border:2px solid ${b.status === 'Completed' ? '#059669' : '#2979ff'}">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+        <span style="font-size:12px; font-weight:700; color:#1e56a0">${b.id}</span>
+        <span class="badge ${b.status === 'Completed' ? 'badge-green' : 'badge-blue'}">${b.status}</span>
+      </div>
+      <h4 style="margin:0 0 4px 0; font-size:15px">${b.service}</h4>
+      <p style="margin:0; font-size:13px; color:#64748b">👤 ${b.customer} · 📍 Howrah</p>
+      ${b.status !== 'Completed' ? `<button class="btn btn-outline btn-sm" style="width:100%; margin-top:14px; padding:10px" onclick="completeJob('${b.id}')">Mark as Completed</button>` : ''}
+    </div>
+  `).join('') : '<p style="text-align:center; color:#64748b; font-size:14px; padding:20px">You haven\'t accepted any jobs yet.</p>';
+  
+  // Update Earnings
+  const earnings = myJobs.filter(b => b.status === 'Completed').reduce((sum, b) => sum + b.amount, 0);
+  const earningsEl = document.getElementById('techEarnings');
+  if(earningsEl) earningsEl.textContent = '₹' + (28450 + earnings).toLocaleString('en-IN');
+  const activeCountEl = document.getElementById('techActiveCount');
+  if(activeCountEl) activeCountEl.textContent = myJobs.filter(b => b.status !== 'Completed').length;
+};
+
+window.acceptJob = (id) => {
+  let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+  const idx = bookings.findIndex(b => b.id === id);
+  if(idx !== -1) {
+    bookings[idx].tech = 'Ramesh K.';
+    bookings[idx].status = 'In Progress';
+    localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+    renderTechJobs();
+  }
+};
+
+window.completeJob = (id) => {
+  let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+  const idx = bookings.findIndex(b => b.id === id);
+  if(idx !== -1) {
+    bookings[idx].status = 'Completed';
+    localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+    renderTechJobs();
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('tech_auth') === 'true') {
+    showTechPortal();
+  }
+});

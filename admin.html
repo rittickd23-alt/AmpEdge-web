@@ -68,12 +68,14 @@
 
       <nav class="sidebar-nav">
         <a class="nav-link active" onclick="navigate('dashboard')"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="index.html" class="nav-link"><i data-lucide="globe"></i> Main Website</a>
         <a class="nav-link" onclick="navigate('bookings')"><i data-lucide="calendar-check"></i> Bookings</a>
         <a class="nav-link" onclick="navigate('customers')"><i data-lucide="users"></i> Customers</a>
         <a class="nav-link" onclick="navigate('payments')"><i data-lucide="credit-card"></i> Payments</a>
         <a class="nav-link" onclick="navigate('services')"><i data-lucide="wrench"></i> Services</a>
         <a class="nav-link" onclick="navigate('store')"><i data-lucide="shopping-cart"></i> Store</a>
         <a class="nav-link" onclick="navigate('analysis')"><i data-lucide="bar-chart-2"></i> Tech Analysis</a>
+        <a class="nav-link" onclick="navigate('settings')"><i data-lucide="settings"></i> Payment Settings</a>
       </nav>
 
       <div class="sidebar-footer">
@@ -202,6 +204,7 @@
       else if (page === 'services') content.innerHTML = renderServices();
       else if (page === 'store') content.innerHTML = renderStore();
       else if (page === 'analysis') content.innerHTML = renderAnalysis();
+      else if (page === 'settings') content.innerHTML = renderSettings();
       
       lucide.createIcons();
     }
@@ -212,6 +215,10 @@
     function renderDashboard() {
       const services = JSON.parse(localStorage.getItem('ampedge_services') || '[]');
       const products = JSON.parse(localStorage.getItem('ampedge_products') || '[]');
+      const payments = JSON.parse(localStorage.getItem('ampedge_payments') || '[]');
+      const customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
+      
+      const totalRev = payments.reduce((sum, p) => sum + (p.status === 'Success' ? Number(p.amt) : 0), 0);
       
       return `
         <div class="page-header" style="animation: fadeIn 0.4s">
@@ -232,24 +239,31 @@
           <div class="stat-card">
             <div class="stat-icon" style="background: linear-gradient(135deg, #059669, #10b981)"><i data-lucide="shopping-cart"></i></div>
             <div>
-              <p style="margin:0; font-size:13px; color:var(--text-muted); font-weight:600">Marketplace Products</p>
+              <p style="margin:0; font-size:13px; color:var(--text-muted); font-weight:600">Store Products</p>
               <h3 style="margin:4px 0 0 0; font-size:24px; font-weight:800; font-family:var(--font-pjs)">${products.length}</h3>
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon" style="background: linear-gradient(135deg, #7c3aed, #a855f7)"><i data-lucide="users"></i></div>
+            <div class="stat-icon" style="background: linear-gradient(135deg, #7c3aed, #a855f7)"><i data-lucide="credit-card"></i></div>
             <div>
-              <p style="margin:0; font-size:13px; color:var(--text-muted); font-weight:600">Connected Users (Demo)</p>
-              <h3 style="margin:4px 0 0 0; font-size:24px; font-weight:800; font-family:var(--font-pjs)">12,450</h3>
+              <p style="margin:0; font-size:13px; color:var(--text-muted); font-weight:600">Total Revenue</p>
+              <h3 style="margin:4px 0 0 0; font-size:24px; font-weight:800; font-family:var(--font-pjs)">₹${totalRev.toLocaleString('en-IN')}</h3>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24)"><i data-lucide="users"></i></div>
+            <div>
+              <p style="margin:0; font-size:13px; color:var(--text-muted); font-weight:600">Total Customers</p>
+              <h3 style="margin:4px 0 0 0; font-size:24px; font-weight:800; font-family:var(--font-pjs)">${customers.length}</h3>
             </div>
           </div>
         </div>
         
         <div style="background: white; border-radius: 16px; padding: 24px; margin-top: 32px; border: 1px solid var(--border); animation: fadeIn 0.6s">
-          <h3 style="font-family: var(--font-pjs); margin-top: 0">Quick Reference Guide</h3>
+          <h3 style="font-family: var(--font-pjs); margin-top: 0">Platform Management</h3>
           <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6">
-            Welcome to the internal web dashboard. Changes made here in the <strong>Services</strong> and <strong>Store</strong> sections are saved locally (using localStorage) and will be instantly reflected on your live website's Booking and Marketplace pages.<br><br>
-            <em>Note: Because this is a static website deployment without a backend server, your administrative changes are confined to this specific browser. Connecting a database (like Firebase) would be required to sync edits across multiple devices automatically.</em>
+            All data shown here is being securely tracked via your browser's local storage. This includes <strong>${payments.length}</strong> transactions and <strong>${customers.length}</strong> registered customer profiles.<br><br>
+            To update your public service listings or marketplace inventory, use the <strong>Services</strong> and <strong>Store</strong> tabs in the sidebar.
           </p>
         </div>
       `;
@@ -257,17 +271,7 @@
 
     // --- BOOKINGS ---
     function renderBookings() {
-      let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || 'null');
-      if (!bookings) {
-        bookings = [
-          { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048 },
-          { id: 'B-10041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348 },
-          { id: 'B-10040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548 },
-          { id: 'B-10039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948 },
-          { id: 'B-10038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0 },
-        ];
-        localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
-      }
+      const bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
 
       let html = `
         <div class="page-header" style="animation: fadeIn 0.4s">
@@ -310,12 +314,7 @@
 
     // --- CUSTOMERS ---
     function renderCustomers() {
-      const customers = [
-        { id: 'C-084', name: 'Rahul Sharma', phone: '+91 98765 43210', loc: 'Howrah', spend: 12500, orders: 4, lastActive: '2 Days Ago' },
-        { id: 'C-085', name: 'Amit Verma', phone: '+91 91234 56789', loc: 'Kolkata', spend: 8900, orders: 2, lastActive: '1 Week Ago' },
-        { id: 'C-086', name: 'Neha Gupta', phone: '+91 99887 76655', loc: 'Salt Lake', spend: 24500, orders: 8, lastActive: 'Today' },
-        { id: 'C-087', name: 'Vikas Singh', phone: '+91 98711 22334', loc: 'Howrah', spend: 1200, orders: 1, lastActive: '1 Month Ago' },
-      ];
+      const customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
 
       let html = `
         <div class="page-header" style="animation: fadeIn 0.4s">
@@ -337,28 +336,34 @@
             </thead>
             <tbody>
       `;
-      customers.forEach(c => {
-        html += `
-          <tr>
-            <td>
-              <div style="display:flex; align-items:center; gap:10px">
-                <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#1e56a0,#2979ff); color:white; display:flex; align-items:center; justify-content:center; font-weight:700">${c.name.charAt(0)}</div>
-                <div>
-                  <div style="font-weight:700; color:var(--text-dark)">${c.name}</div>
-                  <div style="font-size:12px; color:var(--text-muted)">${c.id}</div>
+      
+      if (customers.length === 0) {
+        html += `<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted)">No customers found.</td></tr>`;
+      } else {
+        // Sort by spend descending
+        customers.sort((a, b) => b.spend - a.spend).forEach(c => {
+          html += `
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px">
+                  <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#1e56a0,#2979ff); color:white; display:flex; align-items:center; justify-content:center; font-weight:700">${c.name.charAt(0)}</div>
+                  <div>
+                    <div style="font-weight:700; color:var(--text-dark)">${c.name}</div>
+                    <div style="font-size:12px; color:var(--text-muted)">${c.id}</div>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <div style="font-weight:500; font-size:13px">${c.phone}</div>
-              <div style="font-size:12px; color:var(--text-muted)">📍 ${c.loc}</div>
-            </td>
-            <td style="font-family:var(--font-pjs); font-weight:700; color:var(--success)">₹${c.spend.toLocaleString()}</td>
-            <td>${c.orders} Jobs</td>
-            <td><span class="badge badge-gray">${c.lastActive}</span></td>
-          </tr>
-        `;
-      });
+              </td>
+              <td>
+                <div style="font-weight:500; font-size:13px">${c.phone}</div>
+                <div style="font-size:12px; color:var(--text-muted)">📍 ${c.loc}</div>
+              </td>
+              <td style="font-family:var(--font-pjs); font-weight:700; color:var(--success)">₹${c.spend.toLocaleString()}</td>
+              <td>${c.orders} Jobs</td>
+              <td><span class="badge badge-gray">${c.lastActive}</span></td>
+            </tr>
+          `;
+        });
+      }
       html += `</tbody></table></div>`;
       return html;
     }
@@ -715,6 +720,59 @@
       return html;
     }
 
+    // --- PAYMENT SETTINGS ---
+    function renderSettings() {
+      const keyId = localStorage.getItem('ampedge_razorpay_key') || '';
+      
+      return `
+        <div class="page-header" style="animation: fadeIn 0.4s">
+          <div>
+            <h1 class="page-title">Payment Settings</h1>
+            <p class="page-subtitle">Configure your real payment gateway (Razorpay)</p>
+          </div>
+        </div>
+
+        <div style="max-width: 600px; background: white; padding: 32px; border-radius: 16px; border: 1px solid var(--border); animation: fadeIn 0.5s">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border)">
+            <div style="width:50px; height:50px; background:#f3f4f6; border-radius:12px; display:flex; align-items:center; justify-content:center">
+              <img src="https://razorpay.com/favicon.png" style="width:24px; height:24px">
+            </div>
+            <div>
+              <h3 style="margin:0; font-family:var(--font-pjs)">Razorpay Integration</h3>
+              <p style="margin:4px 0 0 0; font-size:13px; color:var(--text-muted)">Connect your business to accept real money</p>
+            </div>
+          </div>
+
+          <form onsubmit="savePaymentSettings(event)">
+            <div class="form-group" style="margin-bottom:20px">
+              <label class="form-label">Razorpay Key ID</label>
+              <input type="text" id="rzpKeyId" class="form-input" placeholder="rzp_test_..." value="${keyId}" required style="font-family:monospace">
+              <p style="font-size:12px; color:var(--text-muted); margin-top:8px">Find this in your Razorpay Dashboard -> Settings -> API Keys</p>
+            </div>
+
+            <div style="background: #eff6ff; padding: 16px; border-radius: 10px; border-left: 4px solid var(--blue); margin-bottom:24px">
+              <p style="margin:0; font-size:13px; color:#1e40af; line-height:1.5">
+                <strong>How to get keys?</strong><br>
+                1. Go to <a href="https://dashboard.razorpay.com" target="_blank" style="color:var(--blue); font-weight:600">Razorpay Dashboard</a><br>
+                2. Switch to **Test Mode** (during development) or **Live Mode**.<br>
+                3. Settings > API Keys > Generate Key.
+              </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:14px">Save Payment Settings</button>
+          </form>
+        </div>
+      `;
+    }
+
+    window.savePaymentSettings = (e) => {
+      e.preventDefault();
+      const keyId = document.getElementById('rzpKeyId').value.trim();
+      localStorage.setItem('ampedge_razorpay_key', keyId);
+      showToast("Payment Settings Saved");
+      navigate('settings');
+    };
+
     // ============================
     // MODAL HELPERS
     // ============================
@@ -864,6 +922,13 @@
         showToast("Product Deleted");
       }
     };
+
+    // Listen for storage changes to sync across tabs instantly
+    window.addEventListener('storage', (e) => {
+      if (['ampedge_services', 'ampedge_products', 'ampedge_bookings', 'ampedge_payments', 'ampedge_customers', 'ampedge_cart'].includes(e.key)) {
+        navigate(currentPage);
+      }
+    });
 
   </script>
 </body>
