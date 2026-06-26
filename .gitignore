@@ -29,3 +29,9 @@ build/
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Temporary tunnel files & scripts
+run_server_tunnel.py
+active_tunnel_url.txt
+new_tunnel_output.txt
+serveo_output.txt
