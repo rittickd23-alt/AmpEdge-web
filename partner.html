@@ -2,67 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Become a Partner — AMPEDGE</title>
-<meta name="description" content="Join AMPEDGE as a certified electrician or product vendor. Scale your business with India's premier electrical platform."/>
-<link rel="stylesheet" href="css/style.css"/>
-<link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
+  <title>Become an Electrician Partner — AMPEDGE</title>
+  <meta name="description" content="Join AMPEDGE as a certified electrician partner. Work on your own schedule, get daily payouts, and grow your career like Ola & Uber drivers."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
 </head>
 <body>
 <nav class="navbar" id="navbar">
 <div class="nav-inner">
   <a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img"/></a>
-  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="marketplace.html">Marketplace</a></li><li><a href="booking.html">Services</a></li><li><a href="partner.html" class="active">Partners</a></li></ul>
-  <div class="nav-right"><a href="booking.html" class="btn btn-outline btn-sm">Book a Service</a><a href="#apply" class="btn btn-primary btn-sm">Apply Now →</a></div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+    <li><a href="booking.html">Services</a></li>
+    <li><a href="partner.html" class="active">Partners</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="booking.html" class="btn btn-outline btn-sm">Book a Service</a>
+    <a href="javascript:void(0)" onclick="openTechLogin()" class="btn btn-primary btn-sm">📲 Partner Login</a>
+  </div>
   <div class="hamburger" onclick="openMob()"><span></span><span></span><span></span></div>
 </div>
 </nav>
-<div class="mobile-nav" id="mobNav"><div class="mob-overlay" onclick="closeMob()"></div><div class="mob-drawer"><span class="mob-close" onclick="closeMob()">✕</span><a href="index.html">Home</a><a href="marketplace.html">Marketplace</a><a href="booking.html">Book a Service</a><a href="partner.html">Become a Partner</a><hr/><a href="#apply" class="btn btn-primary" style="justify-content:center;">Apply Now →</a></div></div>
+
+<div class="mobile-nav" id="mobNav">
+  <div class="mob-overlay" onclick="closeMob()"></div>
+  <div class="mob-drawer">
+    <span class="mob-close" onclick="closeMob()">✕</span>
+    <a href="index.html">Home</a>
+    <a href="marketplace.html">Marketplace</a>
+    <a href="booking.html">Book a Service</a>
+    <a href="partner.html">Become a Partner</a>
+    <hr/>
+    <a href="javascript:void(0)" onclick="closeMob(); openTechLogin();" class="btn btn-primary" style="justify-content:center;">📲 Partner Login</a>
+  </div>
+</div>
 
 <!-- PARTNER HERO -->
 <section class="partner-hero">
   <div class="container" style="position:relative;z-index:1">
-    <div class="chip" style="margin-bottom:24px"><span class="dot"></span>For Professionals & Vendors</div>
-    <h1>Grow Your Business<br/>with <span class="gradient-text">AMPEDGE</span></h1>
-    <p>Join 2,000+ verified electricians and 500+ product vendors on India's fastest-growing electrical platform. More clients, more revenue, more freedom.</p>
+    <div class="chip" style="margin-bottom:24px"><span class="dot"></span>AMPEDGE Partner Program</div>
+    <h1>Be Your Own Boss.<br/>Earn with <span class="gradient-text">AMPEDGE</span></h1>
+    <p>Join India's premier gig-economy network for electrician partners. Just like Ola, Uber, or Rapido, switch on the app, accept service bookings near you, and withdraw your earnings instantly.</p>
     <div class="btns">
-      <a href="#apply" class="btn btn-cyan btn-lg">🧑‍🔧 Apply as Electrician</a>
-      <a href="#apply" class="btn btn-ghost btn-lg">🏪 List Your Products</a>
+      <a href="#apply" class="btn btn-cyan btn-lg">🧑‍🔧 Apply as Electrician Partner</a>
+      <a href="javascript:void(0)" onclick="openTechLogin()" class="btn btn-ghost btn-lg">📲 Open Partner App Portal</a>
     </div>
     <div class="partner-stats">
-      <div class="pstat"><div class="pstat-num">₹2.4Cr+</div><div class="pstat-label">Paid to Partners Monthly</div></div>
-      <div class="pstat"><div class="pstat-num">2,000+</div><div class="pstat-label">Active Electricians</div></div>
-      <div class="pstat"><div class="pstat-num">50K+</div><div class="pstat-label">Monthly Service Requests</div></div>
-      <div class="pstat"><div class="pstat-num">25+</div><div class="pstat-label">Cities Covered</div></div>
+      <div class="pstat"><div class="pstat-num">₹45,000+</div><div class="pstat-label">Avg. Monthly Earnings</div></div>
+      <div class="pstat"><div class="pstat-num">2,000+</div><div class="pstat-label">Active Electrician Partners</div></div>
+      <div class="pstat"><div class="pstat-num">Daily</div><div class="pstat-label">Direct Bank Payouts</div></div>
+      <div class="pstat"><div class="pstat-num">100%</div><div class="pstat-label">Flexible Working Schedule</div></div>
     </div>
   </div>
 </section>
 
-<!-- PARTNER TYPES -->
-<section class="partner-types">
+<!-- HOW IT WORKS (Ola/Uber Driver style) -->
+<section class="partner-types" style="background:#f8fafc;">
 <div class="container">
-  <div class="sh center fade-up"><div class="chip"><span class="dot"></span>Partner Types</div><h2>Choose How You Join AMPEDGE</h2></div>
-  <div class="pt-grid">
+  <div class="sh center fade-up">
+    <div class="chip"><span class="dot"></span>Gig Model</div>
+    <h2>How AMPEDGE Partnership Works</h2>
+    <p>Earn money on your own terms in three simple steps. No fixed shifts, no supervisors.</p>
+  </div>
+  
+  <div class="pt-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px;">
     <div class="pt-card fade-up">
-      <div style="font-size:48px;margin-bottom:20px">🧑‍🔧</div>
-      <h3>Service Professional</h3>
-      <p>Licensed electricians, contractors, and engineers who want consistent, high-quality job leads and guaranteed payments.</p>
-      <div class="pt-perks">
-        <div class="perk"><span class="check">✓</span>Verified badge on your profile</div>
-        <div class="perk"><span class="check">✓</span>Daily job leads in your area</div>
-        <div class="perk"><span class="check">✓</span>Instant payments after each job</div>
-        <div class="perk"><span class="check">✓</span>Free training & certification</div>
-      </div>
+      <div style="font-size:40px;margin-bottom:16px">📱 1</div>
+      <h3>Turn On the App</h3>
+      <p>Download the AMPEDGE Partner App, log in, and switch your status to "Online" whenever you are ready to take service requests.</p>
     </div>
     <div class="pt-card fade-up" style="transition-delay:.1s">
-      <div style="font-size:48px;margin-bottom:20px">🏪</div>
-      <h3>Product Vendor</h3>
-      <p>Electrical manufacturers, distributors, and retailers looking to reach verified, high-intent customers nationwide.</p>
-      <div class="pt-perks">
-        <div class="perk"><span class="check">✓</span>Access to 50K+ active customers</div>
-        <div class="perk"><span class="check">✓</span>Zero setup cost to get started</div>
-        <div class="perk"><span class="check">✓</span>Integrated logistics & payments</div>
-        <div class="perk"><span class="check">✓</span>Dedicated account manager</div>
-      </div>
+      <div style="font-size:40px;margin-bottom:16px">⚡ 2</div>
+      <h3>Accept Nearby Bookings</h3>
+      <p>Our intelligent system matches you with electrical installation, repair, or maintenance tasks within a 5-10km radius of your location.</p>
+    </div>
+    <div class="pt-card fade-up" style="transition-delay:.2s">
+      <div style="font-size:40px;margin-bottom:16px">💰 3</div>
+      <h3>Get Paid Instantly</h3>
+      <p>Once you finish the job and mark it complete on your app, the customer payment is deposited directly into your bank account.</p>
     </div>
   </div>
 </div>
@@ -71,14 +89,48 @@
 <!-- BENEFITS -->
 <section class="benefits">
 <div class="container">
-  <div class="sh center fade-up"><div class="chip"><span class="dot"></span>Benefits</div><h2>Why Partner With AMPEDGE?</h2><p>We invest in your success — the right tools, support, and exposure to scale your business.</p></div>
+  <div class="sh center fade-up">
+    <div class="chip"><span class="dot"></span>Partner Perks</div>
+    <h2>Why Electricians Choose AMPEDGE</h2>
+    <p>Get the infrastructure, safety support, and consistent job flow of a national brand while working for yourself.</p>
+  </div>
   <div class="benefits-grid">
-    <div class="benefit-card fade-up"><div class="bnum">01</div><span class="bcard-icon">📈</span><h3>Guaranteed Job Flow</h3><p>Get matched with verified customers in your area every day. No cold-calling, no chasing leads.</p></div>
-    <div class="benefit-card fade-up" style="transition-delay:.08s"><div class="bnum">02</div><span class="bcard-icon">💸</span><h3>Instant & Secure Payments</h3><p>Earnings released to your account within 24 hours of job completion. Zero delays.</p></div>
-    <div class="benefit-card fade-up" style="transition-delay:.16s"><div class="bnum">03</div><span class="bcard-icon">🎓</span><h3>Free Training Program</h3><p>Access AMPEDGE's skill development modules. Earn verified certs to boost your ranking.</p></div>
-    <div class="benefit-card fade-up" style="transition-delay:.24s"><div class="bnum">04</div><span class="bcard-icon">📱</span><h3>Partner Mobile App</h3><p>Manage bookings, track earnings, and communicate with customers from a sleek partner app.</p></div>
-    <div class="benefit-card fade-up" style="transition-delay:.32s"><div class="bnum">05</div><span class="bcard-icon">🛡️</span><h3>Insurance Coverage</h3><p>All partner electricians are covered by AMPEDGE's partner liability insurance per job.</p></div>
-    <div class="benefit-card fade-up" style="transition-delay:.4s"><div class="bnum">06</div><span class="bcard-icon">🌐</span><h3>Pan-India Network</h3><p>Operate across 25+ cities with expansion to 100 cities by 2027.</p></div>
+    <div class="benefit-card fade-up">
+      <div class="bnum">01</div>
+      <span class="bcard-icon">💸</span>
+      <h3>Instant Bank Payouts</h3>
+      <p>Withdraw your earnings every single day. No waiting until the end of the month or chasing clients for cash.</p>
+    </div>
+    <div class="benefit-card fade-up" style="transition-delay:.08s">
+      <div class="bnum">02</div>
+      <span class="bcard-icon">🕒</span>
+      <h3>Absolute Schedule Flexibility</h3>
+      <p>Work full-time, part-time, or only on weekends. You have complete control over when and how much you work.</p>
+    </div>
+    <div class="benefit-card fade-up" style="transition-delay:.16s">
+      <div class="bnum">03</div>
+      <span class="bcard-icon">🗺️</span>
+      <h3>Smart Route Planning</h3>
+      <p>Our routing algorithm clusters bookings close to you. Spend less time driving and more time earning.</p>
+    </div>
+    <div class="benefit-card fade-up" style="transition-delay:.24s">
+      <div class="bnum">04</div>
+      <span class="bcard-icon">🛡️</span>
+      <h3>Insurance & Accidental Cover</h3>
+      <p>Your safety is our priority. Get covered with active accidental and liability insurance on every job you perform.</p>
+    </div>
+    <div class="benefit-card fade-up" style="transition-delay:.32s">
+      <div class="bnum">05</div>
+      <span class="bcard-icon">🎓</span>
+      <h3>AMPEDGE Training & Kit</h3>
+      <p>Get certified in advanced smart home automation, EV charger setup, and industrial panels with our free training modules.</p>
+    </div>
+    <div class="benefit-card fade-up" style="transition-delay:.4s">
+      <div class="bnum">06</div>
+      <span class="bcard-icon">🚀</span>
+      <h3>Zero Registration Fees</h3>
+      <p>Start earning with no hidden security deposits, registration charges, or upfront sign-on fees.</p>
+    </div>
   </div>
 </div>
 </section>
@@ -89,42 +141,47 @@
   <div class="apply-layout">
     <div class="apply-left fade-up">
       <div class="chip"><span class="dot"></span>Apply Now</div>
-      <h2>Ready to Join?<br/>Let's Talk.</h2>
-      <p>Fill in the quick form and our partner success team will reach out within 24 hours.</p>
+      <h2>Get Started in<br/>Under 48 Hours.</h2>
+      <p>Fill out the application form with your details. Our onboarding team will get back to you within 24 hours to book your verification slot.</p>
       <div class="apply-steps">
-        <div class="astep"><div class="astep-num">1</div><div><h4>Submit your details</h4><p>Takes less than 3 minutes to complete</p></div></div>
-        <div class="astep"><div class="astep-num">2</div><div><h4>Team reviews your profile</h4><p>Background check and credential verification</p></div></div>
-        <div class="astep"><div class="astep-num">3</div><div><h4>Go live on AMPEDGE</h4><p>Start receiving bookings within 48 hours</p></div></div>
+        <div class="astep"><div class="astep-num">1</div><div><h4>Submit application form</h4><p>Takes less than 2 minutes to apply online</p></div></div>
+        <div class="astep"><div class="astep-num">2</div><div><h4>Visit Onboarding Hub</h4><p>Quick license check and platform training</p></div></div>
+        <div class="astep"><div class="astep-num">3</div><div><h4>Download App & Earn</h4><p>Receive your welcome kit and take your first job!</p></div></div>
       </div>
+      
       <!-- Partner testimonial -->
       <div class="card" style="margin-top:40px;padding:24px;cursor:default">
-        <div style="font-size:14px;color:var(--text);font-style:italic;margin-bottom:16px;line-height:1.8">"Since joining AMPEDGE, my monthly income has doubled. The platform handles everything — I just show up and do great work."</div>
-        <div style="display:flex;align-items:center;gap:12px"><div class="tavatar" style="background:var(--grad);width:40px;height:40px;font-size:15px">M</div><div><div class="tname">Mahesh Electricals</div><div class="trole">Partner since 2024 · Delhi NCR</div></div></div>
+        <div style="font-size:14px;color:var(--text);font-style:italic;margin-bottom:16px;line-height:1.8">"I used to sit at my shop waiting for local calls. Since registering as an AMPEDGE partner, I get 5-6 service calls daily right on my phone. The weekly payout goes directly into my bank account."</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="tavatar" style="background:var(--grad);width:40px;height:40px;font-size:15px">S</div>
+          <div>
+            <div class="tname">Suresh Kumar</div>
+            <div class="trole">AMPEDGE Gold Partner · Delhi NCR</div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- FORM -->
     <div class="fade-up">
       <div class="apply-form-card">
-        <h3>Partner Application Form</h3>
-        <div class="tab-row">
-          <button class="tab-btn active" id="tabE" onclick="switchTab('e')">🧑‍🔧 Electrician</button>
-          <button class="tab-btn" id="tabV" onclick="switchTab('v')">🏪 Vendor</button>
+        <h3 style="margin-bottom:8px">Electrician Partner Onboarding Form</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:24px">Join the electrician network (No vendors / third-party agencies)</p>
+        
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input placeholder="Rajesh Kumar" required/></div>
+          <div class="form-group"><label>Service/Business Name (Optional)</label><input placeholder="e.g. Rajesh Electricals"/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Full Name *</label><input placeholder="Rajesh Kumar"/></div>
-          <div class="form-group"><label>Business Name</label><input placeholder="Kumar Electricals"/></div>
+          <div class="form-group"><label>Phone / WhatsApp Number *</label><input type="tel" placeholder="+91 98765 43210" required/></div>
+          <div class="form-group"><label>Email Address *</label><input type="email" placeholder="rajesh@example.com" required/></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Phone Number *</label><input type="tel" placeholder="+91 98765 43210"/></div>
-          <div class="form-group"><label>Email Address *</label><input type="email" placeholder="rajesh@example.com"/></div>
+          <div class="form-group"><label>City *</label><select required><option>Select City</option><option>Delhi NCR</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Pune</option><option>Chennai</option><option>Kolkata</option><option>Howrah</option></select></div>
+          <div class="form-group"><label>Years of Experience *</label><select required><option>Select Experience</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select></div>
         </div>
-        <div class="form-row">
-          <div class="form-group"><label>City *</label><select><option>Select City</option><option>Delhi NCR</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Pune</option><option>Chennai</option><option>Kolkata</option></select></div>
-          <div class="form-group"><label>Experience *</label><select><option>Select Experience</option><option>0–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select></div>
-        </div>
-        <div class="form-group" id="specGroup">
-          <label>Specialisation</label>
+        <div class="form-group">
+          <label>Your Specialisation Areas</label>
           <div class="spec-checks">
             <div class="spec-check"><input type="checkbox"/> Wiring</div>
             <div class="spec-check"><input type="checkbox" checked/> Repair</div>
@@ -133,16 +190,16 @@
             <div class="spec-check"><input type="checkbox"/> Solar</div>
           </div>
         </div>
-        <div class="form-row" id="electricianDocs">
-          <div class="form-group"><label>Electrical Licence *</label><input type="file" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="form-group"><label>Aadhaar Verification *</label><input type="file" accept=".pdf,.jpg,.jpeg,.png"/></div>
+        <div class="form-row">
+          <div class="form-group"><label>Government Electrical License *</label><input type="file" accept=".pdf,.jpg,.jpeg,.png" required/></div>
+          <div class="form-group"><label>Aadhaar / ID Card Copy *</label><input type="file" accept=".pdf,.jpg,.jpeg,.png" required/></div>
         </div>
-        <div class="form-group"><label>About You</label><textarea placeholder="Brief description of your experience, certifications, and why you want to join AMPEDGE..."></textarea></div>
+        <div class="form-group"><label>About Your Work Profile</label><textarea placeholder="Tell us briefly about the types of electrical tasks you excel at, your certifications, or previous experience..."></textarea></div>
         <div class="terms-row">
           <input type="checkbox" id="terms" checked/>
-          <label for="terms">I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Partner Agreement</a></label>
+          <label for="terms">I agree to the <a href="#">Terms of Service</a> and the <a href="#">Partner Onboarding Agreement</a></label>
         </div>
-        <button class="submit-btn" onclick="this.textContent='✅ Application Submitted! We\'ll contact you within 24hrs'">Submit Application →</button>
+        <button class="submit-btn" onclick="this.textContent='✅ Registration Successful! We\'ll call you within 24hrs'">Submit Application →</button>
       </div>
     </div>
   </div>
@@ -151,10 +208,13 @@
 
 <section class="cta-band">
   <div class="container">
-    <div class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2)"><span class="dot" style="background:#fff"></span>Join the Network</div>
-    <h2>2,000+ Professionals<br/>Already Earning with AMPEDGE</h2>
-    <p>Don't wait — spots in your city are limited. Apply today and start earning within 48 hours.</p>
-    <div class="btns"><a href="#apply" class="btn btn-cyan btn-lg">Apply Now</a><a href="index.html" class="btn btn-ghost btn-lg">Learn More</a></div>
+    <div class="chip" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2)"><span class="dot" style="background:#fff"></span>Join Today</div>
+    <h2>Get Job Bookings Instantly</h2>
+    <p>Don't wait. Registration slots in your city are opening up. Submit your onboarding details now and earn on your own terms.</p>
+    <div class="btns">
+      <a href="#apply" class="btn btn-cyan btn-lg">Apply Now</a>
+      <a href="javascript:void(0)" onclick="openTechLogin()" class="btn btn-ghost btn-lg">Partner Login</a>
+    </div>
   </div>
 </section>
 
@@ -202,18 +262,37 @@
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform" target="_blank" class="btn btn-primary" style="display:inline-flex;padding:12px 28px;font-size:16px;box-shadow:0 4px 12px rgba(65,105,225,0.25)">Fill Google Form 📝</a>
         </div>
       </div>
-      
     </div>
   </div>
 </section>
 
-<footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img footer-logo-img"/></a><p>India's trusted electrical platform.</p><div class="footer-contact" style="font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6">
-<div style="margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>📧</span> ampedge.info@gmail.com</div>
-<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span>📞</span> <span><strong style="color:rgba(255,255,255,.75)">Contact:</strong> +91 91236 67258 &nbsp;|&nbsp; +91 97483 98418</span></div>
-<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">💬</span> <span><strong style="color:#25D366">WhatsApp Business:</strong> <a href="https://wa.me/919874600265" target="_blank" style="color:#25D366;text-decoration:none;font-weight:600">+91 98746 00265</a></span></div>
-<div style="display:flex;align-items:flex-start;gap:8px"><span>📍</span> <span>West Bauria, Chackasi, Palpara, Howrah 711307</span></div>
+<footer class="footer">
+<div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img footer-logo-img"/></a>
+      <p>Powering the Edge of Tomorrow. India's trusted platform for certified electricians and quality electrical products.</p>
+      <div class="footer-contact" style="font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6">
+        <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>📧</span> ampedge.info@gmail.com</div>
+        <div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span>📞</span> <span><strong style="color:rgba(255,255,255,.75)">Contact:</strong> +91 91236 67258 &nbsp;|&nbsp; +91 97483 98418</span></div>
+        <div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">💬</span> <span><strong style="color:#25D366">WhatsApp Business:</strong> <a href="https://wa.me/919874600265" target="_blank" style="color:#25D366;text-decoration:none;font-weight:600">+91 98746 00265</a></span></div>
+        <div style="display:flex;align-items:flex-start;gap:8px"><span>📍</span> <span>West Bauria, Chackasi, Palpara, Howrah 711307</span></div>
+      </div>
+      <div class="socials">
+        <a class="social-icon">in</a><a href="https://x.com/edge_amp" target="_blank" class="social-icon" title="X">𝕏</a><a href="https://www.instagram.com/ampedge.info?igsh=MXFsd2h6ZzQzcTc2ag==" target="_blank" class="social-icon" title="Instagram">ig</a><a href="https://www.facebook.com/share/18neFGEr4n/" target="_blank" class="social-icon" title="Facebook">fb</a><a href="https://www.youtube.com/channel/UCl_t66zGTsJYdc9l-c-wzDg" target="_blank" class="social-icon" title="@AmpEdge-i9d">▶</a>
+      </div>
+    </div>
+    <div class="fcol"><h5>Services</h5><ul><li><a href="booking.html">Installation</a></li><li><a href="booking.html">Repair & Maintenance</a></li><li><a href="booking.html">Industrial Services</a></li><li><a href="booking.html">Smart Home</a></li><li><a href="booking.html">Emergency</a></li></ul></div>
+    <div class="fcol"><h5>Marketplace</h5><ul><li><a href="marketplace.html">Switches</a></li><li><a href="marketplace.html">Wires & Cables</a></li><li><a href="marketplace.html">MCB & DB</a></li><li><a href="marketplace.html">LED Lighting</a></li><li><a href="marketplace.html">Fans</a></li></ul></div>
+    <div class="fcol"><h5>Company</h5><ul><li><a href="#">About Us</a></li><li><a href="partner.html">Partner With Us</a></li><li><a href="admin.html">Admin Portal</a></li><li><a href="#">Careers</a></li><li><a href="#">Blog</a></li><li><a href="#">Press</a></li></ul></div>
+    <div class="fcol"><h5>Support</h5><ul><li><a href="#">Help Centre</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">Refund Policy</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 AMPEDGE Technologies Pvt. Ltd. All rights reserved.</span>
+    <span>Made with ⚡ in India</span>
+  </div>
 </div>
-<div class="socials"><a class="social-icon">in</a><a href="https://x.com/edge_amp" target="_blank" class="social-icon" title="X">𝕏</a><a href="https://www.instagram.com/ampedge.info?igsh=MXFsd2h6ZzQzcTc2ag==" target="_blank" class="social-icon" title="Instagram">ig</a><a href="https://www.facebook.com/share/18neFGEr4n/" target="_blank" class="social-icon" title="Facebook">fb</a><a href="https://www.youtube.com/channel/UCl_t66zGTsJYdc9l-c-wzDg" target="_blank" class="social-icon" title="@AmpEdge-i9d">▶</a></div></div><div class="fcol"><h5>Services</h5><ul><li><a href="booking.html">Installation</a></li><li><a href="booking.html">Repair</a></li><li><a href="booking.html">Industrial</a></li></ul></div><div class="fcol"><h5>Marketplace</h5><ul><li><a href="marketplace.html">Switches</a></li><li><a href="marketplace.html">Cables</a></li><li><a href="marketplace.html">Lighting</a></li></ul></div><div class="fcol"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="partner.html">Partners</a></li><li><a href="admin.html">Admin Portal</a></li><li><a href="#">Careers</a></li></ul></div><div class="fcol"><h5>Support</h5><ul><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform" target="_blank" style="color:var(--blue);font-weight:600">Raise a Query</a></li><li><a href="#">Help</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 AMPEDGE Technologies Pvt. Ltd.</span><span>Made with ⚡ in India</span></div></div></footer>
+</footer>
 
 <!-- Technician Login Modal -->
 <div id="techLoginModal" class="modal-overlay">
@@ -222,16 +301,17 @@
       <div style="width:56px; height:56px; border-radius:16px; background:rgba(30,86,160,0.1); display:flex; align-items:center; justify-content:center; margin:0 auto 16px">
         <span style="font-size:24px">🧑‍🔧</span>
       </div>
-      <h3 style="font-size:22px; font-family:var(--font-pjs); font-weight:800; color:#0a0f2c">Technician Login</h3>
-      <p style="font-size:14px; color:#64748b; margin-top:4px">Access your jobs & earnings</p>
+      <h3 style="font-size:22px; font-family:var(--font-pjs); font-weight:800; color:#0a0f2c">Partner App Portal</h3>
+      <p style="font-size:14px; color:#64748b; margin-top:4px">Access your active jobs & daily earnings</p>
     </div>
     <div class="field" style="margin-bottom:20px">
-      <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px">Tech ID / Phone</label>
+      <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px">Partner ID / Phone</label>
       <input type="text" id="techId" class="f-input" placeholder="e.g. T-9842" style="width:100%; padding:12px 16px" value="T-9842" />
     </div>
     <div class="field" style="margin-bottom:24px">
       <label style="display:block; font-size:13px; font-weight:700; margin-bottom:8px">Portal Password</label>
       <input type="password" id="techPass" class="f-input" placeholder="••••••••" style="width:100%; padding:12px 16px" />
+      <p style="font-size: 12px; color: var(--muted); margin-top: 6px;">👉 Hint: Use password <strong>Tech2026</strong> to explore.</p>
       <p id="techLoginError" style="color:var(--danger); font-size:12px; margin-top:8px; display:none">Invalid ID or Password.</p>
     </div>
     <button class="btn btn-primary" style="width:100%; padding:14px; font-size:15px" onclick="processTechLogin()">Enter Portal →</button>
@@ -300,10 +380,10 @@
   </div>
 </div>
 
-
 <a href="https://wa.me/919874600265" class="wa-float" target="_blank" aria-label="Chat on WhatsApp">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="30" height="30" fill="#fff"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-2.1-3.6 2.1-3.2 7.6-14.1 1.4-2.8 2.8-5.2 1.4-7.6-1.4-2.3-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
 </a>
+
 <script src="js/main.js"></script>
 </body>
 </html>
