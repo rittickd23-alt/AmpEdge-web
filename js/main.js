@@ -631,6 +631,11 @@ function switchTab(type) {
   if (docs) docs.style.display = isE ? '' : 'none';
   const spec = document.getElementById('specGroup');
   if (spec) spec.style.display = isE ? 'block' : 'none';
+
+  const heading = document.getElementById('formHeading');
+  if (heading) {
+    heading.textContent = isE ? 'Electrician or Contractor Application Form' : 'Vendor Application Form';
+  }
 }
 
 // ── Smooth scroll for hash links ──────────────
