@@ -58,11 +58,11 @@ if (!localStorage.getItem('ampedge_payments')) {
 
 // Initialize Bookings List
 const defaultBookings = [
-  { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048 },
-  { id: 'B-1041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348 },
-  { id: 'B-1040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548 },
-  { id: 'B-1039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948 },
-  { id: 'B-1038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0 }
+  { id: 'B-10042', date: '2026-03-22', customer: 'Rahul Sharma', service: 'Smart Home Hub', status: 'Pending', tech: 'Unassigned', amount: 5048, location: 'Howrah (22.59° N, 88.26° E)' },
+  { id: 'B-1041', date: '2026-03-21', customer: 'Amit Verma', service: 'MCB Setup', status: 'In Progress', tech: 'Suresh Y.', amount: 2348, location: 'Kolkata (22.57° N, 88.36° E)' },
+  { id: 'B-1040', date: '2026-03-20', customer: 'Neha Gupta', service: 'Wiring Repair', status: 'Completed', tech: 'Ramesh K.', amount: 548, location: 'Kolkata (22.56° N, 88.40° E)' },
+  { id: 'B-1039', date: '2026-03-19', customer: 'Vikas Singh', service: 'Emergency Visit', status: 'Completed', tech: 'Ramesh K.', amount: 948, location: 'Howrah (22.58° N, 88.28° E)' },
+  { id: 'B-1038', date: '2026-03-18', customer: 'Priya Patel', service: 'Fan Installation', status: 'Cancelled', tech: '-', amount: 0, location: 'Delhi NCR (28.61° N, 77.20° E)' }
 ];
 
 if (!localStorage.getItem('ampedge_bookings')) {
@@ -906,12 +906,14 @@ window.processMockPayment = function() {
 function saveTransaction(id, amount, cName, cPhone, method) {
   const now = new Date();
   const formattedDate = now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0].substring(0, 5);
-  const userLoc = localStorage.getItem('ampedge_user_location') || 'Unknown';
   
   // 1) Save to Payments
   let payments = JSON.parse(localStorage.getItem('ampedge_payments') || '[]');
   payments.unshift({ tx: 'TXN-' + id, date: formattedDate, cust: cName, amt: amount, method: method, status: 'Success' });
   localStorage.setItem('ampedge_payments', JSON.stringify(payments));
+  
+  // Get active location if saved
+  const activeLoc = localStorage.getItem('ampedge_user_loc') || 'Not Shared';
   
   // 2) Save to Bookings (if on booking page)
   if (window.location.pathname.includes('booking.html')) {
@@ -925,7 +927,7 @@ function saveTransaction(id, amount, cName, cPhone, method) {
       status: 'Pending', 
       tech: 'Unassigned', 
       amount: amount,
-      location: userLoc
+      location: activeLoc
     });
     localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
   }
@@ -937,9 +939,10 @@ function saveTransaction(id, amount, cName, cPhone, method) {
     exist.spend += amount;
     exist.orders += 1;
     exist.lastActive = 'Today';
-    exist.loc = userLoc;
+    if (activeLoc !== 'Not Shared') exist.loc = activeLoc.split(' (')[0]; // Save city
   } else {
-    customers.unshift({ id: 'C-' + Math.floor(100+Math.random()*900), name: cName, phone: cPhone, loc: userLoc, spend: amount, orders: 1, lastActive: 'Today' });
+    const city = activeLoc !== 'Not Shared' ? activeLoc.split(' (')[0] : 'Unknown';
+    customers.unshift({ id: 'C-' + Math.floor(100+Math.random()*900), name: cName, phone: cPhone, loc: city, spend: amount, orders: 1, lastActive: 'Today' });
   }
   localStorage.setItem('ampedge_customers', JSON.stringify(customers));
 }
@@ -1059,198 +1062,171 @@ window.completeJob = (id) => {
   }
 };
 
-// ── Geolocation & Location Prompt Banner ─────────
-function initGeolocation() {
-  // Inject banner styles
-  const style = document.createElement('style');
-  style.id = 'locationBannerStyle';
-  style.textContent = `
-    #location-banner {
-      position: fixed;
-      bottom: 24px;
-      left: 24px;
-      right: 24px;
-      max-width: 420px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1.5px solid rgba(65, 105, 225, 0.2);
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 999999;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      animation: locationSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes locationSlideIn {
-      from { transform: translateY(150%) scale(0.95); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
-    }
-    #location-banner .title {
-      font-weight: 800;
-      font-size: 15.5px;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #location-banner .desc {
-      font-size: 13px;
-      color: #475569;
-      line-height: 1.5;
-      margin: 0;
-    }
-    #location-banner .actions {
-      display: flex;
-      gap: 8px;
-    }
-    #location-banner .btn-ok {
-      background: #4169E1;
-      color: white;
-      border: none;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    #location-banner .btn-ok:hover {
-      background: #2b52be;
-      transform: translateY(-1px);
-    }
-    #location-banner .btn-no {
-      background: transparent;
-      color: #64748b;
-      border: 1px solid #cbd5e1;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    #location-banner .btn-no:hover {
-      background: #f8fafc;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Show banner if permission not set
-  if (!localStorage.getItem('ampedge_location_prompt')) {
-    setTimeout(showLocationPrompt, 1500);
-  } else if (localStorage.getItem('ampedge_location_prompt') === 'granted') {
-    // Automatically fetch position if already granted previously
-    autoUpdateLocation();
-  }
-}
-
-function showLocationPrompt() {
-  if (document.getElementById('location-banner')) return;
-  const div = document.createElement('div');
-  div.id = 'location-banner';
-  div.innerHTML = `
-    <div class="title">📍 Turn on your location</div>
-    <p class="desc">Please enable location services. This allows us to match you with verified electrician partnerships nearest to your location and speeds up your service dispatch.</p>
-    <div class="actions">
-      <button class="btn-ok" onclick="enableLocation()">Turn On Location</button>
-      <button class="btn-no" onclick="dismissLocationPrompt()">Not Now</button>
-    </div>
-  `;
-  document.body.appendChild(div);
-}
-
-window.dismissLocationPrompt = function() {
-  localStorage.setItem('ampedge_location_prompt', 'dismissed');
-  const banner = document.getElementById('location-banner');
-  if (banner) banner.remove();
-};
-
-window.enableLocation = function() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        handleLocationSuccess(position);
-      },
-      (error) => {
-        console.warn("Location permission denied: ", error);
-        localStorage.setItem('ampedge_location_prompt', 'denied');
-        const banner = document.getElementById('location-banner');
-        if (banner) banner.remove();
-        if (typeof showToast === 'function') {
-          showToast("❌ Location access denied.");
-        }
-      }
-    );
-  } else {
-    alert("Geolocation is not supported by this browser.");
-  }
-};
-
-function autoUpdateLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => handleLocationSuccess(position, true),
-      (err) => console.log("Silent location fetch failed: ", err)
-    );
-  }
-}
-
-function handleLocationSuccess(position, silent = false) {
-  const lat = position.coords.latitude;
-  const lng = position.coords.longitude;
-  
-  // Resolve city based on major Indian cities bounding boxes
-  let city = "Kolkata, WB";
-  if (Math.abs(lat - 22.58) < 0.2 && Math.abs(lng - 88.31) < 0.2) {
-    city = "Howrah, WB";
-  } else if (Math.abs(lat - 22.57) < 0.3 && Math.abs(lng - 88.36) < 0.3) {
-    city = "Kolkata, WB";
-  } else if (Math.abs(lat - 28.61) < 0.4 && Math.abs(lng - 77.20) < 0.4) {
-    city = "Delhi NCR";
-  } else if (Math.abs(lat - 19.07) < 0.4 && Math.abs(lng - 72.87) < 0.4) {
-    city = "Mumbai, MH";
-  } else if (Math.abs(lat - 12.97) < 0.4 && Math.abs(lng - 77.59) < 0.4) {
-    city = "Bangalore, KA";
-  } else {
-    city = `GPS: (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-  }
-  
-  localStorage.setItem('ampedge_user_location', city);
-  localStorage.setItem('ampedge_user_coords', JSON.stringify({lat, lng}));
-  localStorage.setItem('ampedge_location_prompt', 'granted');
-  
-  // Fill booking form fields if present
-  const addr2 = document.querySelector('input[placeholder="Street, Area, Landmark"]');
-  if (addr2) {
-    addr2.value = city;
-  }
-  
-  // Update location text in booking details summary side pane
-  const summaryLoc = document.getElementById('summaryLocation') || 
-                     document.evaluate("//div[contains(., 'Your location')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-  
-  // Try locating "Your location" div and replacing it
-  document.querySelectorAll('.bi-detail').forEach(el => {
-    if (el.textContent.includes('Your location') || el.textContent.includes('Location:')) {
-      el.innerHTML = `📍 Location: <strong>${city}</strong>`;
-    }
-  });
-
-  const banner = document.getElementById('location-banner');
-  if (banner) banner.remove();
-  
-  if (!silent && typeof showToast === 'function') {
-    showToast(`📍 Location enabled: ${city}`);
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   if (sessionStorage.getItem('tech_auth') === 'true') {
     showTechPortal();
   }
-  // Initialize location service prompt
-  initGeolocation();
+  
+  // Geolocation Setup
+  initializeLocationPrompt();
 });
+
+// ── Geolocation & Location Tracking ─────────────────
+const cities = [
+  { name: 'Kolkata', lat: 22.5726, lng: 88.3639, pin: "700001" },
+  { name: 'Howrah', lat: 22.5958, lng: 88.2636, pin: "711101" },
+  { name: 'Delhi NCR', lat: 28.6139, lng: 77.2090, pin: "110001" },
+  { name: 'Mumbai', lat: 19.0760, lng: 72.8777, pin: "400001" },
+  { name: 'Bangalore', lat: 12.9716, lng: 77.5946, pin: "560001" },
+  { name: 'Hyderabad', lat: 17.3850, lng: 78.4867, pin: "500001" },
+  { name: 'Pune', lat: 18.5204, lng: 73.8567, pin: "411001" }
+];
+
+function initializeLocationPrompt() {
+  // If location already shared or prompt dismissed this session, don't show
+  if (localStorage.getItem('ampedge_user_loc') || sessionStorage.getItem('ampedge_loc_prompt_dismissed')) {
+    // If already shared, auto-fill if on booking page
+    if (localStorage.getItem('ampedge_user_loc') && window.location.pathname.includes('booking.html')) {
+      autoFillLocation();
+    }
+    return;
+  }
+  
+  // Create Geolocation Popup Banner
+  const banner = document.createElement('div');
+  banner.id = 'locationPromptBanner';
+  banner.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    max-width: 350px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+    padding: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-family: var(--font-pjs), system-ui, sans-serif;
+    animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  `;
+  
+  // Add animation keyframes to head
+  if (!document.getElementById('geoAnimationCSS')) {
+    const style = document.createElement('style');
+    style.id = 'geoAnimationCSS';
+    style.textContent = `
+      @keyframes slideInUp {
+        from { transform: translateY(60px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  banner.innerHTML = `
+    <div style="display: flex; align-items: flex-start; gap: 14px;">
+      <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(65, 105, 225, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; color: #4169E1;">📍</div>
+      <div>
+        <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #0a0f2c;">Turn On Location</h4>
+        <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #64748b;">Help us find certified electricians and products nearest to you.</p>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button onclick="dismissLocationPrompt()" style="background: none; border: none; padding: 8px 14px; font-size: 13px; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 8px; transition: background 0.2s;">Dismiss</button>
+      <button onclick="requestGeolocation(false)" style="background: #4169E1; border: none; padding: 8px 16px; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; border-radius: 8px; box-shadow: 0 4px 12px rgba(65, 105, 225, 0.25); transition: transform 0.2s;">Enable Location</button>
+    </div>
+  `;
+  
+  document.body.appendChild(banner);
+}
+
+window.dismissLocationPrompt = function() {
+  const banner = document.getElementById('locationPromptBanner');
+  if (banner) banner.remove();
+  sessionStorage.setItem('ampedge_loc_prompt_dismissed', 'true');
+};
+
+window.requestGeolocation = function(silent = false) {
+  if (!navigator.geolocation) {
+    if (!silent) alert("Geolocation is not supported by your browser.");
+    return;
+  }
+  
+  const btn = event?.currentTarget;
+  const orgText = btn ? btn.textContent : '';
+  if (btn) btn.textContent = 'Enabling...';
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      // Find closest city from coordinates
+      const closest = getClosestCity(lat, lng);
+      const locStr = `${closest.name} (${lat.toFixed(2)}° N, ${lng.toFixed(2)}° E)`;
+      
+      // Save to localStorage
+      localStorage.setItem('ampedge_user_loc', locStr);
+      localStorage.setItem('ampedge_user_lat', lat);
+      localStorage.setItem('ampedge_user_lng', lng);
+      
+      // Remove banner
+      const banner = document.getElementById('locationPromptBanner');
+      if (banner) banner.remove();
+      
+      // Auto-fill form
+      autoFillLocation();
+      
+      // Success toast
+      showToastNotification(`📍 Location enabled: Near ${closest.name}`);
+    },
+    (error) => {
+      console.warn("Location access denied: ", error.message);
+      if (btn) btn.textContent = orgText;
+      if (!silent) {
+        showToastNotification("⚠️ Please enable location permission in your browser.");
+      }
+      dismissLocationPrompt();
+    }
+  );
+};
+
+function getClosestCity(lat, lng) {
+  let min = Infinity;
+  let closest = cities[0];
+  cities.forEach(c => {
+    let d = Math.sqrt(Math.pow(c.lat - lat, 2) + Math.pow(c.lng - lng, 2));
+    if (d < min) {
+      min = d;
+      closest = c;
+    }
+  });
+  return closest;
+}
+
+function autoFillLocation() {
+  const citySelect = document.getElementById('bookingCity');
+  const pincodeInput = document.getElementById('bookingPincode');
+  
+  const lat = parseFloat(localStorage.getItem('ampedge_user_lat'));
+  const lng = parseFloat(localStorage.getItem('ampedge_user_lng'));
+  
+  if (lat && lng) {
+    const closest = getClosestCity(lat, lng);
+    if (citySelect) citySelect.value = closest.name;
+    if (pincodeInput && !pincodeInput.value) pincodeInput.value = closest.pin;
+  }
+}
+
+function showToastNotification(msg) {
+  if (typeof showToast === 'function') {
+    showToast(msg);
+  } else {
+    alert(msg);
+  }
+}
