@@ -18,6 +18,20 @@ const defaultProducts = [
   { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: '🌀' }
 ];
 
+window.mockElectricians = [
+  { id: 'E1', name: 'Ramesh Kumar', rating: 4.9, jobs: 847, exp: 8, baseRate: 500, city: 'Howrah', distance: 1.2, avatar: 'R', color: '#4169E1' },
+  { id: 'E2', name: 'Suresh Yadav', rating: 4.8, jobs: 612, exp: 5, baseRate: 400, city: 'Howrah', distance: 2.5, avatar: 'S', color: '#059669' },
+  { id: 'E3', name: 'Mohit Singh', rating: 4.7, jobs: 410, exp: 6, baseRate: 300, city: 'Howrah', distance: 0.8, avatar: 'M', color: '#7c3aed' },
+  { id: 'E4', name: 'Dinesh Pal', rating: 4.5, jobs: 250, exp: 3, baseRate: 550, city: 'Howrah', distance: 3.4, avatar: 'D', color: '#f59e0b' },
+  { id: 'E5', name: 'Subrata Roy', rating: 4.9, jobs: 1020, exp: 10, baseRate: 600, city: 'Kolkata', distance: 1.5, avatar: 'S', color: '#4169E1' },
+  { id: 'E6', name: 'Bikram Das', rating: 4.6, jobs: 340, exp: 4, baseRate: 350, city: 'Kolkata', distance: 2.1, avatar: 'B', color: '#ef4444' },
+  { id: 'E7', name: 'Anik Sen', rating: 4.7, jobs: 512, exp: 5, baseRate: 450, city: 'Kolkata', distance: 0.9, avatar: 'A', color: '#7c3aed' },
+  { id: 'E8', name: 'Prosad Shaw', rating: 4.4, jobs: 180, exp: 2, baseRate: 300, city: 'Kolkata', distance: 4.0, avatar: 'P', color: '#f59e0b' },
+  { id: 'E9', name: 'Amit Sharma', rating: 4.9, jobs: 920, exp: 9, baseRate: 650, city: 'Delhi NCR', distance: 1.1, avatar: 'A', color: '#4169E1' },
+  { id: 'E10', name: 'Rahul Verma', rating: 4.8, jobs: 580, exp: 6, baseRate: 400, city: 'Delhi NCR', distance: 2.3, avatar: 'R', color: '#059669' },
+  { id: 'E11', name: 'Sanjay Gupta', rating: 4.5, jobs: 310, exp: 4, baseRate: 350, city: 'Delhi NCR', distance: 3.8, avatar: 'S', color: '#ef4444' }
+];
+
 window.getAmpEdgeServices = () => {
   const data = localStorage.getItem('ampedge_services');
   if (data) return JSON.parse(data).filter(s => s.active);
@@ -141,6 +155,7 @@ setInterval(() => {
 
 // ── Service logic ────────────────────────────────
 let currentSelectedService = null;
+let currentSelectedElectrician = null;
 
 function renderBookingServices() {
   const container = document.getElementById('serviceChipsContainer');
@@ -159,6 +174,7 @@ function renderBookingServices() {
   `).join('');
   
   currentSelectedService = services[0];
+  renderBookingElectricians();
   updateBookingSummary();
 }
 
@@ -170,9 +186,15 @@ function updateBookingSummary() {
   const pGst = document.getElementById('summaryGstPrice');
   const pTotal = document.getElementById('summaryTotalPrice');
   
-  if (pName) pName.textContent = `⚡ ${currentSelectedService.name}`;
+  if (pName) {
+    if (currentSelectedElectrician) {
+      pName.innerHTML = `⚡ ${currentSelectedService.name}<br><span style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:4px;display:inline-block">👷 Pro: ${currentSelectedElectrician.name} (★ ${currentSelectedElectrician.rating})</span>`;
+    } else {
+      pName.textContent = `⚡ ${currentSelectedService.name}`;
+    }
+  }
   
-  const base = currentSelectedService.basePrice;
+  const base = currentSelectedElectrician ? currentSelectedElectrician.baseRate : currentSelectedService.basePrice;
   const platform = 49;
   const gst = Math.round((base + platform) * 0.18);
   const total = base + platform + gst;
@@ -196,6 +218,129 @@ function chipSel(el) {
     currentSelectedService = matched;
     updateBookingSummary();
   }
+}
+
+// ── Booking Electricians Render & Selection ───────
+window.renderBookingElectricians = () => {
+  const container = document.getElementById('proSelectionContainer');
+  if (!container) return; // not on booking page
+  
+  const citySelect = document.getElementById('bookingCity');
+  if (!citySelect) return;
+  const selectedCity = citySelect.value;
+  
+  // Filter mock electricians by city
+  let filtered = window.mockElectricians.filter(e => e.city.toLowerCase() === selectedCity.toLowerCase());
+  
+  // If no professionals found, generate 4 mock ones for this city
+  if (filtered.length === 0) {
+    filtered = [
+      { id: 'EM1', name: 'Rohan Sen', rating: 4.8, jobs: 310, exp: 4, baseRate: 350, city: selectedCity, distance: 1.4, avatar: 'R', color: '#4169E1' },
+      { id: 'EM2', name: 'Karan Sharma', rating: 4.7, jobs: 240, exp: 3, baseRate: 300, city: selectedCity, distance: 2.8, avatar: 'K', color: '#059669' },
+      { id: 'EM3', name: 'Vikram Singh', rating: 4.9, jobs: 490, exp: 6, baseRate: 500, city: selectedCity, distance: 0.9, avatar: 'V', color: '#7c3aed' },
+      { id: 'EM4', name: 'Anil Gupta', rating: 4.4, jobs: 120, exp: 2, baseRate: 450, city: selectedCity, distance: 3.2, avatar: 'A', color: '#f59e0b' }
+    ];
+  }
+  
+  // Sort based on sort select dropdown
+  const sortType = document.getElementById('proSortSelect')?.value || 'rating';
+  if (sortType === 'price_low') {
+    filtered.sort((a, b) => a.baseRate - b.baseRate);
+  } else if (sortType === 'price_high') {
+    filtered.sort((a, b) => b.baseRate - a.baseRate);
+  } else if (sortType === 'rating') {
+    filtered.sort((a, b) => b.rating - a.rating);
+  } else if (sortType === 'distance') {
+    filtered.sort((a, b) => a.distance - b.distance);
+  }
+  
+  // If no electrician selected yet, or current selection is not in the filtered list
+  if (!currentSelectedElectrician || !filtered.some(e => e.id === currentSelectedElectrician.id)) {
+    currentSelectedElectrician = filtered[0];
+    updateBookingSummary();
+  }
+  
+  // Render
+  container.innerHTML = filtered.map(e => {
+    const isSelected = currentSelectedElectrician && currentSelectedElectrician.id === e.id;
+    return `
+      <div class="prof-card pro-selection-card ${isSelected ? 'chosen' : ''}" onclick="selectBookingElectrician('${e.id}')" data-id="${e.id}" style="padding:18px; display:flex; align-items:center; gap:16px; border:2px solid ${isSelected ? 'var(--blue)' : 'var(--border2)'}; background:${isSelected ? 'rgba(65, 105, 225, 0.04)' : '#fff'}; border-radius:12px; cursor:pointer; transition:var(--t); box-shadow: ${isSelected ? 'var(--s2)' : 'none'}">
+        <div class="prof-av" style="background:linear-gradient(135deg, ${e.color}, #5CE1E6); width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:16px; flex-shrink:0;">
+          ${e.avatar}
+        </div>
+        <div style="flex:1">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2px;">
+            <h4 style="margin:0; font-size:14.5px; font-weight:800; color:var(--text-dark)">${e.name}</h4>
+            <span style="font-size:15px; font-weight:800; color:var(--blue)">₹${e.baseRate}</span>
+          </div>
+          <div style="display:flex; gap:8px; font-size:12px; color:var(--text-muted); flex-wrap:wrap; align-items:center">
+            <span style="color:#f59e0b; font-weight:700">★ ${e.rating.toFixed(1)}</span>
+            <span>•</span>
+            <span>${e.jobs} jobs</span>
+            <span>•</span>
+            <span>${e.exp} yrs exp</span>
+            <span>•</span>
+            <span style="color:#059669; font-weight:600">📍 ${e.distance.toFixed(1)} km</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; border:2px solid ${isSelected ? 'var(--blue)' : '#cbd5e1'}; background:${isSelected ? 'var(--blue)' : 'none'}; color:#fff; font-size:12px; font-weight:800">
+          ${isSelected ? '✓' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  // Keep the matched pros list in sync (if exists)
+  renderSidebarMatchedPros(filtered);
+};
+
+window.sortBookingElectricians = () => {
+  renderBookingElectricians();
+};
+
+window.selectBookingElectrician = (id) => {
+  const citySelect = document.getElementById('bookingCity');
+  const selectedCity = citySelect ? citySelect.value : 'Howrah';
+  
+  let list = window.mockElectricians.filter(e => e.city.toLowerCase() === selectedCity.toLowerCase());
+  if (list.length === 0) {
+    list = [
+      { id: 'EM1', name: 'Rohan Sen', rating: 4.8, jobs: 310, exp: 4, baseRate: 350, city: selectedCity, distance: 1.4, avatar: 'R', color: '#4169E1' },
+      { id: 'EM2', name: 'Karan Sharma', rating: 4.7, jobs: 240, exp: 3, baseRate: 300, city: selectedCity, distance: 2.8, avatar: 'K', color: '#059669' },
+      { id: 'EM3', name: 'Vikram Singh', rating: 4.9, jobs: 490, exp: 6, baseRate: 500, city: selectedCity, distance: 0.9, avatar: 'V', color: '#7c3aed' },
+      { id: 'EM4', name: 'Anil Gupta', rating: 4.4, jobs: 120, exp: 2, baseRate: 450, city: selectedCity, distance: 3.2, avatar: 'A', color: '#f59e0b' }
+    ];
+  }
+  
+  const matched = list.find(e => e.id === id);
+  if (matched) {
+    currentSelectedElectrician = matched;
+    renderBookingElectricians();
+    updateBookingSummary();
+  }
+};
+
+function renderSidebarMatchedPros(list) {
+  const container = document.querySelector('.price-box:nth-child(2)');
+  if (!container || !container.querySelector('h3')?.textContent.includes('Matched')) return;
+  
+  const h3 = container.querySelector('h3');
+  // Rebuild list of pros
+  const prosHtml = list.slice(0, 3).map(e => {
+    const isSelected = currentSelectedElectrician && currentSelectedElectrician.id === e.id;
+    return `
+      <div class="prof-card" onclick="selectBookingElectrician('${e.id}')" style="cursor:pointer; border:1.5px solid ${isSelected ? 'var(--blue)' : 'transparent'}; background:${isSelected ? 'rgba(65, 105, 225, 0.02)' : 'none'}; padding:8px; border-radius:8px; margin-bottom:8px">
+        <div class="prof-av" style="background:linear-gradient(135deg,${e.color},#5ce1e6)">${e.avatar}</div>
+        <div style="flex:1">
+          <div class="prof-name" style="font-weight:${isSelected ? '800' : '600'}">${e.name}</div>
+          <div class="prof-meta">★ ${e.rating} · ${e.jobs} jobs · ₹${e.baseRate}</div>
+        </div>
+        <span class="badge ${isSelected ? 'badge-blue' : 'badge-green'}">${isSelected ? 'Selected' : 'Available'}</span>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = `<h3>👷 Matched Professionals</h3>` + prosHtml;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -925,7 +1070,7 @@ function saveTransaction(id, amount, cName, cPhone, method) {
       customer: cName, 
       service: svcName, 
       status: 'Pending', 
-      tech: 'Unassigned', 
+      tech: currentSelectedElectrician ? currentSelectedElectrician.name : 'Unassigned', 
       amount: amount,
       location: activeLoc
     });
@@ -1218,7 +1363,11 @@ function autoFillLocation() {
   
   if (lat && lng) {
     const closest = getClosestCity(lat, lng);
-    if (citySelect) citySelect.value = closest.name;
+    if (citySelect) {
+      citySelect.value = closest.name;
+      // Trigger electricians list update
+      renderBookingElectricians();
+    }
     if (pincodeInput && !pincodeInput.value) pincodeInput.value = closest.pin;
   }
 }

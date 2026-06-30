@@ -39,10 +39,10 @@
   <div>
     <!-- Step 1 -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 1 of 5</div>
+      <div class="step-pill">Step 1 of 6</div>
       <h3 class="step-title">Select Location</h3>
       <div class="two-col" style="margin-bottom:14px">
-        <div class="field"><label>City *</label><select id="bookingCity" class="f-input"><option>Howrah</option><option>Kolkata</option><option>Delhi NCR</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Pune</option></select></div>
+        <div class="field"><label>City *</label><select id="bookingCity" class="f-input" onchange="renderBookingElectricians()"><option>Howrah</option><option>Kolkata</option><option>Delhi NCR</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Pune</option></select></div>
         <div class="field"><label>Pincode *</label><input id="bookingPincode" class="f-input" placeholder="e.g. 711307"/></div>
       </div>
       <div><a href="javascript:void(0)" id="useCurrentLocBtn" onclick="requestGeolocation(true)" style="color:var(--blue);font-size:13px;font-weight:700">📍 Use my current location</a></div>
@@ -50,7 +50,7 @@
 
     <!-- Step 2 -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 2 of 5</div>
+      <div class="step-pill">Step 2 of 6</div>
       <h3 class="step-title">Choose Your Service</h3>
       <div class="svc-chips" id="serviceChipsContainer">
         <!-- populated from JS -->
@@ -58,9 +58,27 @@
       </div>
     </div>
 
-    <!-- Step 3 -->
+    <!-- Step 3 (NEW): Select Professional -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 3 of 5</div>
+      <div class="step-pill">Step 3 of 6</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
+        <h3 class="step-title" style="margin-bottom:0">Select Electrician Partner</h3>
+        <select class="f-input" id="proSortSelect" onchange="sortBookingElectricians()" style="padding:8px 12px; font-size:13px; width:auto; min-width:160px; margin:0">
+          <option value="rating">Best Rated ★</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+          <option value="distance">Nearest First 📍</option>
+        </select>
+      </div>
+      <p style="color:var(--muted); font-size:13px; margin-top:-6px; margin-bottom:16px;">We found the following verified electrician & contractor partners in your city. Compare ratings, distance, and rates to book.</p>
+      <div id="proSelectionContainer" style="display:flex; flex-direction:column; gap:12px">
+        <!-- Dynamically rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card fade-up">
+      <div class="step-pill">Step 4 of 6</div>
       <h3 class="step-title">Select Date & Time</h3>
       <div class="date-strip">
         <div class="date-item disabled"><div class="date-day">Thu</div><div class="date-num">19</div></div>
@@ -83,9 +101,9 @@
       </div>
     </div>
 
-    <!-- Step 4 -->
+    <!-- Step 5 -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 4 of 5</div>
+      <div class="step-pill">Step 5 of 6</div>
       <h3 class="step-title">Your Full Address</h3>
       <div class="two-col">
         <div class="field"><label>Full Name *</label><input class="f-input" placeholder="Rahul Sharma"/></div>
@@ -95,9 +113,9 @@
       <div class="field"><label>Address Line 2</label><input class="f-input" placeholder="Street, Area, Landmark"/></div>
     </div>
 
-    <!-- Step 5 -->
+    <!-- Step 6 -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 5 of 5</div>
+      <div class="step-pill">Step 6 of 6</div>
       <h3 class="step-title">Additional Details</h3>
       <div class="field"><label>Describe the issue (optional)</label><textarea class="f-input f-textarea" placeholder="Describe what needs to be done, any specific requirements, access instructions..."></textarea></div>
       <div style="display:flex;gap:12px;margin-top:8px">
