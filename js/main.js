@@ -162,15 +162,30 @@ function renderBookingServices() {
   const container = document.getElementById('serviceChipsContainer');
   if (!container) return; // not on booking page
   
-  const services = window.getAmpEdgeServices();
+  let services = window.getAmpEdgeServices();
+  // Filter by service budget range
+  services = services.filter(s => s.basePrice >= currentServiceMinPrice && s.basePrice <= currentServiceMaxPrice);
+  
   if (services.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted)">No services available</div>';
+    container.innerHTML = '<div style="color:var(--muted); font-size:13px; padding:10px 0">No services match your budget range.</div>';
+    currentSelectedService = null;
+    currentSelectedElectrician = null;
+    selectedAddonProducts = [];
+    updateBookingSummary();
+    
+    // Clear electricians list
+    const proContainer = document.getElementById('proSelectionContainer');
+    if (proContainer) proContainer.innerHTML = '<div style="color:var(--muted); font-size:13px;">No electricians available for this budget.</div>';
+    
+    // Clear recommended products list
+    const recContainer = document.getElementById('recommendedProductsGrid');
+    if (recContainer) recContainer.innerHTML = '<div style="color:var(--muted); font-size:13px;">No recommendations.</div>';
     return;
   }
   
   container.innerHTML = services.map((s, idx) => `
     <div class="svc-chip ${idx === 0 ? 'selected' : ''}" onclick="chipSel(this)" data-id="${s.id}">
-      ⚡ ${s.name}
+      ⚡ ${s.name} (₹${s.basePrice})
     </div>
   `).join('');
   
@@ -321,14 +336,18 @@ window.renderBookingElectricians = () => {
   // Filter mock electricians by city
   let filtered = window.mockElectricians.filter(e => e.city.toLowerCase() === selectedCity.toLowerCase());
   
+  // Filter by service budget limit
+  filtered = filtered.filter(e => e.baseRate >= currentServiceMinPrice && e.baseRate <= currentServiceMaxPrice);
+  
   // If no professionals found, generate 4 mock ones for this city
   if (filtered.length === 0) {
-    filtered = [
+    const temps = [
       { id: 'EM1', name: 'Rohan Sen', rating: 4.8, jobs: 310, exp: 4, baseRate: 350, city: selectedCity, distance: 1.4, avatar: 'R', color: '#4169E1' },
       { id: 'EM2', name: 'Karan Sharma', rating: 4.7, jobs: 240, exp: 3, baseRate: 300, city: selectedCity, distance: 2.8, avatar: 'K', color: '#059669' },
       { id: 'EM3', name: 'Vikram Singh', rating: 4.9, jobs: 490, exp: 6, baseRate: 500, city: selectedCity, distance: 0.9, avatar: 'V', color: '#7c3aed' },
       { id: 'EM4', name: 'Anil Gupta', rating: 4.4, jobs: 120, exp: 2, baseRate: 450, city: selectedCity, distance: 3.2, avatar: 'A', color: '#f59e0b' }
     ];
+    filtered = temps.filter(e => e.baseRate >= currentServiceMinPrice && e.baseRate <= currentServiceMaxPrice);
   }
   
   // Sort based on sort select dropdown
@@ -516,6 +535,12 @@ window.addEventListener('storage', (e) => {
 let currentCategoryFilter = 'ALL';
 let currentSearchTerm = '';
 let currentPriceLimit = Infinity;
+let currentMinPriceLimit = 0;
+let currentMaxPriceLimit = 999999;
+
+// ── Service Budget filtering ──────────────────────────
+let currentServiceMinPrice = 0;
+let currentServiceMaxPrice = 999999;
 
 function renderMarketplaceProducts() {
   const grid = document.getElementById('productGrid');
@@ -540,6 +565,7 @@ function renderMarketplaceProducts() {
     }
     
     // filter by price
+    if (p.basePrice < currentMinPriceLimit || p.basePrice > currentMaxPriceLimit) return false;
     if (p.basePrice > currentPriceLimit) return false;
     
     return true;
@@ -848,9 +874,109 @@ function updatePrice(val) {
   if (lbl) lbl.textContent = +val >= 9999 ? 'Any price' : `Up to ₹${parseInt(val).toLocaleString('en-IN')}`;
   if (typeof currentPriceLimit !== 'undefined') {
     currentPriceLimit = +val >= 9999 ? Infinity : +val;
+    
+    // Clear product budget radio selection since custom slider was used
+    const radios = ['pbAll', 'pbLow', 'pbMed', 'pbHigh'];
+    radios.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.checked = false;
+    });
+    // Reset range bounds
+    currentMinPriceLimit = 0;
+    currentMaxPriceLimit = currentPriceLimit;
+    
     renderMarketplaceProducts();
   }
 }
+
+window.setProductBudget = (min, max) => {
+  currentMinPriceLimit = min;
+  currentMaxPriceLimit = max;
+  
+  // Sync range slider if a preset is clicked
+  const slider = document.querySelector('.range-slider');
+  const lbl = document.getElementById('priceLabel');
+  if (slider) {
+    if (max === 999999) {
+      slider.value = 10000;
+      if (lbl) lbl.textContent = 'Any price';
+    } else {
+      slider.value = max;
+      if (lbl) lbl.textContent = `Up to ₹${max.toLocaleString('en-IN')}`;
+    }
+    currentPriceLimit = max;
+  }
+  
+  renderMarketplaceProducts();
+};
+
+window.setServiceBudget = (min, max, activeBtnId) => {
+  currentServiceMinPrice = min;
+  currentServiceMaxPrice = max;
+  
+  const buttons = ['btnSvcAll', 'btnSvcLow', 'btnSvcMed', 'btnSvcHigh'];
+  buttons.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (id === activeBtnId) {
+        btn.className = 'btn btn-sm btn-primary';
+        btn.style.color = '#fff';
+      } else {
+        btn.className = 'btn btn-sm btn-outline';
+        btn.style.color = '';
+      }
+    }
+  });
+  
+  renderBookingServices();
+};
+
+window.resetProductFilters = () => {
+  currentMinPriceLimit = 0;
+  currentMaxPriceLimit = 999999;
+  currentPriceLimit = Infinity;
+  currentSearchTerm = '';
+  currentCategoryFilter = 'ALL';
+  
+  // Reset search input
+  const input = document.querySelector('.search-input');
+  if (input) input.value = '';
+  
+  // Reset category chips
+  const chips = document.querySelectorAll('.chip-item');
+  chips.forEach((c, idx) => {
+    c.classList.toggle('active', idx === 0);
+  });
+  
+  // Reset brand checkbox filters
+  const checkboxes = document.querySelectorAll('.fc-opt input[type="checkbox"]');
+  checkboxes.forEach(cb => {
+    // If it's brand checkboxes, we can check the default checked ones (Havells, Legrand)
+    const label = cb.nextElementSibling?.textContent;
+    if (['Havells', 'Legrand', 'In Stock'].includes(label)) {
+      cb.checked = true;
+    } else {
+      cb.checked = false;
+    }
+  });
+  
+  // Reset radios
+  const radios = ['pbAll', 'pbLow', 'pbMed', 'pbHigh'];
+  radios.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = idx === 0;
+  });
+  
+  // Reset slider
+  const slider = document.querySelector('.range-slider');
+  const lbl = document.getElementById('priceLabel');
+  if (slider) {
+    slider.value = 10000;
+    if (lbl) lbl.textContent = 'Any price';
+  }
+  
+  renderMarketplaceProducts();
+};
 
 // ── Partner tab ───────────────────────────────
 function switchTab(type) {

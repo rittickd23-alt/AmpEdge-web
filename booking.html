@@ -52,6 +52,18 @@
     <div class="step-card fade-up">
       <div class="step-pill">Step 2 of 6</div>
       <h3 class="step-title">Choose Your Service</h3>
+      
+      <!-- Budget Filter for Services -->
+      <div style="margin-bottom: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Filter by Budget limit:</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-sm btn-primary" id="btnSvcAll" onclick="setServiceBudget(0, 999999, 'btnSvcAll')" style="padding: 6px 12px; font-size: 12px; margin: 0;">🟢 All Prices</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnSvcLow" onclick="setServiceBudget(0, 500, 'btnSvcLow')" style="padding: 6px 12px; font-size: 12px; margin: 0;">💵 Under ₹500</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnSvcMed" onclick="setServiceBudget(500, 2000, 'btnSvcMed')" style="padding: 6px 12px; font-size: 12px; margin: 0;">💳 ₹500 - ₹2,000</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnSvcHigh" onclick="setServiceBudget(2000, 999999, 'btnSvcHigh')" style="padding: 6px 12px; font-size: 12px; margin: 0;">⚡ Over ₹2,000</button>
+        </div>
+      </div>
+      
       <div class="svc-chips" id="serviceChipsContainer">
         <!-- populated from JS -->
         <div class="svc-chip selected" onclick="chipSel(this)">⚡ Electrical Installation</div>

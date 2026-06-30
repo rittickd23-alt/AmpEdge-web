@@ -62,8 +62,25 @@
       </div>
       <div class="filter-group">
         <div class="fg-label">Price Range</div>
-        <input type="range" class="range-slider" min="0" max="10000" value="5000" oninput="updatePrice(this.value)"/>
-        <div class="range-labels"><span>₹0</span><span id="priceLabel">Up to ₹5,000</span><span>₹10K+</span></div>
+        <input type="range" class="range-slider" min="0" max="10000" value="10000" oninput="updatePrice(this.value)"/>
+        <div class="range-labels"><span>₹0</span><span id="priceLabel">Any price</span><span>₹10K+</span></div>
+      </div>
+      <div class="filter-group">
+        <div class="fg-label">Quick Budget Filter</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dark); cursor:pointer;">
+            <input type="radio" name="prodBudget" id="pbAll" checked onclick="setProductBudget(0, 999999)"/> 🟢 All Prices
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dark); cursor:pointer;">
+            <input type="radio" name="prodBudget" id="pbLow" onclick="setProductBudget(0, 500)"/> 💵 Under ₹500
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dark); cursor:pointer;">
+            <input type="radio" name="prodBudget" id="pbMed" onclick="setProductBudget(500, 2000)"/> 💳 ₹500 - ₹2,000
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dark); cursor:pointer;">
+            <input type="radio" name="prodBudget" id="pbHigh" onclick="setProductBudget(2000, 999999)"/> ⚡ Over ₹2,000
+          </label>
+        </div>
       </div>
       <div class="filter-group">
         <div class="fg-label">Rating</div>
@@ -78,7 +95,7 @@
         <div class="fc-opt"><input type="checkbox" checked/><label>In Stock</label></div>
         <div class="fc-opt"><input type="checkbox"/><label>Ships in 24hr</label></div>
       </div>
-      <button class="btn btn-outline" style="width:100%">Reset Filters</button>
+      <button class="btn btn-outline" onclick="resetProductFilters()" style="width:100%">Reset Filters</button>
     </div>
   </aside>
 
