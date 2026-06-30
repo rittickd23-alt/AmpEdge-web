@@ -201,6 +201,24 @@
         </div>
       </div>
 
+      <!-- Need Installation Section -->
+      <div id="checkoutInstallationSection" style="background:rgba(65,105,225,0.02); border:1px dashed var(--blue); padding:16px; border-radius:12px; margin-bottom:20px;">
+        <h4 style="margin:0 0 6px 0; font-size:13.5px; font-weight:800; color:var(--text-dark); display:flex; align-items:center; gap:6px;">
+          🛠️ Need Professional Installation?
+        </h4>
+        <p id="checkoutLocPromptText" style="margin:0 0 12px 0; font-size:11.5px; line-height:1.4; color:var(--text-muted);">
+          Enable location to view verified electrician partners near you to set up your product.
+        </p>
+        
+        <button type="button" class="btn btn-outline btn-sm" id="checkoutLocBtn" onclick="requestMarketplaceLocation()" style="padding:6px 12px; font-size:12px; margin-bottom:10px; display:inline-flex; align-items:center; gap:4px">
+          📍 Use Current Location
+        </button>
+        
+        <div id="checkoutElectriciansContainer" style="display:none; flex-direction:column; gap:10px; margin-top:10px;">
+          <!-- Nearby Electricians will render here -->
+        </div>
+      </div>
+
       <!-- Payment Tabs -->
       <div class="checkout-tabs" style="display:flex; border-bottom:1px solid var(--border); margin-bottom:20px">
         <button class="chk-tab active" onclick="switchCheckoutTab('upi')" style="flex:1; padding:12px; background:none; border:none; border-bottom:2px solid var(--blue); font-weight:600; color:var(--blue); cursor:pointer">UPI</button>

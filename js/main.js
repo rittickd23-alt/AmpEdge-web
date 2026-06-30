@@ -1167,7 +1167,145 @@ window.openCheckout = function(isCart = false) {
     }
   }
   
+  // Dynamic installation addon cross-selling initialization
+  const instSection = document.getElementById('checkoutInstallationSection');
+  if (instSection) {
+    if (window.location.pathname.includes('marketplace.html')) {
+      instSection.style.display = 'block';
+      selectedMarketplaceElectrician = null;
+      const amtText = modalTotal ? modalTotal.textContent : '0';
+      baseProductOrderTotal = parseInt(amtText.replace(/[^0-9]/g, '')) || 0;
+      
+      // If location is already present in storage, show electricians list automatically
+      if (localStorage.getItem('ampedge_user_loc')) {
+        renderMarketplaceCheckoutElectricians();
+      } else {
+        const container = document.getElementById('checkoutElectriciansContainer');
+        const promptText = document.getElementById('checkoutLocPromptText');
+        const locBtn = document.getElementById('checkoutLocBtn');
+        if (container) container.style.display = 'none';
+        if (promptText) {
+          promptText.style.display = 'block';
+          promptText.textContent = 'Enable location to view verified electrician partners near you to set up your product.';
+        }
+        if (locBtn) {
+          locBtn.style.display = 'inline-flex';
+          locBtn.textContent = '📍 Use Current Location';
+        }
+      }
+    } else {
+      instSection.style.display = 'none';
+    }
+  }
+  
   modal.classList.add('active');
+};
+
+// ── Marketplace Checkout Electrician Suggestions ─────
+let selectedMarketplaceElectrician = null;
+let baseProductOrderTotal = 0;
+
+window.requestMarketplaceLocation = function() {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+  
+  const btn = document.getElementById('checkoutLocBtn');
+  if (btn) btn.textContent = 'Enabling...';
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      const closest = getClosestCity(lat, lng);
+      const locStr = `${closest.name} (${lat.toFixed(2)}° N, ${lng.toFixed(2)}° E)`;
+      
+      localStorage.setItem('ampedge_user_loc', locStr);
+      localStorage.setItem('ampedge_user_lat', lat);
+      localStorage.setItem('ampedge_user_lng', lng);
+      
+      renderMarketplaceCheckoutElectricians();
+      showToastNotification(`📍 Location enabled: Near ${closest.name}`);
+    },
+    (error) => {
+      console.warn("Location access denied: ", error.message);
+      if (btn) btn.textContent = '📍 Use Current Location';
+      alert("Please enable location permission in your browser to view nearby electricians.");
+    }
+  );
+};
+
+window.renderMarketplaceCheckoutElectricians = function() {
+  const container = document.getElementById('checkoutElectriciansContainer');
+  const promptText = document.getElementById('checkoutLocPromptText');
+  const locBtn = document.getElementById('checkoutLocBtn');
+  
+  if (!container) return;
+  
+  const userLoc = localStorage.getItem('ampedge_user_loc') || 'Howrah';
+  const cityName = userLoc.split(' (')[0];
+  
+  let filtered = window.mockElectricians.filter(e => e.city.toLowerCase() === cityName.toLowerCase());
+  if (filtered.length === 0) {
+    filtered = window.mockElectricians.slice(0, 3);
+  }
+  
+  if (promptText) promptText.style.display = 'none';
+  if (locBtn) locBtn.style.display = 'none';
+  container.style.display = 'flex';
+  
+  const prosList = filtered.slice(0, 3).map(e => {
+    const installFee = Math.round(e.baseRate * 0.7); // 30% discount on installation for buying product
+    const isSelected = selectedMarketplaceElectrician && selectedMarketplaceElectrician.id === e.id;
+    return `
+      <div onclick="selectMarketplaceElectrician('${e.id}', ${installFee})" style="padding:10px; border:1px solid ${isSelected ? 'var(--blue)' : 'var(--border2)'}; background:${isSelected ? 'rgba(65,105,225,0.03)' : '#fff'}; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:0.2s">
+        <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,${e.color},#5ce1e6); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:12px;">${e.avatar}</div>
+        <div style="flex:1">
+          <div style="font-size:12.5px; font-weight:700; color:var(--text-dark)">${e.name}</div>
+          <div style="font-size:11px; color:var(--text-muted)">★ ${e.rating} · ${e.distance.toFixed(1)} km away</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:12px; font-weight:800; color:var(--blue)">+₹${installFee}</span>
+          <div style="font-size:10px; color:#059669; font-weight:600">Install Fee</div>
+        </div>
+        <div style="width:16px; height:16px; border-radius:50%; border:1px solid ${isSelected ? 'var(--blue)' : '#cbd5e1'}; background:${isSelected ? 'var(--blue)' : 'none'}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:9px">
+          ${isSelected ? '✓' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = `
+    <span style="font-size:12px; font-weight:700; color:var(--text-dark); margin-bottom:4px; display:block">Available nearby for installation:</span>
+    ${prosList}
+    <button type="button" onclick="clearMarketplaceElectricianSelection()" class="btn btn-sm btn-outline" style="padding:4px 8px; font-size:10.5px; align-self:flex-end; border-color:#ef4444; color:#ef4444; margin-top:4px">✕ No Installation Needed</button>
+  `;
+};
+
+window.selectMarketplaceElectrician = function(id, installFee) {
+  const e = window.mockElectricians.find(item => item.id === id);
+  if (!e) return;
+  
+  selectedMarketplaceElectrician = { ...e, installFee: installFee };
+  
+  const modalTotal = document.getElementById('checkoutTotalAmount');
+  if (modalTotal) {
+    const finalTotal = baseProductOrderTotal + installFee;
+    modalTotal.textContent = '₹' + finalTotal.toLocaleString('en-IN');
+  }
+  
+  renderMarketplaceCheckoutElectricians();
+};
+
+window.clearMarketplaceElectricianSelection = function() {
+  selectedMarketplaceElectrician = null;
+  const modalTotal = document.getElementById('checkoutTotalAmount');
+  if (modalTotal) {
+    modalTotal.textContent = '₹' + baseProductOrderTotal.toLocaleString('en-IN');
+  }
+  renderMarketplaceCheckoutElectricians();
 };
 
 window.switchCheckoutTab = function(tabId) {
@@ -1291,6 +1429,22 @@ function saveTransaction(id, amount, cName, cPhone, method) {
       status: 'Pending', 
       tech: currentSelectedElectrician ? currentSelectedElectrician.name : 'Unassigned', 
       amount: amount,
+      location: activeLoc
+    });
+    localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+  }
+  
+  // 2b) Save to Bookings (if product checkout includes installation selection on marketplace page)
+  if (window.location.pathname.includes('marketplace.html') && typeof selectedMarketplaceElectrician !== 'undefined' && selectedMarketplaceElectrician) {
+    let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+    bookings.unshift({ 
+      id: 'B-INST-' + id, 
+      date: now.toISOString().split('T')[0], 
+      customer: cName, 
+      service: `Product Installation (Marketplace Addon)`, 
+      status: 'Pending', 
+      tech: selectedMarketplaceElectrician.name, 
+      amount: selectedMarketplaceElectrician.installFee,
       location: activeLoc
     });
     localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
