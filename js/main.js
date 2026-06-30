@@ -156,6 +156,7 @@ setInterval(() => {
 // ── Service logic ────────────────────────────────
 let currentSelectedService = null;
 let currentSelectedElectrician = null;
+let selectedAddonProducts = [];
 
 function renderBookingServices() {
   const container = document.getElementById('serviceChipsContainer');
@@ -174,9 +175,74 @@ function renderBookingServices() {
   `).join('');
   
   currentSelectedService = services[0];
+  selectedAddonProducts = []; // reset addon products on service change
   renderBookingElectricians();
+  renderRecommendedProducts();
   updateBookingSummary();
 }
+
+function renderRecommendedProducts() {
+  const container = document.getElementById('recommendedProductsGrid');
+  if (!container) return; // not on booking page
+  
+  if (!currentSelectedService) return;
+  
+  const allProducts = window.getAmpEdgeProducts();
+  let recommendedIds = [];
+  
+  // Map service category/ID to products
+  if (currentSelectedService.id === 's1' || currentSelectedService.category === 'REPAIR') {
+    recommendedIds = ['p2', 'p3']; // Finolex Wire, Legrand Socket
+  } else if (currentSelectedService.id === 's3' || currentSelectedService.category === 'SMART_HOME') {
+    recommendedIds = ['p1', 'p4']; // Smart Switch, LED Batten
+  } else if (currentSelectedService.id === 's2') {
+    recommendedIds = ['p2', 'p5']; // Finolex Wire, Crompton Fan
+  } else {
+    recommendedIds = ['p4', 'p5']; // LED Batten, Crompton Fan
+  }
+  
+  const recommended = allProducts.filter(p => recommendedIds.includes(p.id));
+  
+  container.innerHTML = recommended.map(p => {
+    const isAdded = selectedAddonProducts.some(item => item.id === p.id);
+    return `
+      <div class="product-card" style="padding:14px; border:1.5px solid ${isAdded ? 'var(--blue)' : 'var(--border2)'}; background:${isAdded ? 'rgba(65, 105, 225, 0.02)' : '#fff'}; border-radius:12px; display:flex; flex-direction:column; gap:10px; transition:var(--t); box-shadow:none">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="font-size:28px; background:#f8fafc; width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2)">
+            ${p.image || '🔌'}
+          </div>
+          <span class="badge badge-green" style="font-size:9.5px; padding:2px 6px;">Best Price</span>
+        </div>
+        <div style="flex:1">
+          <h5 style="margin:0; font-size:13px; font-weight:700; color:var(--text-dark); line-height:1.4;">${p.name}</h5>
+          <p style="margin:4px 0 0 0; font-size:11px; color:var(--text-muted); line-height:1.3;">${p.description.substring(0, 45)}...</p>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span style="font-size:13.5px; font-weight:800; color:var(--blue)">₹${p.basePrice}</span>
+          <button onclick="toggleAddonProduct('${p.id}')" class="btn btn-sm ${isAdded ? 'btn-outline' : 'btn-primary'}" style="padding: 6px 12px; font-size:11px; font-weight:700; border-color:${isAdded ? '#ef4444' : ''}; color:${isAdded ? '#ef4444' : ''}">
+            ${isAdded ? '✕ Remove' : '➕ Add to Bill'}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.toggleAddonProduct = (id) => {
+  const allProducts = window.getAmpEdgeProducts();
+  const prod = allProducts.find(p => p.id === id);
+  if (!prod) return;
+  
+  const idx = selectedAddonProducts.findIndex(p => p.id === id);
+  if (idx !== -1) {
+    selectedAddonProducts.splice(idx, 1);
+  } else {
+    selectedAddonProducts.push(prod);
+  }
+  
+  renderRecommendedProducts();
+  updateBookingSummary();
+};
 
 function updateBookingSummary() {
   if (!currentSelectedService) return;
@@ -185,6 +251,7 @@ function updateBookingSummary() {
   const pPrice = document.getElementById('summarySvcPrice');
   const pGst = document.getElementById('summaryGstPrice');
   const pTotal = document.getElementById('summaryTotalPrice');
+  const pParts = document.getElementById('summaryPartsPrice');
   
   if (pName) {
     if (currentSelectedElectrician) {
@@ -196,8 +263,27 @@ function updateBookingSummary() {
   
   const base = currentSelectedElectrician ? currentSelectedElectrician.baseRate : currentSelectedService.basePrice;
   const platform = 49;
-  const gst = Math.round((base + platform) * 0.18);
-  const total = base + platform + gst;
+  
+  // Calculate Addon products sum
+  let addonTotal = 0;
+  selectedAddonProducts.forEach(p => addonTotal += p.basePrice);
+  
+  // Update Parts & Materials summary line
+  if (pParts) {
+    if (selectedAddonProducts.length > 0) {
+      const names = selectedAddonProducts.map(p => p.name.split(' ')[0]).join(' + '); // Short names
+      pParts.textContent = `₹${addonTotal.toLocaleString('en-IN')} (${names})`;
+      pParts.style.color = 'var(--text-dark)';
+      pParts.style.fontWeight = '700';
+    } else {
+      pParts.textContent = '₹0 (site estimate)';
+      pParts.style.color = 'var(--muted)';
+      pParts.style.fontWeight = '500';
+    }
+  }
+  
+  const gst = Math.round((base + platform + addonTotal) * 0.18);
+  const total = base + platform + gst + addonTotal;
   
   if (pPrice) pPrice.textContent = `₹${base.toLocaleString('en-IN')}`;
   if (pGst) pGst.textContent = `₹${gst.toLocaleString('en-IN')}`;
@@ -216,6 +302,9 @@ function chipSel(el) {
   const matched = services.find(s => s.id === sid);
   if (matched) {
     currentSelectedService = matched;
+    selectedAddonProducts = []; // reset addon products on service change
+    renderBookingElectricians();
+    renderRecommendedProducts();
     updateBookingSummary();
   }
 }
@@ -1063,7 +1152,11 @@ function saveTransaction(id, amount, cName, cPhone, method) {
   // 2) Save to Bookings (if on booking page)
   if (window.location.pathname.includes('booking.html')) {
     let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
-    const svcName = document.getElementById('summarySvcName')?.textContent.replace('⚡ ', '') || 'General Service';
+    let svcName = document.getElementById('summarySvcName')?.innerText.replace('⚡ ', '').split('\n')[0].trim() || 'General Service';
+    if (selectedAddonProducts.length > 0) {
+      const addons = selectedAddonProducts.map(p => p.name).join(', ');
+      svcName += ` (+ ${addons})`;
+    }
     bookings.unshift({ 
       id: 'B-' + id, 
       date: now.toISOString().split('T')[0], 

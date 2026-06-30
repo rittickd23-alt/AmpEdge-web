@@ -56,6 +56,17 @@
         <!-- populated from JS -->
         <div class="svc-chip selected" onclick="chipSel(this)">⚡ Electrical Installation</div>
       </div>
+      
+      <!-- Recommended Materials Section -->
+      <div id="recommendedMaterialsSection" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <h4 style="font-size: 14.5px; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+          📦 Recommended Installation Materials <span class="badge badge-green" style="font-size: 10px; padding: 2px 6px;">Best Price</span>
+        </h4>
+        <p style="color: var(--muted); font-size: 12.5px; margin-top: 0; margin-bottom: 14px;">Select recommended high-quality products to add them directly to your service bill at wholesale rates.</p>
+        <div id="recommendedProductsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+          <!-- Dynamically populated from JS based on active service -->
+        </div>
+      </div>
     </div>
 
     <!-- Step 3 (NEW): Select Professional -->
@@ -135,7 +146,7 @@
         <div class="bi-detail" style="margin-top:3px">Your location</div>
       </div>
       <div class="p-row"><span class="p-label">Service Base Fee</span><span class="p-val" id="summarySvcPrice">₹0</span></div>
-      <div class="p-row"><span class="p-label">Parts & Materials</span><span class="p-val" style="color:var(--muted)">₹0 (site estimate)</span></div>
+      <div class="p-row"><span class="p-label">Parts & Materials</span><span class="p-val" id="summaryPartsPrice" style="color:var(--muted)">₹0 (site estimate)</span></div>
       <div class="p-row"><span class="p-label">Platform Fee</span><span class="p-val">₹49</span></div>
       <div class="p-row"><span class="p-label">Taxes (18% GST)</span><span class="p-val" id="summaryGstPrice">₹0</span></div>
       <div class="p-divider"></div>
