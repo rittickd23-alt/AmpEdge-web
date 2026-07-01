@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: bump this when default data changes ──
-const AMPEDGE_DATA_VERSION = '5.0';
+const AMPEDGE_DATA_VERSION = '7.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -1178,6 +1178,20 @@ window.sendEmbeddedMsg = function() {
 
 // Checkout & Payment Logic
 window.openCheckout = function(isCart = false) {
+  // Validate Booking Flow inputs if we are on the booking page
+  const bName = document.getElementById('bookingName');
+  const bPhone = document.getElementById('bookingPhone');
+  if (bName && bPhone) {
+    if (bName.value.trim() === '') {
+      alert("Please enter your Full Name.");
+      return;
+    }
+    if (!/^\d{10}$/.test(bPhone.value.trim())) {
+      alert("Please enter a valid 10-digit Phone Number.");
+      return;
+    }
+  }
+
   const modal = document.getElementById('checkoutModal');
   if(!modal) return;
   
@@ -1357,6 +1371,20 @@ window.switchCheckoutTab = function(tabId) {
 };
 
 window.processPayment = function() {
+  // Validate Checkout modal fields if present
+  const cNameInput = document.getElementById('checkoutName');
+  const cPhoneInput = document.getElementById('checkoutPhone');
+  if (cNameInput && cPhoneInput) {
+    if (cNameInput.value.trim() === '') {
+      alert("Please enter your Name.");
+      return;
+    }
+    if (!/^\d{10}$/.test(cPhoneInput.value.trim())) {
+      alert("Please enter a valid 10-digit Phone Number.");
+      return;
+    }
+  }
+
   const rzpKey = localStorage.getItem('ampedge_razorpay_key');
   if (rzpKey && typeof Razorpay !== 'undefined') {
     processRazorpayPayment(rzpKey);

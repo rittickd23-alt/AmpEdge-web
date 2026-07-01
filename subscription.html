@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>AMPEdge Solutions Subscriptions — Choose Your Prime Plan</title>
   <meta name="description" content="Unlock premium benefits with AMPEdge Solutions Subscription plans. Choose from Base, Modular, or Premium memberships for priority electrician booking, discounted rates, and periodic safety checkups."/>
-  <link rel="stylesheet" href="css/style.css?v=4.0"/>
+  <link rel="stylesheet" href="css/style.css?v=7.0"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
   <link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
   <style>
     :root {
@@ -352,7 +353,7 @@
       </div>
       <div class="field" style="margin-bottom:14px">
         <label>Phone Number *</label>
-        <input class="f-input" id="subPhone" placeholder="+91 98765 43210" style="width:100%"/>
+        <input type="tel" class="f-input" id="subPhone" placeholder="98765 43210" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width:100%"/>
       </div>
       <div class="field" style="margin-bottom:20px">
         <label>Email Address *</label>
@@ -420,6 +421,11 @@
       alert("Please fill all required fields (*).");
       return;
     }
+
+    if (!/^\d{10}$/.test(phone)) {
+      alert("Please enter a valid 10-digit Phone Number.");
+      return;
+    }
     
     // Save subscription local list
     let subs = JSON.parse(localStorage.getItem('ampedge_subscriptions') || '[]');
@@ -463,6 +469,20 @@
     document.getElementById('subSuccessModal').classList.add('active');
   };
 </script>
-<script src="js/main.js?v=5.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    const phoneInput = document.getElementById('subPhone');
+    if (phoneInput) {
+      window.itiSubscription = window.intlTelInput(phoneInput, {
+        initialCountry: "in",
+        countrySearch: true,
+        preferredCountries: ["in", "us", "ae"],
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
+      });
+    }
+  });
+</script>
+<script src="js/main.js?v=7.0"></script>
 </body>
 </html>
