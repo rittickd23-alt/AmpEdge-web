@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: bump this when default data changes ──
-const AMPEDGE_DATA_VERSION = '4.0';
+const AMPEDGE_DATA_VERSION = '5.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -12,13 +12,13 @@ if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
 
 // ── Global Data Store ────────────────────────
 const defaultServices = [
-  { id: 's1', name: 'Wiring Repair', description: 'Fix faulty wires and circuits safely.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true },
-  { id: 's2', name: 'MCB Setup', description: 'Install distribution boards and MCBs.', category: 'INSTALLATION', basePrice: 2299, duration: 120, city: 'Howrah', active: true },
-  { id: 's3', name: 'Smart Home Hub', description: 'Automated lighting and switches.', category: 'INSTALLATION', basePrice: 4999, duration: 180, city: 'Kolkata', active: true },
-  { id: 's4', name: 'Emergency Visit', description: 'Quick dispatch 24/7 for urgent failures.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true },
-  { id: 's5', name: 'Solar Panel Installation', description: 'Professional rooftop solar panel installation with net metering setup.', category: 'SOLAR', basePrice: 12999, duration: 480, city: 'Howrah', active: true },
-  { id: 's6', name: 'Solar System Maintenance', description: 'Annual solar panel cleaning, performance check and inverter inspection.', category: 'SOLAR', basePrice: 1499, duration: 120, city: 'Howrah', active: true },
-  { id: 's7', name: 'Solar Rooftop Survey', description: 'Site visit to assess rooftop area, shadow analysis and kW capacity planning.', category: 'SOLAR', basePrice: 299, duration: 60, city: 'Howrah', active: true },
+  { id: 's1', name: 'Wiring Repair', description: 'Fix faulty wires and circuits safely.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true, image: 'images/svc_wiring.png' },
+  { id: 's2', name: 'MCB Setup', description: 'Install distribution boards and MCBs.', category: 'INSTALLATION', basePrice: 2299, duration: 120, city: 'Howrah', active: true, image: 'images/svc_mcb.png' },
+  { id: 's3', name: 'Smart Home Hub', description: 'Automated lighting and switches.', category: 'INSTALLATION', basePrice: 4999, duration: 180, city: 'Kolkata', active: true, image: 'images/svc_switchboard.png' },
+  { id: 's4', name: 'Emergency Visit', description: 'Quick dispatch 24/7 for urgent failures.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true, image: 'images/svc_emergency.png' },
+  { id: 's5', name: 'Solar Panel Installation', description: 'Professional rooftop solar panel installation with net metering setup.', category: 'SOLAR', basePrice: 12999, duration: 480, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
+  { id: 's6', name: 'Solar System Maintenance', description: 'Annual solar panel cleaning, performance check and inverter inspection.', category: 'SOLAR', basePrice: 1499, duration: 120, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
+  { id: 's7', name: 'Solar Rooftop Survey', description: 'Site visit to assess rooftop area, shadow analysis and kW capacity planning.', category: 'SOLAR', basePrice: 299, duration: 60, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
 ];
 
 const defaultProducts = [
@@ -199,11 +199,17 @@ function renderBookingServices() {
     return;
   }
   
-  container.innerHTML = services.map((s, idx) => `
-    <div class="svc-chip ${idx === 0 ? 'selected' : ''}" onclick="chipSel(this)" data-id="${s.id}">
-      ⚡ ${s.name} (₹${s.basePrice})
-    </div>
-  `).join('');
+  container.innerHTML = services.map((s, idx) => {
+    const imgHtml = (s.image && s.image.startsWith('images/'))
+      ? `<img src="${s.image}" alt="" style="width:22px; height:22px; border-radius:6px; object-fit:cover; margin-right:8px; display:inline-block; vertical-align:middle;"/>`
+      : `<span style="margin-right:8px; vertical-align:middle;">⚡</span>`;
+    return `
+      <div class="svc-chip ${idx === 0 ? 'selected' : ''}" onclick="chipSel(this)" data-id="${s.id}" style="display:inline-flex; align-items:center; padding:10px 16px;">
+        ${imgHtml}
+        <span style="vertical-align:middle;">${s.name} (₹${s.basePrice})</span>
+      </div>
+    `;
+  }).join('');
   
   currentSelectedService = services[0];
   selectedAddonProducts = []; // reset addon products on service change
@@ -518,15 +524,21 @@ window.renderHomeDynamicSections = () => {
   if (svcGrid) {
     const homeServices = services.slice(0, 4);
     svcGrid.innerHTML = homeServices.map((s, i) => {
-      let icon = '⚡';
-      if (s.category === 'REPAIR') icon = '🔧';
-      else if (s.category === 'INSTALLATION') icon = '🔌';
-      else if (s.category === 'COMMERCIAL') icon = '🏭';
-      else if (s.category === 'EMERGENCY') icon = '🚨';
+      let iconHtml = '';
+      if (s.image && s.image.startsWith('images/')) {
+        iconHtml = `<img src="${s.image}" alt="${s.name}" style="width:100%; height:100%; object-fit:cover; display:block; border-radius:18px;"/>`;
+      } else {
+        let icon = '⚡';
+        if (s.category === 'REPAIR') icon = '🔧';
+        else if (s.category === 'INSTALLATION') icon = '🔌';
+        else if (s.category === 'COMMERCIAL') icon = '🏭';
+        else if (s.category === 'EMERGENCY') icon = '🚨';
+        iconHtml = icon;
+      }
       
       return `
         <div class="svc-card fade-up" style="transition-delay:${i * 0.08}s">
-          <div class="svc-icon-wrap">${icon}</div>
+          <div class="svc-icon-wrap" style="overflow:hidden;">${iconHtml}</div>
           <h3>${s.name}</h3>
           <p>${s.description}</p>
           <a href="booking.html" class="svc-link">Book Now <span>→</span></a>
@@ -549,9 +561,14 @@ window.renderHomeDynamicSections = () => {
     mpGrid.innerHTML = categories.map((cat, i) => {
       const data = catsMap[cat];
       const label = cat.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+      
+      const iconHtml = (data.icon && data.icon.startsWith('images/'))
+        ? `<img src="${data.icon}" alt="${label}" style="width:46px; height:46px; object-fit:contain; margin:0 auto 14px; display:block;"/>`
+        : `<span class="mpc-icon">${data.icon}</span>`;
+
       return `
-        <a href="marketplace.html" class="mpc fade-up" style="transition-delay:${i * 0.08}s">
-          <span class="mpc-icon">${data.icon}</span>
+        <a href="marketplace.html" class="mpc mpc-cat-card fade-up" style="transition-delay:${i * 0.08}s; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          ${iconHtml}
           <h4>${label}</h4>
           <span class="mpc-count">${data.count > 40 ? data.count : (data.count + 40)}+ Products</span>
         </a>
