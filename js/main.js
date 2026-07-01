@@ -2,6 +2,14 @@
    AMPEDGE — Premium Main JavaScript
    ============================================ */
 
+// ── Data Version: bump this when default data changes ──
+const AMPEDGE_DATA_VERSION = '3.0';
+if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
+  localStorage.removeItem('ampedge_services');
+  localStorage.removeItem('ampedge_products');
+  localStorage.setItem('ampedge_data_ver', AMPEDGE_DATA_VERSION);
+}
+
 // ── Global Data Store ────────────────────────
 const defaultServices = [
   { id: 's1', name: 'Wiring Repair', description: 'Fix faulty wires and circuits safely.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true },
