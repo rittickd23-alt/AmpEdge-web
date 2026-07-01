@@ -48,10 +48,10 @@ window.getAmpEdgeProducts = () => {
 
 // Initialize Customer List
 const defaultCustomers = [
-  { id: 'C-084', name: 'Rahul Sharma', phone: '+91 98765 43210', loc: 'Howrah', spend: 12500, orders: 4, lastActive: '2 Days Ago' },
-  { id: 'C-085', name: 'Amit Verma', phone: '+91 91234 56789', loc: 'Kolkata', spend: 8900, orders: 2, lastActive: '1 Week Ago' },
-  { id: 'C-086', name: 'Neha Gupta', phone: '+91 99887 76655', loc: 'Salt Lake', spend: 24500, orders: 8, lastActive: 'Today' },
-  { id: 'C-087', name: 'Vikas Singh', phone: '+91 98711 22334', loc: 'Howrah', spend: 1200, orders: 1, lastActive: '1 Month Ago' },
+  { id: 'C-084', name: 'Rahul Sharma', phone: '+91 98765 43210', email: 'rahul.sharma@gmail.com', loc: 'Howrah', coords: '22.59° N, 88.26° E', locState: 'Enabled', spend: 12500, orders: 4, lastActive: '2 Days Ago' },
+  { id: 'C-085', name: 'Amit Verma', phone: '+91 91234 56789', email: 'amit.verma@yahoo.com', loc: 'Kolkata', coords: '22.57° N, 88.36° E', locState: 'Enabled', spend: 8900, orders: 2, lastActive: '1 Week Ago' },
+  { id: 'C-086', name: 'Neha Gupta', phone: '+91 99887 76655', email: 'neha.gupta@outlook.com', loc: 'Kolkata', coords: '22.56° N, 88.40° E', locState: 'Enabled', spend: 24500, orders: 8, lastActive: 'Today' },
+  { id: 'C-087', name: 'Vikas Singh', phone: '+91 98711 22334', email: 'vikas.singh@gmail.com', loc: 'Howrah', coords: '', locState: 'Not Shared', spend: 1200, orders: 1, lastActive: '1 Month Ago' },
 ];
 
 if (!localStorage.getItem('ampedge_customers')) {
@@ -1427,7 +1427,43 @@ function saveTransaction(id, amount, cName, cPhone, method) {
   
   // 1) Save to Payments
   let payments = JSON.parse(localStorage.getItem('ampedge_payments') || '[]');
-  payments.unshift({ tx: 'TXN-' + id, date: formattedDate, cust: cName, amt: amount, method: method, status: 'Success' });
+  let payType = 'service';
+  let payDetails = 'Electrician Service Booking';
+  let payBrand = '-';
+  
+  if (window.location.pathname.includes('marketplace.html')) {
+    payType = 'product';
+    const cartItems = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
+    if (cartItems.length > 0) {
+      payDetails = cartItems.map(item => item.name).join(', ');
+      payBrand = [...new Set(cartItems.map(item => item.name.split(' ')[0]))].join(', ');
+    } else {
+      payDetails = 'Marketplace Products';
+    }
+  } else if (window.location.pathname.includes('booking.html')) {
+    const cartItems = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
+    const svcName = document.getElementById('summarySvcName')?.innerText.replace('⚡ ', '').split('\n')[0].trim() || 'General Service';
+    if (cartItems.length > 0) {
+      payType = 'unified';
+      const cartNames = cartItems.map(item => item.name).join(', ');
+      payDetails = `${svcName} + Products (${cartNames})`;
+      payBrand = [...new Set(cartItems.map(item => item.name.split(' ')[0]))].join(', ');
+    } else {
+      payDetails = svcName;
+    }
+  }
+  
+  payments.unshift({ 
+    tx: 'TXN-' + id, 
+    date: formattedDate, 
+    cust: cName, 
+    amt: amount, 
+    method: method, 
+    status: 'Success',
+    type: payType,
+    details: payDetails,
+    brand: payBrand
+  });
   localStorage.setItem('ampedge_payments', JSON.stringify(payments));
   
   // Get active location if saved
@@ -1486,14 +1522,35 @@ function saveTransaction(id, amount, cName, cPhone, method) {
   // 3) Update Customers
   let customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
   let exist = customers.find(c => c.phone === cPhone);
+  
+  const emailVal = `${cName.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
+  const isGeoShared = activeLoc !== 'Not Shared';
+  const city = isGeoShared ? activeLoc.split(' (')[0] : 'Unknown';
+  const coords = isGeoShared ? activeLoc.split('(')[1].replace(')', '') : '';
+  const locState = isGeoShared ? 'Enabled' : 'Not Shared';
+  
   if (exist) {
     exist.spend += amount;
     exist.orders += 1;
     exist.lastActive = 'Today';
-    if (activeLoc !== 'Not Shared') exist.loc = activeLoc.split(' (')[0]; // Save city
+    if (isGeoShared) {
+      exist.loc = city;
+      exist.coords = coords;
+      exist.locState = locState;
+    }
   } else {
-    const city = activeLoc !== 'Not Shared' ? activeLoc.split(' (')[0] : 'Unknown';
-    customers.unshift({ id: 'C-' + Math.floor(100+Math.random()*900), name: cName, phone: cPhone, loc: city, spend: amount, orders: 1, lastActive: 'Today' });
+    customers.unshift({ 
+      id: 'C-' + Math.floor(100+Math.random()*900), 
+      name: cName, 
+      phone: cPhone, 
+      email: emailVal,
+      loc: city, 
+      coords: coords,
+      locState: locState,
+      spend: amount, 
+      orders: 1, 
+      lastActive: 'Today' 
+    });
   }
   localStorage.setItem('ampedge_customers', JSON.stringify(customers));
 }
