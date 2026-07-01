@@ -5,7 +5,37 @@
 <title>Book a Service — AMPEDGE</title>
 <meta name="description" content="Book a certified electrician in minutes. Transparent pricing, instant quotes, 90-day warranty on all work."/>
 <link rel="stylesheet" href="css/style.css"/>
-<link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
+  <link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
+  <style>
+    .prop-card {
+      transition: all 0.2s ease-in-out;
+    }
+    .prop-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-color: var(--blue) !important;
+    }
+    .prop-card.active {
+      border-color: var(--blue) !important;
+      background: rgba(65, 105, 225, 0.04) !important;
+      box-shadow: 0 4px 15px rgba(65, 105, 225, 0.1) !important;
+    }
+    .sub-opt-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--border2);
+      background: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .sub-opt-btn.active {
+      border-color: var(--blue) !important;
+      background: var(--blue) !important;
+      color: #fff !important;
+    }
+  </style>
 </head>
 <body>
 <nav class="navbar" id="navbar">
@@ -39,7 +69,7 @@
   <div>
     <!-- Step 1 -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 1 of 6</div>
+      <div class="step-pill">Step 1 of 7</div>
       <h3 class="step-title">Select Location</h3>
       <div class="two-col" style="margin-bottom:14px">
         <div class="field"><label>City *</label><select id="bookingCity" class="f-input" onchange="renderBookingElectricians()"><option>Howrah</option><option>Kolkata</option><option>Delhi NCR</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Pune</option></select></div>
@@ -48,9 +78,59 @@
       <div><a href="javascript:void(0)" id="useCurrentLocBtn" onclick="requestGeolocation(true)" style="color:var(--blue);font-size:13px;font-weight:700">📍 Use my current location</a></div>
     </div>
 
-    <!-- Step 2 -->
+    <!-- Step 2 (NEW): Property Type Selection -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 2 of 6</div>
+      <div class="step-pill">Step 2 of 7</div>
+      <h3 class="step-title">Select Property Details</h3>
+      <p style="color:var(--muted); font-size:13px; margin-top:-6px; margin-bottom:16px;">Choose your property type to customize setup charges and wiring calculations.</p>
+      
+      <!-- Property Type Cards -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:12px; margin-bottom:20px;">
+        <div class="prop-card active" id="prop-card-house" onclick="setPropertyType('house')" style="padding:14px; border:1px solid var(--border2); border-radius:12px; text-align:center; cursor:pointer; background:#fff;">
+          <div style="font-size:28px; margin-bottom:6px">🏠</div>
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-dark)">House</div>
+        </div>
+        <div class="prop-card" id="prop-card-apartment" onclick="setPropertyType('apartment')" style="padding:14px; border:1px solid var(--border2); border-radius:12px; text-align:center; cursor:pointer; background:#fff;">
+          <div style="font-size:28px; margin-bottom:6px">🏢</div>
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-dark)">Apartment</div>
+        </div>
+        <div class="prop-card" id="prop-card-office" onclick="setPropertyType('office')" style="padding:14px; border:1px solid var(--border2); border-radius:12px; text-align:center; cursor:pointer; background:#fff;">
+          <div style="font-size:28px; margin-bottom:6px">💼</div>
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-dark)">Office</div>
+        </div>
+        <div class="prop-card" id="prop-card-store" onclick="setPropertyType('store')" style="padding:14px; border:1px solid var(--border2); border-radius:12px; text-align:center; cursor:pointer; background:#fff;">
+          <div style="font-size:28px; margin-bottom:6px">🏪</div>
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-dark)">Store</div>
+        </div>
+        <div class="prop-card" id="prop-card-industrial" onclick="setPropertyType('industrial')" style="padding:14px; border:1px solid var(--border2); border-radius:12px; text-align:center; cursor:pointer; background:#fff;">
+          <div style="font-size:28px; margin-bottom:6px">🏭</div>
+          <div style="font-size:12.5px; font-weight:800; color:var(--text-dark)">Industrial</div>
+        </div>
+      </div>
+
+      <!-- House Sub-Options Panel -->
+      <div id="house-sub-options" style="display:block; border-top: 1px solid var(--border); padding-top: 16px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:8px">Select Setup Category:</span>
+        <div style="display:flex; gap:10px">
+          <button type="button" class="sub-opt-btn active" id="btn-house-normal" onclick="setHouseSetup('normal')">🏡 Normal Home</button>
+          <button type="button" class="sub-opt-btn" id="btn-house-smart" onclick="setHouseSetup('smart')">⚡ Smart Home</button>
+        </div>
+      </div>
+
+      <!-- Apartment Sub-Options Panel -->
+      <div id="apartment-sub-options" style="display:none; border-top: 1px solid var(--border); padding-top: 16px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-dark); display:block; margin-bottom:8px">Select Flat Size:</span>
+        <div style="display:flex; gap:10px">
+          <button type="button" class="sub-opt-btn active" id="btn-flat-1bhk" onclick="setFlatSize('1bhk')">🚪 1 BHK</button>
+          <button type="button" class="sub-opt-btn" id="btn-flat-2bhk" onclick="setFlatSize('2bhk')">🚪 2 BHK</button>
+          <button type="button" class="sub-opt-btn" id="btn-flat-3bhk" onclick="setFlatSize('3bhk')">🚪 3 BHK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Choose Your Service -->
+    <div class="step-card fade-up">
+      <div class="step-pill">Step 3 of 7</div>
       <h3 class="step-title">Choose Your Service</h3>
       
       <!-- Budget Filter for Services -->
@@ -65,7 +145,6 @@
       </div>
       
       <div class="svc-chips" id="serviceChipsContainer">
-        <!-- populated from JS -->
         <div class="svc-chip selected" onclick="chipSel(this)">⚡ Electrical Installation</div>
       </div>
       
@@ -76,14 +155,13 @@
         </h4>
         <p style="color: var(--muted); font-size: 12.5px; margin-top: 0; margin-bottom: 14px;">Select recommended high-quality products to add them directly to your service bill at wholesale rates.</p>
         <div id="recommendedProductsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
-          <!-- Dynamically populated from JS based on active service -->
         </div>
       </div>
     </div>
 
-    <!-- Step 3 (NEW): Select Professional -->
+    <!-- Step 4: Select Professional -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 3 of 6</div>
+      <div class="step-pill">Step 4 of 7</div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px">
         <h3 class="step-title" style="margin-bottom:0">Select Electrician Partner</h3>
         <select class="f-input" id="proSortSelect" onchange="sortBookingElectricians()" style="padding:8px 12px; font-size:13px; width:auto; min-width:160px; margin:0">
@@ -95,13 +173,12 @@
       </div>
       <p style="color:var(--muted); font-size:13px; margin-top:-6px; margin-bottom:16px;">We found the following verified electrician & contractor partners in your city. Compare ratings, distance, and rates to book.</p>
       <div id="proSelectionContainer" style="display:flex; flex-direction:column; gap:12px">
-        <!-- Dynamically rendered via JS -->
       </div>
     </div>
 
-    <!-- Step 4 -->
+    <!-- Step 5: Select Date & Time -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 4 of 6</div>
+      <div class="step-pill">Step 5 of 7</div>
       <h3 class="step-title">Select Date & Time</h3>
       <div class="date-strip">
         <div class="date-item disabled"><div class="date-day">Thu</div><div class="date-num">19</div></div>
@@ -124,9 +201,9 @@
       </div>
     </div>
 
-    <!-- Step 5 -->
+    <!-- Step 6: Full Address -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 5 of 6</div>
+      <div class="step-pill">Step 6 of 7</div>
       <h3 class="step-title">Your Full Address</h3>
       <div class="two-col">
         <div class="field"><label>Full Name *</label><input class="f-input" placeholder="Rahul Sharma"/></div>
@@ -136,9 +213,9 @@
       <div class="field"><label>Address Line 2</label><input class="f-input" placeholder="Street, Area, Landmark"/></div>
     </div>
 
-    <!-- Step 6 -->
+    <!-- Step 7: Additional Details -->
     <div class="step-card fade-up">
-      <div class="step-pill">Step 6 of 6</div>
+      <div class="step-pill">Step 7 of 7</div>
       <h3 class="step-title">Additional Details</h3>
       <div class="field"><label>Describe the issue (optional)</label><textarea class="f-input f-textarea" placeholder="Describe what needs to be done, any specific requirements, access instructions..."></textarea></div>
       <div style="display:flex;gap:12px;margin-top:8px">
@@ -146,11 +223,35 @@
         <button class="btn btn-outline btn-sm">🎥 Add Video</button>
       </div>
     </div>
+
+    <!-- Commercial/Apartment Callback Request Card -->
+    <div class="step-card fade-up" id="commercialCallbackCard" style="display:none">
+      <div class="step-pill" style="background:var(--blue); color:white">Priority Callback</div>
+      <h3 class="step-title" style="margin-top:8px">Request Priority Callback Quote</h3>
+      <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin-bottom:20px">
+        Apartment towers, offices, retail stores, and industrial units have complex distribution board, safety breaker, and wiring layouts. 
+        Please share your contact details and requirements below. Our technical estimator will contact you immediately with a custom quote.
+      </p>
+      
+      <div class="two-col" style="margin-bottom:14px">
+        <div class="field"><label>Full Name *</label><input class="f-input" id="cbName" placeholder="e.g. Rahul Sharma"/></div>
+        <div class="field"><label>Phone Number *</label><input class="f-input" id="cbPhone" placeholder="e.g. +91 98765 43210"/></div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Email ID *</label>
+        <input class="f-input" id="cbEmail" placeholder="e.g. name@gmail.com"/>
+      </div>
+      <div class="field" style="margin-bottom:20px">
+        <label>Provide details (Floor level, site size, specific requests) *</label>
+        <textarea class="f-input f-textarea" id="cbDetails" placeholder="e.g. 10th Floor Apartment cabling, 12th Floor office setup, panel board maintenance..." style="height:100px"></textarea>
+      </div>
+      <button class="book-btn" onclick="submitCommercialCallback()" style="width:100%; padding:14px 20px; font-weight:700">Submit Callback Request 📞</button>
+    </div>
   </div>
 
   <!-- PRICE BOX -->
   <div>
-    <div class="price-box">
+    <div class="price-box" id="bookingNormalSidebar">
       <h3>📋 Booking Summary</h3>
       <div class="booking-info">
         <div class="bi-svc" id="summarySvcName">⚡ Electrical Service</div>
@@ -179,7 +280,7 @@
     </div>
 
     <!-- Matched Pros -->
-    <div class="price-box" style="margin-top:20px">
+    <div class="price-box" id="bookingProsSidebar" style="margin-top:20px">
       <h3>👷 Matched Professionals</h3>
       <div class="prof-card">
         <div class="prof-av" style="background:linear-gradient(135deg,#4169E1,#5CE1E6)">R</div>
@@ -339,6 +440,156 @@
 <a href="https://wa.me/919874600265" class="wa-float" target="_blank" aria-label="Chat on WhatsApp">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="30" height="30" fill="#fff"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-2.1-3.6 2.1-3.2 7.6-14.1 1.4-2.8 2.8-5.2 1.4-7.6-1.4-2.3-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
 </a>
+<script>
+  // Selected property states
+  window.selectedPropertyType = 'house';
+  window.selectedHouseSetup = 'normal';
+  window.selectedFlatSize = '2bhk';
+
+  window.setPropertyType = function(type) {
+    window.selectedPropertyType = type;
+    
+    // Update active class on cards
+    document.querySelectorAll('.prop-card').forEach(card => {
+      card.classList.remove('active');
+    });
+    const activeCard = document.getElementById('prop-card-' + type);
+    if (activeCard) activeCard.classList.add('active');
+
+    // Show/hide sub-option panels
+    const housePanel = document.getElementById('house-sub-options');
+    const aptPanel = document.getElementById('apartment-sub-options');
+    if (housePanel) housePanel.style.display = (type === 'house') ? 'block' : 'none';
+    if (aptPanel) aptPanel.style.display = (type === 'apartment') ? 'block' : 'none';
+
+    // Show/hide steps and sidebars
+    const stepCards = document.querySelectorAll('.step-card');
+    const normalSidebar = document.getElementById('bookingNormalSidebar');
+    const prosSidebar = document.getElementById('bookingProsSidebar');
+    const callbackCard = document.getElementById('commercialCallbackCard');
+
+    if (type === 'house') {
+      // Show normal steps (Step 3 to Step 7 are indexes 2 to 6)
+      stepCards.forEach((card, idx) => {
+        if (idx > 1 && card.id !== 'commercialCallbackCard') card.style.display = 'block';
+      });
+      if (normalSidebar) normalSidebar.style.display = 'block';
+      if (prosSidebar) prosSidebar.style.display = 'block';
+      if (callbackCard) callbackCard.style.display = 'none';
+
+      // Re-trigger standard services render in js/main.js
+      if (typeof renderBookingServices === 'function') {
+        renderBookingServices();
+      }
+    } else {
+      // Hide normal steps (Step 3 to Step 7)
+      stepCards.forEach((card, idx) => {
+        if (idx > 1 && card.id !== 'commercialCallbackCard') card.style.display = 'none';
+      });
+      if (normalSidebar) normalSidebar.style.display = 'none';
+      if (prosSidebar) prosSidebar.style.display = 'none';
+      if (callbackCard) callbackCard.style.display = 'block';
+    }
+  };
+
+  window.setHouseSetup = function(setup) {
+    window.selectedHouseSetup = setup;
+    document.getElementById('btn-house-normal').classList.toggle('active', setup === 'normal');
+    document.getElementById('btn-house-smart').classList.toggle('active', setup === 'smart');
+    
+    // Automatically trigger custom logic:
+    if (typeof renderBookingServices === 'function') {
+      renderBookingServices();
+    }
+  };
+
+  window.setFlatSize = function(size) {
+    window.selectedFlatSize = size;
+    document.getElementById('btn-flat-1bhk').classList.toggle('active', size === '1bhk');
+    document.getElementById('btn-flat-2bhk').classList.toggle('active', size === '2bhk');
+    document.getElementById('btn-flat-3bhk').classList.toggle('active', size === '3bhk');
+  };
+
+  window.submitCommercialCallback = function() {
+    const nameInput = document.getElementById('cbName');
+    const phoneInput = document.getElementById('cbPhone');
+    const emailInput = document.getElementById('cbEmail');
+    const descInput = document.getElementById('cbDetails');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
+    const desc = descInput ? descInput.value.trim() : '';
+
+    if (!name || !phone || !email || !desc) {
+      alert("Please fill all required fields (*) to request a callback.");
+      return;
+    }
+
+    // Save callback to local database
+    let bookings = JSON.parse(localStorage.getItem('ampedge_bookings') || '[]');
+    const id = 'CB-' + Math.floor(100000 + Math.random() * 900000);
+    const date = new Date().toISOString().split('T')[0];
+    const activeLoc = localStorage.getItem('ampedge_user_loc') || 'Not Shared';
+
+    let propDesc = window.selectedPropertyType.toUpperCase();
+    if (window.selectedPropertyType === 'apartment') {
+      propDesc += ` Flat (${window.selectedFlatSize.toUpperCase()})`;
+    }
+
+    bookings.unshift({
+      id: id,
+      date: date,
+      customer: name,
+      service: `Callback Quote: ${propDesc}`,
+      status: 'Quote Requested',
+      tech: 'Support Desk',
+      amount: 'TBD',
+      location: activeLoc,
+      notes: desc
+    });
+    localStorage.setItem('ampedge_bookings', JSON.stringify(bookings));
+
+    // Save to customer list
+    let customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
+    let exist = customers.find(c => c.phone === phone);
+    if (!exist) {
+      customers.push({
+        name: name,
+        email: email,
+        phone: phone,
+        spend: 0,
+        orders: 0,
+        lastActive: 'Today',
+        loc: activeLoc !== 'Not Shared' ? activeLoc.split(' (')[0] : 'Unknown',
+        coords: activeLoc !== 'Not Shared' ? activeLoc.split('(')[1].replace(')', '') : '',
+        locState: activeLoc !== 'Not Shared' ? 'Enabled' : 'Not Shared'
+      });
+      localStorage.setItem('ampedge_customers', JSON.stringify(customers));
+    }
+
+    // Trigger WhatsApp redirect with full details
+    const waMsg = `Hello AMPEdge Solutions, I would like to request a customized service callback quote.\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Email:* ${email}\n*Property Type:* ${propDesc}\n*Location:* ${activeLoc}\n*Requirements:* ${desc}`;
+    const waUrl = `https://wa.me/919874600265?text=${encodeURIComponent(waMsg)}`;
+
+    // Show Success Modal
+    const modal = document.getElementById('successModal');
+    if (modal) {
+      const refEl = document.getElementById('bookingRefId');
+      if (refEl) refEl.textContent = id;
+
+      const modalBtn = modal.querySelector('a');
+      if (modalBtn) {
+        modalBtn.setAttribute('href', waUrl);
+        modalBtn.setAttribute('target', '_blank');
+        modalBtn.textContent = 'Open WhatsApp Callback 💬';
+        modalBtn.style.background = '#25D366';
+        modalBtn.style.borderColor = '#25D366';
+      }
+      modal.classList.add('active');
+    }
+  };
+</script>
 <script src="js/main.js?v=2.2"></script>
 </body>
 </html>
