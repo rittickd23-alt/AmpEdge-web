@@ -267,6 +267,8 @@ function updateBookingSummary() {
   const pGst = document.getElementById('summaryGstPrice');
   const pTotal = document.getElementById('summaryTotalPrice');
   const pParts = document.getElementById('summaryPartsPrice');
+  const pCartRow = document.getElementById('summaryCartRow');
+  const pCartVal = document.getElementById('summaryCartPrice');
   
   if (pName) {
     if (currentSelectedElectrician) {
@@ -297,8 +299,26 @@ function updateBookingSummary() {
     }
   }
   
-  const gst = Math.round((base + platform + addonTotal) * 0.18);
-  const total = base + platform + gst + addonTotal;
+  // Fetch marketplace cart items sum
+  let cartTotal = 0;
+  const cartItems = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
+  cartItems.forEach(item => {
+    const val = parseInt(item.price.replace(/[^0-9]/g, '')) || 0;
+    cartTotal += val;
+  });
+  
+  // Show / Hide cart row in summary
+  if (pCartRow && pCartVal) {
+    if (cartTotal > 0) {
+      pCartRow.style.display = 'flex';
+      pCartVal.textContent = `₹${cartTotal.toLocaleString('en-IN')} (${cartItems.length} items)`;
+    } else {
+      pCartRow.style.display = 'none';
+    }
+  }
+  
+  const gst = Math.round((base + platform + addonTotal + cartTotal) * 0.18);
+  const total = base + platform + gst + addonTotal + cartTotal;
   
   if (pPrice) pPrice.textContent = `₹${base.toLocaleString('en-IN')}`;
   if (pGst) pGst.textContent = `₹${gst.toLocaleString('en-IN')}`;
@@ -1421,6 +1441,19 @@ function saveTransaction(id, amount, cName, cPhone, method) {
       const addons = selectedAddonProducts.map(p => p.name).join(', ');
       svcName += ` (+ ${addons})`;
     }
+    
+    // Add cart products list to description if unified checkout is active
+    const cartItems = JSON.parse(localStorage.getItem('ampedge_cart') || '[]');
+    if (cartItems.length > 0) {
+      const cartNames = cartItems.map(item => item.name).join(', ');
+      svcName += ` & Purchased Products (${cartNames})`;
+      
+      // Clear cart since it is paid for
+      localStorage.removeItem('ampedge_cart');
+      if (typeof cart !== 'undefined') cart = [];
+      if (typeof updateCartBadge === 'function') updateCartBadge();
+    }
+    
     bookings.unshift({ 
       id: 'B-' + id, 
       date: now.toISOString().split('T')[0], 
