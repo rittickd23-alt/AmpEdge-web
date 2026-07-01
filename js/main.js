@@ -1842,6 +1842,82 @@ window.requestGeolocation = function(silent = false) {
   );
 };
 
+window.autofillLiveAddress = function(btn) {
+  if (!navigator.geolocation) {
+    showToastNotification("⚠️ Geolocation is not supported by your browser.");
+    return;
+  }
+  
+  const orgText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = '⚡ Tracking...';
+    btn.style.pointerEvents = 'none';
+  }
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      // Save location coordinates to local storage
+      localStorage.setItem('ampedge_user_lat', lat);
+      localStorage.setItem('ampedge_user_lng', lng);
+      
+      const closestCity = getClosestCity(lat, lng);
+      localStorage.setItem('ampedge_user_loc', `${closestCity.name} (${lat.toFixed(2)}° N, ${lng.toFixed(2)}° E)`);
+      autoFillLocation(); // automatically fill Step 2 city selector
+      
+      // Fetch details from OpenStreetMap Nominatim reverse geocoding API
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+        .then(res => res.json())
+        .then(data => {
+          if (btn) {
+            btn.innerHTML = orgText;
+            btn.style.pointerEvents = 'auto';
+          }
+          if (data && data.address) {
+            const addr = data.address;
+            const road = addr.road || addr.suburb || addr.neighbourhood || '';
+            const house = addr.house_number || addr.building || '';
+            const district = addr.city_district || addr.suburb || '';
+            const city = addr.city || addr.town || addr.village || addr.county || '';
+            const state = addr.state || '';
+            const postcode = addr.postcode || '';
+            
+            const line1 = [house, road].filter(Boolean).join(', ') || data.name || 'Current Location';
+            const line2 = [district, city, state, postcode].filter(Boolean).join(', ');
+            
+            const line1Input = document.getElementById('bookingAddressLine1');
+            const line2Input = document.getElementById('bookingAddressLine2');
+            
+            if (line1Input) line1Input.value = line1;
+            if (line2Input) line2Input.value = line2;
+            
+            showToastNotification("📍 Live Address autofilled successfully!");
+          } else {
+            showToastNotification("⚠️ Address could not be resolved. Please type manually.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          if (btn) {
+            btn.innerHTML = orgText;
+            btn.style.pointerEvents = 'auto';
+          }
+          showToastNotification("⚠️ Address lookup failed. Please type manually.");
+        });
+    },
+    (error) => {
+      console.warn(error);
+      if (btn) {
+        btn.innerHTML = orgText;
+        btn.style.pointerEvents = 'auto';
+      }
+      showToastNotification("⚠️ Geolocation access denied by browser.");
+    }
+  );
+};
+
 function getClosestCity(lat, lng) {
   let min = Infinity;
   let closest = cities[0];
