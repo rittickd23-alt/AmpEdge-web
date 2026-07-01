@@ -1070,68 +1070,41 @@ console.log('%c⚡ AMPEDGE — Premium Website Loaded', 'font-family:system-ui;c
 const ampedgeKB = [
   // Greetings
   { keys: ['hello','hi','hey','good morning','good evening','good afternoon','namaste','hola'],
-    reply: "Hello! 👋 Welcome to AMPEdge — India's premier electrical services platform. How can I help you today? You can ask about our services, products, pricing, or anything electrical!" },
-  // Services — General
-  { keys: ['service','services','what do you do','what you do','offerings','offer'],
-    reply: "⚡ We offer a wide range of professional electrical services:\n\n🔌 **Electrical Installation** — wiring, DB boards, sockets & switches\n🔧 **Repair & Maintenance** — fault diagnosis, MCB trips, short circuits\n🏭 **Industrial & Commercial** — power panels, transformers, HV setups\n🏠 **Smart Home & Automation** — IoT switches, automated lighting, EV charging\n🚨 **Emergency Services** — 24/7 urgent electrical support\n\nWould you like to book a service? Visit our <a href='booking.html' style='color:#4169E1;font-weight:600'>Booking Page</a>!" },
-  // Installation
-  { keys: ['installation','install','wiring','wire','new wiring','house wiring','office wiring'],
-    reply: "🔌 **Electrical Installation Services:**\n\n• Complete house / office wiring\n• Distribution Board (DB) installation\n• Socket & switch fitting\n• New construction electrical work\n• Rewiring of old buildings\n\n💰 Starting from **₹1,499**. Book now on our <a href='booking.html' style='color:#4169E1;font-weight:600'>Services Page</a>!" },
-  // Repair
-  { keys: ['repair','fix','broken','fault','not working','trip','short circuit','mcb','problem','issue','emergency'],
-    reply: "🔧 **Repair & Maintenance:**\n\n• Electrical fault diagnosis & repair\n• Short circuit & MCB trip fixing\n• Wiring failure repair\n• Appliance electrical issues\n• 24/7 Emergency support available!\n\n📞 For urgent help, call/WhatsApp: <a href='https://wa.me/919123667258' target='_blank' style='color:#25D366;font-weight:600'>+91 91236 67258</a>" },
-  // Smart Home
-  { keys: ['smart home','automation','iot','smart switch','smart light','ev charging','ev charger','automated'],
-    reply: "🏠 **Smart Home & Automation:**\n\n• IoT-enabled smart switches\n• Automated lighting systems\n• Home energy management\n• EV charging station setup\n• Voice assistant integration\n\n💰 Starting from **₹4,999**. Our certified experts will transform your home!" },
-  // Industrial
-  { keys: ['industrial','commercial','factory','warehouse','transformer','high voltage','hv','panel','power distribution'],
-    reply: "🏭 **Industrial & Commercial Services:**\n\n• High-voltage installations\n• Power distribution panels\n• Transformer connections\n• Factory electrical setups\n• Commercial building wiring\n• Annual maintenance contracts (AMC)\n\nContact us for a custom quote: <a href='https://wa.me/919123667258' target='_blank' style='color:#25D366;font-weight:600'>WhatsApp</a>" },
-  // Pricing
-  { keys: ['price','pricing','cost','charge','rate','how much','kitna','fees','budget','estimate','quote'],
-    reply: "💰 **AMPEdge Pricing Guide:**\n\n• Electrical Installation — from **₹1,499**\n• MCB Panel Setup — from **₹2,299**\n• Smart Home Setup — from **₹4,999**\n• Repair & Maintenance — from **₹499**\n• Annual Maintenance — from **₹899/year**\n\n✅ Transparent pricing, zero hidden charges!\nGet an instant quote on our <a href='booking.html' style='color:#4169E1;font-weight:600'>Booking Page</a>." },
+    reply: "Hello! 👋 Welcome to AMPEdge Solutions — India's premier electrical services and product marketplace. How can I help you today? You can ask me about our services, marketplace products, partnership programs, subscription plans, contact numbers, or WhatsApp support!" },
+  // Services
+  { keys: ['service','services','what do you do','what you do','offerings','offer','repair','installation','wiring','install','mcb','switchboard','board','wiring repair','mcb setup','smart home hub','emergency visit','light installation','fan installation'],
+    reply: "⚡ **AMPEdge Professional Services:**\n\n• 🪢 **Wiring Repair** — Fix faulty wires & circuits. Starting at **₹499**.\n• 🔌 **MCB Setup** — Install DB boards & MCBs. Starting at **₹2,299**.\n• 🏠 **Smart Home Hub** — Automated lighting & switches. Starting at **₹4,999**.\n• 🚨 **Emergency Visit** — 24/7 urgent repair dispatch. Starting at **₹899**.\n• ☀️ **Solar Panel Installation** — Rooftop panels & net metering. Starting at **₹12,999**.\n• 🛠️ **Solar Maintenance** — cleaning & inverter check. Starting at **₹1,499**.\n• 📋 **Solar Rooftop Survey** — kW capacity planning. Starting at **₹299**.\n\nAll services include a **90-day warranty**. Book a service on our <a href='booking.html' style='color:#4169E1;font-weight:700'>Services Page</a>!" },
   // Marketplace / Products
-  { keys: ['product','products','buy','shop','marketplace','switch','cable','wire','led','light','fan','mcb','db board','online','order'],
-    reply: "🛒 **AMPEdge Marketplace:**\n\nWe sell genuine, certified electrical products from top brands:\n\n• 🔦 Switches & Sockets — from ₹349\n• 🪢 Wires & Cables — from ₹2,299\n• ⚡ MCB & DB Boards — from ₹784\n• 💡 LED Lighting — from ₹449\n• 🌀 Fans & Appliances — from ₹2,499\n\n**Brands:** Havells, Legrand, Philips, Finolex, Anchor, Crompton, Syska, Polycab\n\nBrowse all at <a href='marketplace.html' style='color:#4169E1;font-weight:600'>Marketplace</a>!" },
-  // Booking
-  { keys: ['book','booking','appointment','schedule','visit','technician','electrician','engineer'],
-    reply: "📋 **Book a Service — Easy 4 Steps:**\n\n1️⃣ Choose your service\n2️⃣ Get an instant quote\n3️⃣ A verified professional visits\n4️⃣ Pay securely after job completion\n\n✅ Same-day appointments available!\n\n👉 <a href='booking.html' style='color:#4169E1;font-weight:600'>Book Now</a>" },
-  // Partner
-  { keys: ['partner','join','electrician job','work with','career','become partner','registration','register'],
-    reply: "🤝 **Become an AMPEdge Partner:**\n\nJoin 2,000+ verified professionals on our platform!\n\n✅ Steady stream of jobs\n✅ Flexible schedule\n✅ Weekly payments\n✅ Free training & certification\n✅ Insurance coverage\n\n👉 <a href='partner.html' style='color:#4169E1;font-weight:600'>Apply Now</a>" },
-  // Contact
-  { keys: ['contact','phone','call','number','email','reach','whatsapp','address','location','where'],
-    reply: "📞 **Contact AMPEdge:**\n\n📧 Email: **ampedge.info@gmail.com**\n💬 WhatsApp: <a href='https://wa.me/919123667258' target='_blank' style='color:#25D366;font-weight:600'>+91 91236 67258</a>, <a href='https://wa.me/919748398418' target='_blank' style='color:#25D366;font-weight:600'>+91 97483 98418</a>\n📍 Address: West Bauria, Chackasi, Palpara, Howrah 711307\n▶ YouTube: <a href='https://www.youtube.com/channel/UCl_t66zGTsJYdc9l-c-wzDg' target='_blank' style='color:#FF0000;font-weight:600'>@AmpEdge-i9d</a>\n\nWe're available 24/7 for emergency support!" },
-  // About
-  { keys: ['about','who are you','what is ampedge','company','about ampedge','tell me about'],
-    reply: "⚡ **About AMPEdge:**\n\nAMPEdge is India's premier electrical services platform, trusted by **50,000+ customers** across the country.\n\n🔹 2,000+ verified professionals\n🔹 98% customer satisfaction rate\n🔹 ISO-verified, background-checked experts\n🔹 90-day service warranty\n🔹 Transparent pricing, zero hidden charges\n\nWe offer both professional electrical services AND a marketplace for genuine electrical products from top brands." },
-  // Safety
-  { keys: ['safe','safety','warranty','guarantee','trust','reliable','verified','certified','license'],
-    reply: "🛡️ **Safety & Trust at AMPEdge:**\n\n✅ All electricians are government-licensed & background-checked\n✅ ISO-verified professionals\n✅ 90-day service warranty on all work\n✅ No-questions satisfaction guarantee\n✅ Genuine, certified products only\n✅ 4.9/5.0 average rating from 12,000+ reviews\n\nYour safety is our top priority!" },
-  // Payment
-  { keys: ['payment','pay','upi','cash','card','online payment','payment method'],
-    reply: "💳 **Payment Options:**\n\n• UPI (Google Pay, PhonePe, Paytm)\n• Debit / Credit Cards\n• Net Banking\n• Cash on completion\n\n🔒 You pay **only after** the job is completed to your satisfaction. Secure and hassle-free!" },
-  // Areas / Coverage
-  { keys: ['area','areas','city','cities','coverage','available','kolkata','howrah','delhi','mumbai','bangalore','where available'],
-    reply: "📍 **AMPEdge Coverage:**\n\nWe currently serve customers across major Indian cities including:\n\n• Kolkata & Howrah (HQ)\n• Delhi NCR\n• Mumbai\n• Bangalore\n• Hyderabad\n• Pune\n• And expanding rapidly!\n\nContact us to check availability in your area." },
+  { keys: ['product','products','buy','shop','marketplace','switch','cable','wire','led','light','fan','inverter','battery','mounting','net meter','solar panel','online','order','material','materials','mcbs','fans','lights','switches'],
+    reply: "🛒 **AMPEdge Marketplace Products:**\n\nWe deliver genuine certified electrical products with best price guarantees:\n\n• 💡 **Havells Coral Smart Switch** — ₹349\n• 🪢 **Finolex FR PVC Wire (2.5sqmm 90m)** — ₹2,299\n• 🔌 **Legrand Arteor USB Socket** — ₹1,249\n• 💡 **Philips LED Batten (20W)** — ₹449\n• 🌀 **Crompton Aura Fan (1200mm)** — ₹2,499\n• ☀️ **Luminous Solar Panel (335W)** — ₹8,999\n• ⚡ **Luminous Cruze 2kVA Inverter** — ₹12,499\n• 🔋 **Amaron Solar Battery (150Ah)** — ₹14,999\n• 🔩 **Solar Mounting Structure Kit** — ₹2,499\n• 📊 **Solar Net Meter Kit** — ₹3,499\n\nShop now on our <a href='marketplace.html' style='color:#4169E1;font-weight:700'>Marketplace Page</a>!" },
+  // Subscriptions
+  { keys: ['subscription','subscriptions','plan','plans','subscribe','base plan','modular plan','premium plan','membership','base model','modular model','premium model','base','modular','premium'],
+    reply: "👑 **AMPEdge Prime Subscription Plans:**\n\nSave big on maintenance and platform fees with our models:\n\n• 🟢 **Base Model (₹199/month)**: 1 Free electrical safety audit per year, priority technician scheduling.\n• 🔵 **Modular Model (₹499/month)**: 2 Free safety audits per year, zero platform booking fees, and 5% extra discount on products.\n• 🟡 **Premium Model (₹999/month)**: Unlimited emergency technician visits, free annual safety checkups, 10% discount on all marketplace products, and 24/7 VIP support line.\n\nChoose your plan on our <a href='subscription.html' style='color:#4169E1;font-weight:700'>Subscriptions Page</a>!" },
+  // Partnership
+  { keys: ['partner','partnership','join','electrician job','work with','become partner','registration','register','apply','jobs','income','earn','driver','app'],
+    reply: "🤝 **AMPEdge Partnership Program:**\n\nFor electricians, technicians, and electrical contractors. Work dynamically using our partnership portal — just switch on the app, accept service bookings near you, and withdraw your earnings daily!\n\n• Steady stream of verified jobs\n• Choose your own working hours\n• Daily instant payouts to your bank account\n• Free training, tools assistance, and accident insurance coverage\n\nSign up today on our <a href='partner.html' style='color:#4169E1;font-weight:700'>Partnership Page</a>!" },
+  // Contacts & Support
+  { keys: ['contact','phone','call','number','email','reach','whatsapp','address','location','where','office','mail','id','mobile','support','help','customer care','support team','helpline'],
+    reply: "📞 **AMPEdge Contact & Support:**\n\n• 💬 **WhatsApp Business:** <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a>\n• 📞 **Customer Team Support:** +91 91236 67258 &nbsp;|&nbsp; +91 97483 98418\n• 📧 **Email ID:** ampedge.info@gmail.com\n• 📍 **Office Address:** West Bauria, Chackasi, Palpara, Howrah 711307\n\nWe provide 24/7 customer support for emergency repairs!" },
+  // Terms & Conditions
+  { keys: ['terms','conditions','terms and conditions','warranty','guarantee','cancellation','refund','policy','rules','legal','t&c','claim'],
+    reply: "🛡️ **AMPEdge Terms & Service Policies:**\n\n• **90-Day Warranty:** All repairs and installations carry an absolute 90-day warranty. If any fault recurs, we fix it for free.\n• **Pay After Satisfaction:** You only pay after the electrician completes the work to your full satisfaction.\n• **Cancellation Policy:** You can cancel bookings for free at any time before the technician is dispatched.\n• **Product Returns:** Unused marketplace products can be returned within 7 days for a 100% refund, processed within 5-7 business days." },
   // Thanks
-  { keys: ['thank','thanks','thank you','thx','great','awesome','nice','good','perfect','ok','okay'],
-    reply: "You're welcome! 😊 Happy to help. If you have any more questions about our services or products, feel free to ask anytime!\n\n⚡ AMPEdge — Powering Reliable Electrical Solutions" },
-  // YouTube
-  { keys: ['youtube','video','channel','subscribe'],
-    reply: "▶️ **AMPEdge YouTube Channel:**\n\nCheck out our YouTube channel for electrical tips, tutorials, and service demos!\n\n👉 <a href='https://www.youtube.com/channel/UCl_t66zGTsJYdc9l-c-wzDg' target='_blank' style='color:#FF0000;font-weight:600'>Subscribe to @AmpEdge-i9d</a>" },
-  // Query / Form
-  { keys: ['query','question','form','complaint','feedback','suggest'],
-    reply: "📝 **Submit a Query:**\n\nYou can submit your questions or feedback through our Google Form and our team will respond quickly!\n\n👉 <a href='https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform' target='_blank' style='color:#4169E1;font-weight:600'>Fill the Query Form</a>\n\nOr WhatsApp us directly: <a href='https://wa.me/919123667258' target='_blank' style='color:#25D366;font-weight:600'>+91 91236 67258</a>" },
+  { keys: ['thank','thanks','thank you','thx','great','awesome','nice','good','perfect','ok','okay','dhanyavad'],
+    reply: "You're welcome! 😊 I'm glad I could help. Let me know if you need any other details about AMPEdge Solutions!" }
 ];
 
 // Default fallback response
-const defaultReply = "🤔 I'm not sure I understood that. Here's what I can help you with:\n\n• ⚡ Our electrical **services**\n• 🛒 **Products** & marketplace\n• 💰 **Pricing** information\n• 📋 How to **book** a service\n• 🤝 **Partner** with us\n• 📞 **Contact** information\n\nTry asking about any of these topics, or reach out to our team via <a href='https://wa.me/919123667258' target='_blank' style='color:#25D366;font-weight:600'>WhatsApp</a>!";
+const defaultReply = "🤔 I'm not sure I understood that. Here's what I can help you with:\n\n• ⚡ Our electrical **services**\n• 🛒 **Products** & marketplace\n• 👑 **Subscription plans**\n• 🤝 **Partner** with us\n• 📞 **Contact** details\n• 🛡️ **Terms & warranty** info\n\nTry asking about any of these topics, or chat with our team on <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:600'>WhatsApp</a>!";
 
 function getAIResponse(userText) {
   const lower = userText.toLowerCase();
   for (const entry of ampedgeKB) {
     for (const key of entry.keys) {
-      if (lower.includes(key)) return entry.reply;
+      // Use word boundary matches so sub-words like 'this' or 'thin' don't trigger 'hi'
+      const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regex = new RegExp('\\b' + escapedKey + '\\b', 'i');
+      if (regex.test(lower)) return entry.reply;
     }
   }
   return defaultReply;
