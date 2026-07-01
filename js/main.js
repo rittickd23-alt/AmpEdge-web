@@ -8,6 +8,9 @@ const defaultServices = [
   { id: 's2', name: 'MCB Setup', description: 'Install distribution boards and MCBs.', category: 'INSTALLATION', basePrice: 2299, duration: 120, city: 'Howrah', active: true },
   { id: 's3', name: 'Smart Home Hub', description: 'Automated lighting and switches.', category: 'INSTALLATION', basePrice: 4999, duration: 180, city: 'Kolkata', active: true },
   { id: 's4', name: 'Emergency Visit', description: 'Quick dispatch 24/7 for urgent failures.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true },
+  { id: 's5', name: 'Solar Panel Installation', description: 'Professional rooftop solar panel installation with net metering setup.', category: 'SOLAR', basePrice: 12999, duration: 480, city: 'Howrah', active: true },
+  { id: 's6', name: 'Solar System Maintenance', description: 'Annual solar panel cleaning, performance check and inverter inspection.', category: 'SOLAR', basePrice: 1499, duration: 120, city: 'Howrah', active: true },
+  { id: 's7', name: 'Solar Rooftop Survey', description: 'Site visit to assess rooftop area, shadow analysis and kW capacity planning.', category: 'SOLAR', basePrice: 299, duration: 60, city: 'Howrah', active: true },
 ];
 
 const defaultProducts = [
@@ -15,7 +18,12 @@ const defaultProducts = [
   { id: 'p2', name: 'Finolex FR PVC Wire', description: '2.5sqmm 90m coil.', category: 'WIRING_MATERIALS', basePrice: 2299, stock: 35, active: true, image: '🪢' },
   { id: 'p3', name: 'Legrand Arteor USB', description: 'Fast charging wall socket.', category: 'WIRING_MATERIALS', basePrice: 1249, stock: 15, active: true, image: '🔌' },
   { id: 'p4', name: 'Philips LED Batten', description: '20W ultra slim LED tube.', category: 'LIGHTING_FIXTURES', basePrice: 449, stock: 100, active: true, image: '💡' },
-  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: '🌀' }
+  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: '🌀' },
+  { id: 'p6', name: 'Luminous Solar Panel 335W', description: 'Monocrystalline 335W rooftop solar panel with 25yr warranty.', category: 'SOLAR', basePrice: 8999, stock: 30, active: true, image: '☀️' },
+  { id: 'p7', name: 'Luminous Cruze 2kVA Inverter', description: 'Pure sinewave solar inverter for home use with MPPT charge controller.', category: 'SOLAR', basePrice: 12499, stock: 18, active: true, image: '⚡' },
+  { id: 'p8', name: 'Amaron Solar Battery 150Ah', description: 'Tall-tubular deep cycle solar battery with 3yr warranty.', category: 'SOLAR', basePrice: 14999, stock: 12, active: true, image: '🔋' },
+  { id: 'p9', name: 'Solar Mounting Structure Kit', description: 'Adjustable GI rooftop mounting frame for 2-panel setup.', category: 'SOLAR', basePrice: 2499, stock: 40, active: true, image: '🔩' },
+  { id: 'p10', name: 'Solar Net Meter Kit', description: 'Government-approved bi-directional energy meter for grid feed-in.', category: 'SOLAR', basePrice: 3499, stock: 25, active: true, image: '📊' }
 ];
 
 window.mockElectricians = [
