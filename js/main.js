@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: bump this when default data changes ──
-const AMPEDGE_DATA_VERSION = '3.0';
+const AMPEDGE_DATA_VERSION = '4.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -22,16 +22,16 @@ const defaultServices = [
 ];
 
 const defaultProducts = [
-  { id: 'p1', name: 'Havells Coral Smart Switch', description: '6A wifi-enabled smart switch.', category: 'SMART_HOME', basePrice: 349, stock: 50, active: true, image: '💡' },
+  { id: 'p1', name: 'Havells Coral Smart Switch', description: '6A wifi-enabled smart switch.', category: 'SMART_HOME', basePrice: 349, stock: 50, active: true, image: 'images/product_switch.png' },
   { id: 'p2', name: 'Finolex FR PVC Wire', description: '2.5sqmm 90m coil.', category: 'WIRING_MATERIALS', basePrice: 2299, stock: 35, active: true, image: '🪢' },
-  { id: 'p3', name: 'Legrand Arteor USB', description: 'Fast charging wall socket.', category: 'WIRING_MATERIALS', basePrice: 1249, stock: 15, active: true, image: '🔌' },
-  { id: 'p4', name: 'Philips LED Batten', description: '20W ultra slim LED tube.', category: 'LIGHTING_FIXTURES', basePrice: 449, stock: 100, active: true, image: '💡' },
-  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: '🌀' },
-  { id: 'p6', name: 'Luminous Solar Panel 335W', description: 'Monocrystalline 335W rooftop solar panel with 25yr warranty.', category: 'SOLAR', basePrice: 8999, stock: 30, active: true, image: '☀️' },
-  { id: 'p7', name: 'Luminous Cruze 2kVA Inverter', description: 'Pure sinewave solar inverter for home use with MPPT charge controller.', category: 'SOLAR', basePrice: 12499, stock: 18, active: true, image: '⚡' },
-  { id: 'p8', name: 'Amaron Solar Battery 150Ah', description: 'Tall-tubular deep cycle solar battery with 3yr warranty.', category: 'SOLAR', basePrice: 14999, stock: 12, active: true, image: '🔋' },
-  { id: 'p9', name: 'Solar Mounting Structure Kit', description: 'Adjustable GI rooftop mounting frame for 2-panel setup.', category: 'SOLAR', basePrice: 2499, stock: 40, active: true, image: '🔩' },
-  { id: 'p10', name: 'Solar Net Meter Kit', description: 'Government-approved bi-directional energy meter for grid feed-in.', category: 'SOLAR', basePrice: 3499, stock: 25, active: true, image: '📊' }
+  { id: 'p3', name: 'Legrand Arteor USB', description: 'Fast charging wall socket.', category: 'WIRING_MATERIALS', basePrice: 1249, stock: 15, active: true, image: 'images/product_usb.png' },
+  { id: 'p4', name: 'Philips LED Batten', description: '20W ultra slim LED tube.', category: 'LIGHTING_FIXTURES', basePrice: 449, stock: 100, active: true, image: 'images/product_led.png' },
+  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: 'images/product_fan.png' },
+  { id: 'p6', name: 'Luminous Solar Panel 335W', description: 'Monocrystalline 335W rooftop solar panel with 25yr warranty.', category: 'SOLAR', basePrice: 8999, stock: 30, active: true, image: 'images/product_solar_panel.png' },
+  { id: 'p7', name: 'Luminous Cruze 2kVA Inverter', description: 'Pure sinewave solar inverter for home use with MPPT charge controller.', category: 'SOLAR', basePrice: 12499, stock: 18, active: true, image: 'images/product_inverter.png' },
+  { id: 'p8', name: 'Amaron Solar Battery 150Ah', description: 'Tall-tubular deep cycle solar battery with 3yr warranty.', category: 'SOLAR', basePrice: 14999, stock: 12, active: true, image: 'images/product_battery.png' },
+  { id: 'p9', name: 'Solar Mounting Structure Kit', description: 'Adjustable GI rooftop mounting frame for 2-panel setup.', category: 'SOLAR', basePrice: 2499, stock: 40, active: true, image: 'images/product_structure.png' },
+  { id: 'p10', name: 'Solar Net Meter Kit', description: 'Government-approved bi-directional energy meter for grid feed-in.', category: 'SOLAR', basePrice: 3499, stock: 25, active: true, image: 'images/product_net_meter.png' }
 ];
 
 window.mockElectricians = [
@@ -239,8 +239,10 @@ function renderRecommendedProducts() {
     return `
       <div class="product-card" style="padding:14px; border:1.5px solid ${isAdded ? 'var(--blue)' : 'var(--border2)'}; background:${isAdded ? 'rgba(65, 105, 225, 0.02)' : '#fff'}; border-radius:12px; display:flex; flex-direction:column; gap:10px; transition:var(--t); box-shadow:none">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div style="font-size:28px; background:#f8fafc; width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2)">
-            ${p.image || '🔌'}
+          <div style="width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border2); overflow:hidden; background:#f8fafc; flex-shrink:0;">
+            ${(p.image && p.image.startsWith('images/')) 
+              ? `<img src="${p.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; display:block;"/>` 
+              : `<span style="font-size:20px;">${p.image || '🔌'}</span>`}
           </div>
           <span class="badge badge-green" style="font-size:9.5px; padding:2px 6px;">Best Price</span>
         </div>
@@ -617,8 +619,10 @@ function renderMarketplaceProducts() {
 
   grid.innerHTML = filtered.map(p => `
     <div class="product-card">
-      <div class="product-img-wrap">
-        <span style="font-size:32px">${p.image || '📦'}</span>
+      <div class="product-img-wrap" style="overflow:hidden; display:flex; align-items:center; justify-content:center; height:180px; position:relative; background:linear-gradient(135deg,var(--bg) 0%,var(--bg2) 100%);">
+        ${(p.image && p.image.startsWith('images/'))
+          ? `<img src="${p.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.5s ease" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'"/>`
+          : `<span style="font-size:32px">${p.image || '📦'}</span>`}
         ${p.stock < 20 ? '<div class="prod-badge"><span class="badge badge-orange">Limited Stock</span></div>' : ''}
         <div class="prod-wish">♡</div>
       </div>
@@ -1858,3 +1862,202 @@ function showToastNotification(msg) {
     alert(msg);
   }
 }
+
+// ── 3D Canvas Header Animation Engine ────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const canvases = document.querySelectorAll('.header-3d-canvas');
+  canvases.forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const theme = canvas.getAttribute('data-theme') || 'home';
+    let width = canvas.width = canvas.offsetWidth;
+    let height = canvas.height = canvas.offsetHeight;
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    });
+
+    // 3D Point projection
+    const fov = 350;
+    function project(x, y, z) {
+      const scale = fov / (fov + z);
+      return {
+        x: x * scale + width / 2,
+        y: y * scale + height / 2,
+        scale: scale
+      };
+    }
+
+    // Points arrays
+    let points = [];
+    let lines = [];
+    let angleX = 0.003;
+    let angleY = 0.005;
+
+    // Initialize points based on theme
+    if (theme === 'home') {
+      // 3D Helix / Electric grid mesh
+      for (let i = 0; i < 40; i++) {
+        const t = (i / 40) * Math.PI * 6;
+        const x1 = Math.cos(t) * 110;
+        const y1 = (i - 20) * 10;
+        const z1 = Math.sin(t) * 110;
+        points.push({ x: x1, y: y1, z: z1, color: '#4169E1' });
+
+        const x2 = Math.cos(t + Math.PI) * 110;
+        const y2 = (i - 20) * 10;
+        const z2 = Math.sin(t + Math.PI) * 110;
+        points.push({ x: x2, y: y2, z: z2, color: '#5CE1E6' });
+      }
+    } else if (theme === 'marketplace') {
+      // 3D cargo / product boxes and nodes floating
+      function makeCube(size, ox, oy, oz, col) {
+        const d = size / 2;
+        const corners = [
+          {x:-d, y:-d, z:-d}, {x:d, y:-d, z:-d}, {x:d, y:d, z:-d}, {x:-d, y:d, z:-d},
+          {x:-d, y:-d, z:d},  {x:d, y:-d, z:d},  {x:d, y:d, z:d},  {x:-d, y:d, z:d}
+        ];
+        const localIndexStart = points.length;
+        corners.forEach(c => points.push({ x: c.x + ox, y: c.y + oy, z: c.z + oz, color: col }));
+        const cubeLines = [
+          [0,1], [1,2], [2,3], [3,0],
+          [4,5], [5,6], [6,7], [7,4],
+          [0,4], [1,5], [2,6], [3,7]
+        ];
+        cubeLines.forEach(l => lines.push([l[0] + localIndexStart, l[1] + localIndexStart]));
+      }
+      makeCube(100, -80, 0, 0, '#ffd700');
+      makeCube(70, 90, -30, 40, '#4169E1');
+    } else if (theme === 'services') {
+      // 3D Rotating circuit node ring & gears
+      points.push({ x: 0, y: 0, z: 0, color: '#ffd700', size: 8 });
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const x = Math.cos(angle) * 120;
+        const z = Math.sin(angle) * 120;
+        points.push({ x: x, y: 0, z: z, color: '#4169E1' });
+        lines.push([0, points.length - 1]);
+        if (i > 0) lines.push([points.length - 1, points.length - 2]);
+      }
+      lines.push([1, points.length - 1]); // close circle
+    } else if (theme === 'subscription') {
+      // 3D Golden Crown structure
+      const numPts = 8;
+      for (let i = 0; i < numPts; i++) {
+        const angle = (i / numPts) * Math.PI * 2;
+        const r = (i % 2 === 0) ? 120 : 60;
+        points.push({ x: Math.cos(angle) * r, y: -30, z: Math.sin(angle) * r, color: '#ffd700' });
+        points.push({ x: Math.cos(angle) * 80, y: 30, z: Math.sin(angle) * 80, color: '#5CE1E6' });
+        
+        const idx = points.length - 2;
+        lines.push([idx, idx + 1]);
+        if (i > 0) {
+          lines.push([idx, idx - 2]);
+          lines.push([idx + 1, idx - 1]);
+        }
+      }
+      lines.push([0, points.length - 2]);
+      lines.push([1, points.length - 1]);
+    } else if (theme === 'partnership') {
+      // interlocking infinity rings
+      // Ring 1
+      for (let i = 0; i < 20; i++) {
+        const angle = (i / 20) * Math.PI * 2;
+        points.push({ x: Math.cos(angle) * 90 - 30, y: Math.sin(angle) * 90, z: 0, color: '#5CE1E6' });
+        if (i > 0) lines.push([points.length - 1, points.length - 2]);
+      }
+      lines.push([0, points.length - 1]);
+      
+      const r1End = points.length;
+      // Ring 2
+      for (let i = 0; i < 20; i++) {
+        const angle = (i / 20) * Math.PI * 2;
+        points.push({ x: Math.cos(angle) * 90 + 30, y: 0, z: Math.sin(angle) * 90, color: '#ffd700' });
+        if (i > 0) lines.push([points.length - 1, points.length - 2]);
+      }
+      lines.push([r1End, points.length - 1]);
+    }
+
+    // Floating particles
+    const particles = [];
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: (Math.random() - 0.5) * 500,
+        y: (Math.random() - 0.5) * 300,
+        z: (Math.random() - 0.5) * 300,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        vz: (Math.random() - 0.5) * 0.4
+      });
+    }
+
+    function rotatePoints() {
+      const cosY = Math.cos(angleY);
+      const sinY = Math.sin(angleY);
+      points.forEach(p => {
+        const x = p.x * cosY - p.z * sinY;
+        const z = p.z * cosY + p.x * sinY;
+        p.x = x; p.z = z;
+      });
+      const cosX = Math.cos(angleX);
+      const sinX = Math.sin(angleX);
+      points.forEach(p => {
+        const y = p.y * cosX - p.z * sinX;
+        const z = p.z * cosX + p.y * sinX;
+        p.y = y; p.z = z;
+      });
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.z += p.vz;
+        if (Math.abs(p.x) > 250) p.vx *= -1;
+        if (Math.abs(p.y) > 150) p.vy *= -1;
+        if (Math.abs(p.z) > 150) p.vz *= -1;
+        const x = p.x * cosY - p.z * sinY;
+        const z = p.z * cosY + p.x * sinY;
+        p.x = x; p.z = z;
+      });
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, width, height);
+      rotatePoints();
+
+      // Draw lines
+      ctx.beginPath();
+      ctx.strokeStyle = theme === 'marketplace' || theme === 'subscription' ? 'rgba(255, 215, 0, 0.12)' : 'rgba(65, 105, 225, 0.12)';
+      ctx.lineWidth = 1;
+      lines.forEach(line => {
+        if (points[line[0]] && points[line[1]]) {
+          const p1 = project(points[line[0]].x, points[line[0]].y, points[line[0]].z);
+          const p2 = project(points[line[1]].x, points[line[1]].y, points[line[1]].z);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+      });
+      ctx.stroke();
+
+      // Draw points
+      points.forEach(p => {
+        const proj = project(p.x, p.y, p.z);
+        ctx.beginPath();
+        ctx.arc(proj.x, proj.y, (p.size || 4) * proj.scale, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+
+      // Draw particles
+      particles.forEach(p => {
+        const proj = project(p.x, p.y, p.z);
+        ctx.beginPath();
+        ctx.arc(proj.x, proj.y, 2 * proj.scale, 0, Math.PI * 2);
+        ctx.fillStyle = theme === 'subscription' || theme === 'partnership' ? 'rgba(255, 215, 0, 0.35)' : 'rgba(92, 225, 230, 0.35)';
+        ctx.fill();
+      });
+
+      requestAnimationFrame(tick);
+    }
+    tick();
+  });
+});
+
