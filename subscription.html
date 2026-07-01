@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AMPEdge Solutions Subscriptions — Choose Your Prime Plan</title>
+  <meta name="description" content="Unlock premium benefits with AMPEdge Solutions Subscription plans. Choose from Base, Modular, or Premium memberships for priority electrician booking, discounted rates, and periodic safety checkups."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
+  <style>
+    :root {
+      --sub-gold: #ffd700;
+      --sub-silver: #cbd5e1;
+      --sub-platinum: #38bdf8;
+      --card-bg-dark: #0f172a;
+    }
+    
+    .sub-hero {
+      background: radial-gradient(circle at top right, rgba(65, 105, 225, 0.08) 0%, rgba(15, 23, 42, 0.02) 60%), #f8fafc;
+      padding: 90px 0 60px 0;
+      text-align: center;
+    }
+    .grid-plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+      margin-bottom: 60px;
+    }
+    .plan-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 30px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .plan-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(65, 105, 225, 0.08);
+      border-color: var(--blue);
+    }
+    .plan-card.premium-tier {
+      background: var(--card-bg-dark);
+      color: #fff;
+      border-color: rgba(255, 215, 0, 0.2);
+    }
+    .plan-card.premium-tier .plan-title {
+      color: var(--sub-gold);
+    }
+    .plan-card.premium-tier .feat-item {
+      color: #94a3b8;
+    }
+    .plan-card.premium-tier .feat-item strong {
+      color: #fff;
+    }
+    .plan-card.premium-tier .btn-sub {
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #0f172a;
+    }
+    .badge-pop {
+      position: absolute;
+      top: 20px;
+      right: -35px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 40px;
+      transform: rotate(45deg);
+      letter-spacing: 1px;
+      box-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
+    }
+    .plan-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-family: var(--font-pjs);
+      color: var(--text-dark);
+    }
+    .plan-price {
+      font-size: 38px;
+      font-weight: 800;
+      margin: 16px 0;
+      font-family: var(--font-pjs);
+    }
+    .plan-price span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .plan-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 32px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+    .feat-item {
+      font-size: 13.5px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .feat-item span {
+      color: var(--success);
+      font-weight: 800;
+    }
+    .btn-sub {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      transition: 0.25s;
+      font-family: var(--font-pjs);
+    }
+    .btn-sub:hover {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    
+    /* Comparison Table */
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .comp-table th, .comp-table td {
+      padding: 16px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .comp-table th {
+      background: #f8fafc;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+    .comp-table td:first-child {
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+<div class="nav-inner">
+  <a href="index.html" class="logo">
+    <img src="images/logo.png" alt="AMPEdge Logo" class="logo-img"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+    <li><a href="booking.html">Services</a></li>
+    <li><a href="subscription.html" class="active">Plans 👑</a></li>
+    <li><a href="partner.html">Partnership</a></li>
+  </ul>
+  <div class="nav-right" style="display:flex;align-items:center;">
+    <a href="https://wa.me/919874600265" target="_blank" style="margin-right:12px;display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:#25d366;border-radius:50%;color:#fff;transition:transform 0.2s;box-shadow:0 2px 8px rgba(37,211,102,0.4)" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" aria-label="WhatsApp">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20" height="20" fill="#fff"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-2.1-3.6 2.1-3.2 7.6-14.1 1.4-2.8 2.8-5.2 1.4-7.6-1.4-2.3-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+    </a>
+    <a href="booking.html" class="btn btn-outline btn-sm">Book a Service</a>
+  </div>
+  <div class="hamburger" onclick="openMob()"><span></span><span></span><span></span></div>
+</div>
+</nav>
+
+<div class="mobile-nav" id="mobNav">
+  <div class="mob-overlay" onclick="closeMob()"></div>
+  <div class="mob-drawer">
+    <span class="mob-close" onclick="closeMob()">✕</span>
+    <a href="index.html">Home</a>
+    <a href="marketplace.html">Marketplace</a>
+    <a href="booking.html">Book a Service</a>
+    <a href="subscription.html">Subscriptions</a>
+    <a href="partner.html">Become a Partner</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="sub-hero">
+  <div class="container">
+    <div class="chip" style="margin-bottom:16px"><span class="dot"></span>AMPEdge Prime Subscriptions</div>
+    <h1 style="font-size: clamp(32px, 5vw, 48px); font-family: var(--font-pjs); font-weight: 800; margin: 0 0 16px 0;">
+      Unlock Unlimited Maintenance & <span class="gradient-text">Zero Platform Fees</span>
+    </h1>
+    <p style="color:var(--text); max-width:650px; margin:0 auto; font-size:16px; line-height:1.6">
+      Choose a tailored subscription package to secure regular electrical audits, priority electrician bookings, and wholesale pricing on certified components.
+    </p>
+  </div>
+</section>
+
+<!-- PLANS CONTAINER -->
+<section style="padding: 40px 0;">
+  <div class="container">
+    <div class="grid-plans">
+      <!-- Base Plan -->
+      <div class="plan-card">
+        <div class="plan-title">Base Plan</div>
+        <div class="plan-desc">For basic electrical maintenance and priority service access.</div>
+        <div class="plan-price">TBD <span>/ month</span></div>
+        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <ul class="plan-features">
+          <li class="feat-item"><span>✓</span> <strong>1x Annual</strong> Safety Audit</li>
+          <li class="feat-item"><span>✓</span> <strong>5% Discount</strong> on Service Base Fees</li>
+          <li class="feat-item"><span>✓</span> <strong>24/7 Priority</strong> Electrician Dispatch</li>
+          <li class="feat-item"><span>✓</span> Free Delivery on Marketplace orders</li>
+        </ul>
+        <button class="btn-sub" onclick="openSubscribeCheckout('Base Plan')">Select Base Plan</button>
+      </div>
+
+      <!-- Modular Plan -->
+      <div class="plan-card" style="border-color:rgba(65, 105, 225, 0.4); box-shadow:0 10px 25px rgba(65, 105, 225, 0.05)">
+        <div class="badge-pop">RECOMMENDED</div>
+        <div class="plan-title" style="color:var(--blue)">Modular Plan</div>
+        <div class="plan-desc">For flats, smart setups, and periodic electrical maintenance.</div>
+        <div class="plan-price">TBD <span>/ month</span></div>
+        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <ul class="plan-features">
+          <li class="feat-item"><span>✓</span> <strong>2x Semi-Annual</strong> Full-Home Audits</li>
+          <li class="feat-item"><span>✓</span> <strong>10% Discount</strong> on Service Base Fees</li>
+          <li class="feat-item"><span>✓</span> <strong>Smart Home Device</strong> Audit & Setup support</li>
+          <li class="feat-item"><span>✓</span> Zero platform fee on service bookings</li>
+          <li class="feat-item"><span>✓</span> Free Priority Delivery on Marketplace orders</li>
+        </ul>
+        <button class="btn-sub" onclick="openSubscribeCheckout('Modular Plan')" style="background:var(--blue); color:white; border-color:var(--blue)">Select Modular Plan</button>
+      </div>
+
+      <!-- Premium Plan -->
+      <div class="plan-card premium-tier">
+        <div class="plan-title">Premium Plan</div>
+        <div class="plan-desc">Complete coverage for large houses, villas, and commercial properties.</div>
+        <div class="plan-price" style="color:#fff">TBD <span>/ month</span></div>
+        <div style="font-size:12px; color:rgba(255, 215, 0, 0.8); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <ul class="plan-features">
+          <li class="feat-item"><span>✓</span> <strong>4x Quarterly</strong> Thorough Electrical Audits</li>
+          <li class="feat-item"><span>✓</span> <strong>15% Discount</strong> on Service Base Fees</li>
+          <li class="feat-item"><span>✓</span> <strong>Dedicated Relationship</strong> Service Engineer</li>
+          <li class="feat-item"><span>✓</span> Zero Platform Fees on all bookings</li>
+          <li class="feat-item"><span>✓</span> <strong>Unlimited Free Callouts</strong> (Zero emergency callout fees)</li>
+        </ul>
+        <button class="btn-sub" onclick="openSubscribeCheckout('Premium Plan')">Select Premium Plan</button>
+      </div>
+    </div>
+
+    <!-- COMPARISON MATRIX -->
+    <div style="margin-top: 80px; margin-bottom: 80px;">
+      <h2 style="font-family:var(--font-pjs); font-weight:800; text-align:center; margin-bottom:30px">Compare Plans & Benefits</h2>
+      <div style="overflow-x: auto;">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Benefit / Feature</th>
+              <th>Base Plan</th>
+              <th>Modular Plan</th>
+              <th>Premium Plan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Periodic Electrical Safety Audits</td>
+              <td>1 per Year</td>
+              <td>2 per Year</td>
+              <td>4 per Year</td>
+            </tr>
+            <tr>
+              <td>Installation/Repair Service Discounts</td>
+              <td>5% OFF</td>
+              <td>10% OFF</td>
+              <td>15% OFF</td>
+            </tr>
+            <tr>
+              <td>Marketplace Delivery Speed</td>
+              <td>Free Delivery</td>
+              <td>Free Express Delivery</td>
+              <td>Free Same-Day Delivery</td>
+            </tr>
+            <tr>
+              <td>Smart Device Integration Support</td>
+              <td>❌</td>
+              <td>✓ Included</td>
+              <td>✓ Included</td>
+            </tr>
+            <tr>
+              <td>Platform Booking Fees (₹49)</td>
+              <td>₹49 per booking</td>
+              <td>₹0 (Zero Fees)</td>
+              <td>₹0 (Zero Fees)</td>
+            </tr>
+            <tr>
+              <td>Dedicated Account Manager</td>
+              <td>❌</td>
+              <td>❌</td>
+              <td>✓ Dedicated Engineer</td>
+            </tr>
+            <tr>
+              <td>Emergency 2-Hour Dispatch</td>
+              <td>Standard Priority</td>
+              <td>High Priority</td>
+              <td>Instant VIP Dispatch</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Checkout Modal -->
+<div id="subCheckoutModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:480px">
+    <div class="modal-header">
+      <h3 style="font-size:20px; font-family:var(--font-pjs)">Subscribe to <span id="checkoutPlanName">Plan</span></h3>
+      <button class="btn-icon" style="background:none;border:none;font-size:20px;cursor:pointer" onclick="closeSubscribeCheckout()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:20px; text-align:center">
+        <p style="margin:0; font-size:13px; color:var(--text-muted)">Selected Membership Plan</p>
+        <h2 id="checkoutPlanTitle" style="margin:4px 0; font-family:var(--font-pjs); font-size:24px; color:var(--blue)">Modular Plan</h2>
+        <div style="font-size:12px; font-weight:800; color:var(--text-muted)">Pricing Coming Soon (Price TBD)</div>
+      </div>
+      
+      <div class="field" style="margin-bottom:14px">
+        <label>Full Name *</label>
+        <input class="f-input" id="subName" placeholder="Rahul Sharma" style="width:100%"/>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Phone Number *</label>
+        <input class="f-input" id="subPhone" placeholder="+91 98765 43210" style="width:100%"/>
+      </div>
+      <div class="field" style="margin-bottom:20px">
+        <label>Email Address *</label>
+        <input class="f-input" id="subEmail" placeholder="rahul@gmail.com" style="width:100%"/>
+      </div>
+      
+      <button class="btn btn-primary" onclick="submitSubscriptionRegistration()" style="width:100%; padding:14px; font-size:15px; font-weight:700">Register Subscriptions & Get Callback 🔔</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="subSuccessModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:400px; text-align:center; padding:40px 20px">
+    <div style="width:80px; height:80px; border-radius:50%; background:var(--success); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px">
+      ✓
+    </div>
+    <h2 style="margin-bottom:10px; font-family:var(--font-pjs)">Registration Successful!</h2>
+    <p style="color:var(--text-muted); margin-bottom:24px; line-height:1.6">Your subscription registration has been processed.<br>Reference ID is <strong style="color:var(--text-dark)">#SUB-<span id="subRefId"></span></strong></p>
+    <a href="index.html" class="btn btn-primary" style="display:block; width:100%; text-decoration:none; padding:12px">Return to Home</a>
+  </div>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><a href="index.html" class="logo"><img src="images/logo.png" alt="AMPEdge Logo" class="logo-img footer-logo-img"/></a><p>India's trusted electrical platform.</p><div class="footer-contact" style="font-size:13.5px;color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6">
+<div style="margin-bottom:8px;display:flex;align-items:center;gap:8px"><span>📧</span> ampedge.info@gmail.com</div>
+<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span>📞</span> <span><strong style="color:rgba(255,255,255,.75)">Contact:</strong> +91 91236 67258 &nbsp;|&nbsp; +91 97483 98418</span></div>
+<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px"><span style="font-size:16px">💬</span> <span><strong style="color:#25D366">WhatsApp Business:</strong> <a href="https://wa.me/919874600265" target="_blank" style="color:#25D366;text-decoration:none;font-weight:600">+91 98746 00265</a></span></div>
+<div style="display:flex;align-items:flex-start;gap:8px"><span>📍</span> <span>West Bauria, Chackasi, Palpara, Howrah 711307</span></div>
+</div>
+</div><div class="fcol"><h5>Services</h5><ul><li><a href="booking.html">Installation</a></li><li><a href="booking.html">Repair</a></li><li><a href="booking.html">Industrial</a></li></ul></div><div class="fcol"><h5>Marketplace</h5><ul><li><a href="marketplace.html">Switches</a></li><li><a href="marketplace.html">Cables</a></li><li><a href="marketplace.html">Lighting</a></li></ul></div><div class="fcol"><h5>Company</h5><ul><li><a href="#">About</a></li><li><a href="partner.html">Partnership</a></li><li><a href="admin.html">Admin Portal</a></li><li><a href="subscription.html">Subscriptions</a></li></ul></div><div class="fcol"><h5>Support</h5><ul><li><a href="https://docs.google.com/forms/d/e/1FAIpQLSfjzl8Dq__HaJcXXJ-WqSJNPICsWlWXqGctNVRLJo4eCyRTSA/viewform" target="_blank" style="color:var(--blue);font-weight:600">Raise a Query</a></li><li><a href="#">Help</a></li><li><a href="#">Contact</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 AMPEDGE Technologies Pvt. Ltd.</span><span>Made with ⚡ in India</span></div></div></footer>
+
+<script>
+  window.selectedPlanName = '';
+
+  window.openSubscribeCheckout = function(plan) {
+    window.selectedPlanName = plan;
+    document.getElementById('checkoutPlanName').textContent = plan;
+    document.getElementById('checkoutPlanTitle').textContent = plan;
+    document.getElementById('subCheckoutModal').classList.add('active');
+  };
+
+  window.closeSubscribeCheckout = function() {
+    document.getElementById('subCheckoutModal').classList.remove('active');
+  };
+
+  window.submitSubscriptionRegistration = function() {
+    const name = document.getElementById('subName').value.trim();
+    const phone = document.getElementById('subPhone').value.trim();
+    const email = document.getElementById('subEmail').value.trim();
+    
+    if (!name || !phone || !email) {
+      alert("Please fill all required fields (*).");
+      return;
+    }
+    
+    // Save subscription local list
+    let subs = JSON.parse(localStorage.getItem('ampedge_subscriptions') || '[]');
+    const id = Math.floor(100000 + Math.random() * 900000);
+    const date = new Date().toISOString().split('T')[0];
+    
+    subs.unshift({
+      id: 'SUB-' + id,
+      date: date,
+      customer: name,
+      phone: phone,
+      email: email,
+      planName: window.selectedPlanName,
+      status: 'Active (Trial)',
+      amount: 'TBD'
+    });
+    localStorage.setItem('ampedge_subscriptions', JSON.stringify(subs));
+    
+    // Also save as customer
+    let customers = JSON.parse(localStorage.getItem('ampedge_customers') || '[]');
+    let exist = customers.find(c => c.phone === phone);
+    if (!exist) {
+      customers.push({
+        name: name,
+        email: email,
+        phone: phone,
+        spend: 0,
+        orders: 1,
+        lastActive: 'Today',
+        loc: 'Not Shared',
+        coords: '',
+        locState: 'Not Shared'
+      });
+      localStorage.setItem('ampedge_customers', JSON.stringify(customers));
+    }
+    
+    closeSubscribeCheckout();
+    
+    // Show success modal
+    document.getElementById('subRefId').textContent = id;
+    document.getElementById('subSuccessModal').classList.add('active');
+  };
+</script>
+<script src="js/main.js?v=2.2"></script>
+</body>
+</html>
