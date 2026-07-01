@@ -650,7 +650,7 @@
         localStorage.setItem('ampedge_user_lat', lat);
         localStorage.setItem('ampedge_user_lng', lng);
         
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=en`)
           .then(res => res.json())
           .then(data => {
             if (btn) {
@@ -666,14 +666,22 @@
               const state = addr.state || '';
               const postcode = addr.postcode || '';
               
-              const line1 = [house, road].filter(Boolean).join(', ') || data.name || 'Current Location';
-              const line2 = [district, city, state, postcode].filter(Boolean).join(', ');
+              // Combine all parts into Address Line 1 (forced English)
+              const parts = [];
+              if (house) parts.push(house);
+              if (road) parts.push(road);
+              if (district) parts.push(district);
+              if (city) parts.push(city);
+              if (state) parts.push(state);
+              if (postcode) parts.push(postcode);
+              
+              const fullAddress = parts.filter(Boolean).join(', ') || data.name || 'Current Location';
               
               const line1Input = document.getElementById('bookingAddressLine1');
               const line2Input = document.getElementById('bookingAddressLine2');
               
-              if (line1Input) line1Input.value = line1;
-              if (line2Input) line2Input.value = line2;
+              if (line1Input) line1Input.value = fullAddress;
+              if (line2Input) line2Input.value = ''; // Keep Line 2 blank/optional as requested
               
               // Also autofill city and trigger updates if elements exist
               const citySelect = document.getElementById('bookingCity');
