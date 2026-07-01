@@ -222,8 +222,8 @@
       <div class="plan-card">
         <div class="plan-title">Base Plan</div>
         <div class="plan-desc">For basic electrical maintenance and priority service access.</div>
-        <div class="plan-price">TBD <span>/ month</span></div>
-        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <div class="plan-price">₹199 <span>/ month</span></div>
+        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">BILLED MONTHLY</div>
         <ul class="plan-features">
           <li class="feat-item"><span>✓</span> <strong>1x Annual</strong> Safety Audit</li>
           <li class="feat-item"><span>✓</span> <strong>5% Discount</strong> on Service Base Fees</li>
@@ -238,8 +238,8 @@
         <div class="badge-pop">RECOMMENDED</div>
         <div class="plan-title" style="color:var(--blue)">Modular Plan</div>
         <div class="plan-desc">For flats, smart setups, and periodic electrical maintenance.</div>
-        <div class="plan-price">TBD <span>/ month</span></div>
-        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <div class="plan-price">₹499 <span>/ month</span></div>
+        <div style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:20px; font-weight:700">BILLED MONTHLY</div>
         <ul class="plan-features">
           <li class="feat-item"><span>✓</span> <strong>2x Semi-Annual</strong> Full-Home Audits</li>
           <li class="feat-item"><span>✓</span> <strong>10% Discount</strong> on Service Base Fees</li>
@@ -254,8 +254,8 @@
       <div class="plan-card premium-tier">
         <div class="plan-title">Premium Plan</div>
         <div class="plan-desc">Complete coverage for large houses, villas, and commercial properties.</div>
-        <div class="plan-price" style="color:#fff">TBD <span>/ month</span></div>
-        <div style="font-size:12px; color:rgba(255, 215, 0, 0.8); margin-top:-10px; margin-bottom:20px; font-weight:700">PRICING SETTING SOON</div>
+        <div class="plan-price" style="color:#fff">₹999 <span>/ month</span></div>
+        <div style="font-size:12px; color:rgba(255, 215, 0, 0.8); margin-top:-10px; margin-bottom:20px; font-weight:700">BILLED MONTHLY</div>
         <ul class="plan-features">
           <li class="feat-item"><span>✓</span> <strong>4x Quarterly</strong> Thorough Electrical Audits</li>
           <li class="feat-item"><span>✓</span> <strong>15% Discount</strong> on Service Base Fees</li>
@@ -341,7 +341,7 @@
       <div style="background:#f8fafc; padding:16px; border-radius:12px; margin-bottom:20px; text-align:center">
         <p style="margin:0; font-size:13px; color:var(--text-muted)">Selected Membership Plan</p>
         <h2 id="checkoutPlanTitle" style="margin:4px 0; font-family:var(--font-pjs); font-size:24px; color:var(--blue)">Modular Plan</h2>
-        <div style="font-size:12px; font-weight:800; color:var(--text-muted)">Pricing Coming Soon (Price TBD)</div>
+        <div id="checkoutPlanPrice" style="font-size:16px; font-weight:800; color:var(--text-dark)">₹0 / month</div>
       </div>
       
       <div class="field" style="margin-bottom:14px">
@@ -384,11 +384,19 @@
 
 <script>
   window.selectedPlanName = '';
+  window.selectedPlanPrice = '';
 
   window.openSubscribeCheckout = function(plan) {
     window.selectedPlanName = plan;
+    let priceStr = '';
+    if (plan === 'Base Plan') priceStr = '₹199 / month';
+    else if (plan === 'Modular Plan') priceStr = '₹499 / month';
+    else if (plan === 'Premium Plan') priceStr = '₹999 / month';
+    
+    window.selectedPlanPrice = priceStr;
     document.getElementById('checkoutPlanName').textContent = plan;
     document.getElementById('checkoutPlanTitle').textContent = plan;
+    document.getElementById('checkoutPlanPrice').textContent = priceStr;
     document.getElementById('subCheckoutModal').classList.add('active');
   };
 
@@ -419,7 +427,7 @@
       email: email,
       planName: window.selectedPlanName,
       status: 'Active (Trial)',
-      amount: 'TBD'
+      amount: window.selectedPlanPrice
     });
     localStorage.setItem('ampedge_subscriptions', JSON.stringify(subs));
     
