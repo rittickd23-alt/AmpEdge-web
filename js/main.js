@@ -1120,6 +1120,88 @@ const ampedgeKB = [
 // Default fallback response
 const defaultReply = "🤔 I'm not sure I understood that. Here's what I can help you with:\n\n• ⚡ Our electrical **services**\n• 🛒 **Products** & marketplace\n• 👑 **Subscription plans**\n• 🤝 **Partner** with us\n• 📞 **Contact** details\n• 🛡️ **Terms & warranty** info\n\nTry asking about any of these topics, or chat with our team on <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:600'>WhatsApp</a>!";
 
+// ── Dynamic Budget Search & Category URLs Mapping for AI Chat ──────
+function getProductCategoryUrl(category) {
+  const cat = category.toUpperCase();
+  if (cat === 'SMART_HOME') return 'switches';
+  if (cat === 'WIRING_MATERIALS') return 'wires';
+  if (cat === 'LIGHTING_FIXTURES') return 'lighting';
+  if (cat === 'APPLIANCES') return 'fans';
+  if (cat === 'SOLAR') return 'solar';
+  return 'switches';
+}
+
+function getBudgetRecommendations(limit, lang) {
+  const products = window.getAmpEdgeProducts ? window.getAmpEdgeProducts() : defaultProducts;
+  const services = window.getAmpEdgeServices ? window.getAmpEdgeServices() : defaultServices;
+  
+  const matchingProducts = products.filter(p => p.basePrice <= limit);
+  const matchingServices = services.filter(s => s.basePrice <= limit);
+  
+  if (matchingProducts.length === 0 && matchingServices.length === 0) {
+    if (lang === 'hi' || lang === 'hinglish') {
+      return `⚠️ क्षमा करें, ₹${limit} के बजट में कोई उत्पाद या सेवा उपलब्ध नहीं है। हमारे उत्पाद ₹349 से और सेवाएं ₹299 से शुरू होती हैं।`;
+    } else if (lang === 'bn' || lang === 'benglish') {
+      return `⚠️ দুঃখিত, ₹${limit} বাজেটের মধ্যে কোনো পণ্য বা পরিষেবা উপলব্ধ নেই। আমাদের পণ্য ₹৩৪৯ এবং পরিষেবা ₹২৯৯ থেকে শুরু হয়।`;
+    } else {
+      return `⚠️ Sorry, no products or services are available under the budget of ₹${limit}. Our products start from ₹349 and services start from ₹299.`;
+    }
+  }
+  
+  let reply = "";
+  if (lang === 'hi' || lang === 'hinglish') {
+    reply = `🎯 **₹${limit} के बजट में उपलब्ध उत्पाद और सेवाएं:**<br><br>`;
+    if (matchingServices.length > 0) {
+      reply += `🛠️ **सेवाएं (Services):**<br>`;
+      matchingServices.forEach(s => {
+        reply += `• <a href="booking.html?select=${s.category.toLowerCase()}" style="color:#4169E1;font-weight:700">${s.name}</a> — **₹${s.basePrice}**<br>`;
+      });
+      reply += `<br>`;
+    }
+    if (matchingProducts.length > 0) {
+      reply += `🛒 **उत्पाद (Products):**<br>`;
+      matchingProducts.forEach(p => {
+        let catUrl = getProductCategoryUrl(p.category);
+        reply += `• <a href="marketplace.html?category=${catUrl}" style="color:#4169E1;font-weight:700">${p.name}</a> — **₹${p.basePrice}**<br>`;
+      });
+    }
+  } else if (lang === 'bn' || lang === 'benglish') {
+    reply = `🎯 **₹${limit} বাজেটের মধ্যে উপলব্ধ পণ্য এবং পরিষেবা:**<br><br>`;
+    if (matchingServices.length > 0) {
+      reply += `🛠️ **পরিষেবা (Services):**<br>`;
+      matchingServices.forEach(s => {
+        reply += `• <a href="booking.html?select=${s.category.toLowerCase()}" style="color:#4169E1;font-weight:700">${s.name}</a> — **₹${s.basePrice}**<br>`;
+      });
+      reply += `<br>`;
+    }
+    if (matchingProducts.length > 0) {
+      reply += `🛒 **পণ্য (Products):**<br>`;
+      matchingProducts.forEach(p => {
+        let catUrl = getProductCategoryUrl(p.category);
+        reply += `• <a href="marketplace.html?category=${catUrl}" style="color:#4169E1;font-weight:700">${p.name}</a> — **₹${p.basePrice}**<br>`;
+      });
+    }
+  } else {
+    reply = `🎯 **Available under your budget of ₹${limit}:**<br><br>`;
+    if (matchingServices.length > 0) {
+      reply += `🛠️ **Services:**<br>`;
+      matchingServices.forEach(s => {
+        reply += `• <a href="booking.html?select=${s.category.toLowerCase()}" style="color:#4169E1;font-weight:700">${s.name}</a> — **₹${s.basePrice}**<br>`;
+      });
+      reply += `<br>`;
+    }
+    if (matchingProducts.length > 0) {
+      reply += `🛒 **Products:**<br>`;
+      matchingProducts.forEach(p => {
+        let catUrl = getProductCategoryUrl(p.category);
+        reply += `• <a href="marketplace.html?category=${catUrl}" style="color:#4169E1;font-weight:700">${p.name}</a> — **₹${p.basePrice}**<br>`;
+      });
+    }
+  }
+  
+  return reply;
+}
+
 function getAIResponse(userText) {
   const text = userText.toLowerCase();
   
@@ -1165,7 +1247,19 @@ function getAIResponse(userText) {
     lang = 'benglish';
   }
 
-  // 2. Identify Query Intent
+  // 2. Budget/Price queries
+  // Matches expressions like: under 500, below 1000, 190 rs, 190 rupees, 500 में, etc.
+  const budgetMatch = text.match(/(?:under|below|budget|price|rs|₹|rupees|में|কম|টাকার|অধীনে)\s*(\d+)/i) || 
+                      text.match(/(\d+)\s*(?:under|below|budget|price|rs|₹|rupees|में|কম|টাকার)/i);
+                      
+  if (budgetMatch) {
+    const limit = parseInt(budgetMatch[1]);
+    if (!isNaN(limit)) {
+      return getBudgetRecommendations(limit, lang);
+    }
+  }
+
+  // 3. Identify Query Intent
   const isBooking = text.includes('book') || text.includes('service') || text.includes('booking') || 
                     text.includes('बुक') || text.includes('बुक') || text.includes('बुकिंग') || 
                     text.includes('బుక్') || text.includes('புக்') || text.includes('ಬುಕ್') || 
