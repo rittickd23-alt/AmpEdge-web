@@ -1352,6 +1352,25 @@ window.clearMarketplaceElectricianSelection = function() {
   renderMarketplaceCheckoutElectricians();
 };
 
+window.formatCardNumber = function(input) {
+  let val = input.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+  let formatted = '';
+  for (let i = 0; i < val.length; i++) {
+    if (i > 0 && i % 4 === 0) formatted += ' ';
+    formatted += val[i];
+  }
+  input.value = formatted;
+};
+
+window.formatCardExpiry = function(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length >= 2) {
+    input.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+  } else {
+    input.value = val;
+  }
+};
+
 window.switchCheckoutTab = function(tabId) {
   // Update Tabs
   document.querySelectorAll('.chk-tab').forEach(t => {
@@ -1381,6 +1400,40 @@ window.processPayment = function() {
     }
     if (!/^\d{10}$/.test(cPhoneInput.value.trim())) {
       alert("Please enter a valid 10-digit Phone Number.");
+      return;
+    }
+  }
+
+  // Validate Payment Tab Info
+  const upiPane = document.getElementById('tab-upi');
+  const cardPane = document.getElementById('tab-card');
+  
+  if (upiPane && upiPane.style.display === 'block') {
+    const upiId = document.getElementById('checkoutUpiId')?.value.trim();
+    if (!upiId || !upiId.includes('@')) {
+      alert("Please enter a valid UPI ID (e.g. name@upi).");
+      return;
+    }
+  } else if (cardPane && cardPane.style.display === 'block') {
+    const cardNum = document.getElementById('checkoutCardNumber')?.value.replace(/\s+/g, '');
+    const expiry = document.getElementById('checkoutCardExpiry')?.value.trim();
+    const cvv = document.getElementById('checkoutCardCvv')?.value.trim();
+    
+    if (!cardNum || cardNum.length !== 16 || !/^\d{16}$/.test(cardNum)) {
+      alert("Please enter a valid 16-digit Card Number.");
+      return;
+    }
+    if (!expiry || !/^\d{2}\/\d{2}$/.test(expiry)) {
+      alert("Please enter a valid Expiry Date (MM/YY).");
+      return;
+    }
+    const month = parseInt(expiry.split('/')[0]);
+    if (month < 1 || month > 12) {
+      alert("Please enter a valid Expiry Month (01-12).");
+      return;
+    }
+    if (!cvv || cvv.length !== 3 || !/^\d{3}$/.test(cvv)) {
+      alert("Please enter a valid 3-digit CVV.");
       return;
     }
   }

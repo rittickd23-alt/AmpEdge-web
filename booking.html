@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Book a Service — AMPEDGE</title>
 <meta name="description" content="Book a certified electrician in minutes. Transparent pricing, instant quotes, 90-day warranty on all work."/>
-<link rel="stylesheet" href="css/style.css?v=7.0"/>
+<link rel="stylesheet" href="css/style.css?v=8.0"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
 <link rel="icon" type="image/png" href="favicon.png"/><link rel="apple-touch-icon" href="favicon-180.png"/>
   <style>
@@ -398,23 +398,23 @@
       <div id="tab-upi" class="tab-pane active" style="display:block">
         <div class="field" style="margin-bottom:16px">
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Enter UPI ID</label>
-          <input type="text" class="f-input" placeholder="e.g. user@oksbi" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px" />
+          <input type="text" id="checkoutUpiId" class="f-input" placeholder="e.g. user@oksbi" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px" />
         </div>
       </div>
 
       <div id="tab-card" class="tab-pane" style="display:none">
         <div class="field" style="margin-bottom:16px">
           <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Card Number</label>
-          <input type="text" class="f-input" placeholder="0000 0000 0000 0000" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
+          <input type="text" id="checkoutCardNumber" class="f-input" placeholder="0000 0000 0000 0000" maxlength="19" oninput="formatCardNumber(this)" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
         </div>
         <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
           <div class="field">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">Expiry</label>
-            <input type="text" class="f-input" placeholder="MM/YY" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
+            <input type="text" id="checkoutCardExpiry" class="f-input" placeholder="MM/YY" maxlength="5" oninput="formatCardExpiry(this)" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
           </div>
           <div class="field">
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px">CVV</label>
-            <input type="password" class="f-input" placeholder="123" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
+            <input type="password" id="checkoutCardCvv" class="f-input" placeholder="123" maxlength="3" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px"/>
           </div>
         </div>
       </div>
@@ -721,6 +721,6 @@
     );
   };
 </script>
-<script src="js/main.js?v=7.0"></script>
+<script src="js/main.js?v=8.0"></script>
 </body>
 </html>
