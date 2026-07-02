@@ -179,6 +179,29 @@ function renderBookingServices() {
   if (!container) return; // not on booking page
   
   let services = window.getAmpEdgeServices();
+  
+  // Parse query parameters for service selection on load
+  const params = new URLSearchParams(window.location.search);
+  const selectQuery = params.get('select');
+  if (selectQuery) {
+    const query = selectQuery.toLowerCase();
+    if (query === 'installation') {
+      services = services.filter(s => s.category === 'INSTALLATION');
+    } else if (query === 'repair') {
+      services = services.filter(s => s.category === 'REPAIR');
+    } else if (query === 'maintenance') {
+      services = services.filter(s => s.name.toLowerCase().includes('maintenance') || s.description.toLowerCase().includes('maintenance'));
+    } else if (query === 'industrial') {
+      services = services.filter(s => s.category === 'COMMERCIAL' || s.name.toLowerCase().includes('industrial') || s.description.toLowerCase().includes('industrial'));
+    } else if (query === 'smarthome') {
+      services = services.filter(s => s.name.toLowerCase().includes('smart home') || s.description.toLowerCase().includes('smart'));
+    } else if (query === 'solar') {
+      services = services.filter(s => s.category === 'SOLAR');
+    } else if (query === 'emergency') {
+      services = services.filter(s => s.category === 'EMERGENCY');
+    }
+  }
+
   // Filter by service budget range
   services = services.filter(s => s.basePrice >= currentServiceMinPrice && s.basePrice <= currentServiceMaxPrice);
   
@@ -2131,4 +2154,200 @@ document.addEventListener('DOMContentLoaded', () => {
     tick();
   });
 });
+
+// ── GLOBAL FOOTER DYNAMIC MODALS AND ROUTING ──────────────────
+
+// 1. Dynamic Marketplace Category URL Filter on Load
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const catParam = params.get('category');
+  if (catParam) {
+    const val = catParam.toLowerCase();
+    if (val === 'switches') {
+      currentCategoryFilter = 'Switches';
+    } else if (val === 'wires' || val === 'cables') {
+      currentCategoryFilter = 'Wires & Cables';
+    } else if (val === 'mcb' || val === 'db') {
+      currentCategoryFilter = 'MCB & DB';
+    } else if (val === 'lighting' || val === 'led') {
+      currentCategoryFilter = 'LED Lighting';
+    } else if (val === 'fans') {
+      currentCategoryFilter = 'Fans';
+    } else if (val === 'solar') {
+      currentCategoryFilter = '☀️ Solar';
+    }
+    
+    // Update active visual tab class on load
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.chip-item').forEach(btn => {
+        const text = btn.textContent.trim().toLowerCase();
+        if (text === currentCategoryFilter.toLowerCase() || (currentCategoryFilter === '☀️ Solar' && text.includes('solar'))) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderMarketplaceProducts();
+    });
+  }
+})();
+
+// 2. Global Footer Info Modal System
+document.addEventListener('DOMContentLoaded', () => {
+  const modalHTML = `
+    <div id="footerInfoModal" class="modal-overlay" style="z-index: 100000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: opacity 0.3s ease;">
+      <div class="modal-content" style="max-width: 650px; padding: 28px; max-height: 85vh; overflow-y: auto; border-radius: 16px; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); border: 1px solid var(--border);">
+        <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px;">
+          <h3 id="footerInfoTitle" style="font-family: var(--font-pjs); font-size: 22px; color: var(--text-dark); margin:0;">Title</h3>
+          <button class="btn-icon" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted); font-weight:700;" onclick="closeFooterInfoModal()">✕</button>
+        </div>
+        <div id="footerInfoBody" style="font-size: 14.5px; line-height: 1.7; color: var(--text-muted);">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Inject modal overlay transition CSS styles
+  const style = document.createElement('style');
+  style.textContent = `
+    #footerInfoModal.active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+  `;
+  document.head.appendChild(style);
+});
+
+window.closeFooterInfoModal = function() {
+  const modal = document.getElementById('footerInfoModal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.showFooterInfoModal = function(type) {
+  const modal = document.getElementById('footerInfoModal');
+  const titleEl = document.getElementById('footerInfoTitle');
+  const bodyEl = document.getElementById('footerInfoBody');
+  
+  if (!modal || !titleEl || !bodyEl) return;
+  
+  const contentDb = {
+    about: {
+      title: "About AMPEdge Solutions ⚡",
+      body: `
+        <div style="text-align: center; margin-bottom: 22px;">
+          <img src="images/logo.png" alt="AMPEdge Solutions" style="height: 52px; margin-bottom: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"/>
+          <h4 style="font-size: 18px; color: var(--blue); margin: 0 0 8px 0; font-family: var(--font-pjs);">Powering the Edge of Tomorrow</h4>
+          <p style="font-style: italic; color:var(--text-muted); font-size:13.5px; margin:0;">"Pay only after complete satisfaction. Guaranteed."</p>
+        </div>
+        <p><strong>AMPEdge Solutions</strong> is India's premier, state-of-the-art platform connecting residential and commercial properties with certified, highly trained electrician partners. We stand for speed, safety, and modern convenience.</p>
+        <h5 style="color: var(--text-dark); margin: 20px 0 10px 0; font-size: 16px; font-weight:700;">Our Core Values:</h5>
+        <ul style="padding-left: 20px; margin-bottom: 20px; display:grid; gap:8px;">
+          <li><strong>90-Day Post-Service Warranty:</strong> Every booking is secured under our official warranty. If the same issue pops up again within 90 days, we fix it completely free.</li>
+          <li><strong>Rigorous Partner Vetting:</strong> All onboarded technicians undergo background screening, qualification verification, and extensive field safety testing.</li>
+          <li><strong>Upfront Transparent Estimates:</strong> We use real-time wire calculators and standard rate books so there are never any hidden costs or surprise markups.</li>
+        </ul>
+      `
+    },
+    help: {
+      title: "Help Centre & FAQ ❓",
+      body: `
+        <p>Need assistance? Here are quick answers to our most common customer queries:</p>
+        <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 16px;">
+          <div>
+            <h5 style="color: var(--blue); margin: 0 0 6px 0; font-size: 15px; font-weight:700;">Q: How do I book an electrician partner?</h5>
+            <p style="margin: 0;">A: Go to the "Book a Service" tab, select your city and pincode, pick your property type, select the specific services needed, choose your preferred electrician partner based on distance/ratings, select a date and slot, and confirm. Done!</p>
+          </div>
+          <div>
+            <h5 style="color: var(--blue); margin: 0 0 6px 0; font-size: 15px; font-weight:700;">Q: What is the 90-day service warranty?</h5>
+            <p style="margin: 0;">A: Every booking through our site is backed by a 90-day warranty. If the repair fails or the setup breaks within 90 days, we'll send a technician to resolve it for free.</p>
+          </div>
+          <div>
+            <h5 style="color: var(--blue); margin: 0 0 6px 0; font-size: 15px; font-weight:700;">Q: How does the Marketplace work?</h5>
+            <p style="margin: 0;">A: You can purchase switches, wires, cables, MCBs, LED fittings, and fans directly from our platform. At checkout, you can also optionally choose to add professional installation by verified partners near you.</p>
+          </div>
+        </div>
+      `
+    },
+    contact: {
+      title: "Contact Us 📞",
+      body: `
+        <p>Have specific queries or custom corporate requirements? Reach out directly to the AMPEdge Solutions team:</p>
+        <div style="background: var(--bg2); padding: 22px; border-radius: 12px; display: grid; gap: 16px; margin-top: 16px; border: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px;">📧</span> 
+            <div><strong>Email Support:</strong> <a href="mailto:ampedge.info@gmail.com" style="color: var(--blue); text-decoration:none;">ampedge.info@gmail.com</a></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px;">📞</span> 
+            <div><strong>Phone Helpdesk:</strong> +91 91236 67258 &nbsp;|&nbsp; +91 97483 98418</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px; color: #25D366;">💬</span> 
+            <div><strong>WhatsApp Business:</strong> <a href="https://wa.me/919874600265" target="_blank" style="color: #25D366; font-weight: 700; text-decoration: none;">+91 98746 00265</a></div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 20px;">📍</span> 
+            <div><strong>Registered Office:</strong> West Bauria, Chackasi, Palpara, Howrah 711307, West Bengal, India</div>
+          </div>
+        </div>
+      `
+    },
+    privacy: {
+      title: "Privacy Policy 🔒",
+      body: `
+        <p>Last updated: July 2026</p>
+        <p>Your privacy is vital to us. This policy describes how we collect, store, and process your information:</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">1. Personal Coordinates & Geolocation</h5>
+        <p>We request access to geolocation data solely to match-make you with close electrician partners and autofill addresses. This coordinates data is processed instantly and never shared with external agencies.</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">2. Cookies & Analytics</h5>
+        <p>We use simple local cookies to persist your cart selections, booking step inputs, and active session details so you do not lose your selections when reloading pages.</p>
+      `
+    },
+    terms: {
+      title: "Terms of Service 📝",
+      body: `
+        <p>Last updated: July 2026</p>
+        <p>Please read these Terms of Service before using our service platforms:</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">1. Customer Account & Accuracy</h5>
+        <p>When booking tasks or placing product orders, you must provide valid name, phone, and address details. Falsifying information or bypassing electrician safety checks is strictly forbidden.</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">2. Right to Refuse Service</h5>
+        <p>To secure our partners' safety, AMPEdge Solutions reserves the right to decline or cancel service dispatches in case of hostile on-site conditions or non-compliant environments.</p>
+      `
+    },
+    refund: {
+      title: "Refund Policy 💳",
+      body: `
+        <p>We provide straightforward refund terms across products and services:</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">1. Marketplace Product Returns</h5>
+        <p>Unused, unmounted electrical products in their original manufacturer packaging can be returned within <strong>7 days</strong> of delivery. Contact our helpline to schedule an inspection-pickup.</p>
+        <h5 style="color: var(--text-dark); margin: 16px 0 6px 0; font-size: 15px; font-weight:700;">2. Booking Cancellation & Fees</h5>
+        <p>Service bookings can be canceled for free up to <strong>2 hours</strong> before the selected technician slot. Late cancellations are subject to a nominal ₹99 dispatch charge.</p>
+      `
+    },
+    press: {
+      title: "Press & Media Releases 📰",
+      body: `
+        <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 10px;">
+          <div style="border-left: 3px solid var(--blue); padding-left: 14px;">
+            <h5 style="margin: 0 0 6px 0; font-size: 15px; font-weight:700; color:var(--text-dark);">AMPEdge Solutions Awarded Top Urban Tech Startup 🏆</h5>
+            <p style="margin: 0; font-size: 13.5px;">"Howrah's AMPEdge Solutions receives recognition for bringing background-checked, vetted electricians to suburban homes instantly." — <em>StartUp India Connect</em></p>
+          </div>
+          <div style="border-left: 3px solid var(--blue); padding-left: 14px;">
+            <h5 style="margin: 0 0 6px 0; font-size: 15px; font-weight:700; color:var(--text-dark);">Revolutionizing Solar Adoption in Suburban Homes ☀️</h5>
+            <p style="margin: 0; font-size: 13.5px;">"With their smart solar installation calculators and net metering matching system, AMPEdge makes rooftop solar setups highly transparent." — <em>Green Energy Review</em></p>
+          </div>
+        </div>
+      `
+    }
+  };
+  
+  const content = contentDb[type];
+  if (content) {
+    titleEl.textContent = content.title;
+    bodyEl.innerHTML = content.body;
+    modal.classList.add('active');
+  }
+};
 
