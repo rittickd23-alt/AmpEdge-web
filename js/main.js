@@ -1121,16 +1121,183 @@ const ampedgeKB = [
 const defaultReply = "🤔 I'm not sure I understood that. Here's what I can help you with:\n\n• ⚡ Our electrical **services**\n• 🛒 **Products** & marketplace\n• 👑 **Subscription plans**\n• 🤝 **Partner** with us\n• 📞 **Contact** details\n• 🛡️ **Terms & warranty** info\n\nTry asking about any of these topics, or chat with our team on <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:600'>WhatsApp</a>!";
 
 function getAIResponse(userText) {
-  const lower = userText.toLowerCase();
-  for (const entry of ampedgeKB) {
-    for (const key of entry.keys) {
-      // Use word boundary matches so sub-words like 'this' or 'thin' don't trigger 'hi'
-      const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      const regex = new RegExp('\\b' + escapedKey + '\\b', 'i');
-      if (regex.test(lower)) return entry.reply;
-    }
+  const text = userText.toLowerCase();
+  
+  // 1. Language Detection
+  let lang = 'en'; // default
+  
+  if (/[\u0900-\u097F]/.test(userText)) {
+    // Devanagari script (Hindi, Marathi, Konkani)
+    lang = 'hi'; 
+  } else if (/[\u0980-\u09FF]/.test(userText)) {
+    // Bengali script (Bengali, Assamese)
+    lang = 'bn';
+  } else if (/[\u0B80-\u0BFF]/.test(userText)) {
+    // Tamil script
+    lang = 'ta';
+  } else if (/[\u0C00-\u0C7F]/.test(userText)) {
+    // Telugu script
+    lang = 'te';
+  } else if (/[\u0C80-\u0CFF]/.test(userText)) {
+    // Kannada script
+    lang = 'kn';
+  } else if (/[\u0D00-\u0D7F]/.test(userText)) {
+    // Malayalam script
+    lang = 'ml';
+  } else if (/[\u0A80-\u0AFF]/.test(userText)) {
+    // Gujarati script
+    lang = 'gu';
+  } else if (/[\u0A00-\u0A7F]/.test(userText)) {
+    // Punjabi (Gurmukhi) script
+    lang = 'pa';
+  } else if (
+    text.includes('kaise') || text.includes('karna') || text.includes('karo') || text.includes('mera') || 
+    text.includes('kab') || text.includes('paise') || text.includes('refund') || text.includes('warranty') || 
+    text.includes('booking') || text.includes('hai') || text.includes('chahiye') || text.includes('karke') ||
+    text.includes('naam') || text.includes('dikhaiye') || text.includes('bataiye')
+  ) {
+    lang = 'hinglish';
+  } else if (
+    text.includes('kivabe') || text.includes('korbo') || text.includes('amar') || text.includes('kobe') || 
+    text.includes('taka') || text.includes('ferot') || text.includes('somossa') || text.includes('korun') ||
+    text.includes('bolun') || text.includes('dekhun')
+  ) {
+    lang = 'benglish';
   }
-  return defaultReply;
+
+  // 2. Identify Query Intent
+  const isBooking = text.includes('book') || text.includes('service') || text.includes('booking') || 
+                    text.includes('बुक') || text.includes('बुक') || text.includes('बुकिंग') || 
+                    text.includes('బుక్') || text.includes('புக்') || text.includes('ಬುಕ್') || 
+                    text.includes('റിപ്പയർ') || text.includes('സർവീസ്');
+  
+  const isProduct = text.includes('product') || text.includes('marketplace') || text.includes('buy') || text.includes('shop') ||
+                    text.includes('item') || text.includes('material') || text.includes('switches') || text.includes('wires') ||
+                    text.includes('सामान') || text.includes('खरीद') || text.includes('उत्पाद') || text.includes('কিনতে') || 
+                    text.includes('পণ্য') || text.includes('பொருள்') || text.includes('கொనుగోలు') || 
+                    text.includes('സാധനങ്ങൾ') || text.includes('ખરીદી');
+  
+  const isContact = text.includes('contact') || text.includes('phone') || text.includes('call') || text.includes('whatsapp') || 
+                    text.includes('number') || text.includes('email') || text.includes('mail') || text.includes('address') ||
+                    text.includes('नंबर') || text.includes('फोन') || text.includes('पता') || text.includes('যোগাযোগ') || 
+                    text.includes('தொடர்பு') || text.includes('సంప్రదించండి') || text.includes('ബന്ധപ്പെടുക') || 
+                    text.includes('સરનામું') || text.includes('ਪਤਾ');
+  
+  const isWarranty = text.includes('warranty') || text.includes('guarantee') || text.includes('days') ||
+                     text.includes('वारंटी') || text.includes('गारंटी') || text.includes('ওয়ারেন্টি') || 
+                     text.includes('உத்தரவாதம்') || text.includes('హామీ') || text.includes('വാറന്റി') || 
+                     text.includes('વોરંટી');
+  
+  const isPlan = text.includes('plan') || text.includes('subscription') || text.includes('modular') || text.includes('premium') ||
+                 text.includes('ಪ್ಲಾನ್') || text.includes('திட்டம்') || text.includes('ప్లాన్') || 
+                 text.includes('ಪ್ಲಾನ') || text.includes('યોજના') || text.includes('ਪਲਾਨ') ||
+                 text.includes('प्लान') || text.includes('প্ল্যান');
+  
+  const isPartner = text.includes('partner') || text.includes('job') || text.includes('join') || text.includes('work') || text.includes('electrician') ||
+                    text.includes('पार्टनर') || text.includes('नौकरी') || text.includes('ਕাজের') || text.includes('വേല') || 
+                    text.includes('ఉద్యోగం') || text.includes('ભાગીદારી') || text.includes('কাজের');
+
+  // 3. Multi-lingual Response Dictionary
+  const responses = {
+    hi: {
+      booking: "⚡ **बुकिंग गाइड:**<br>आप हमारी वेबसाइट पर 'Book a Service' पर जाकर बुकिंग कर सकते हैं। शहर और पिनकोड चुनें, फिर अपनी आवश्यकतानुसार इलेक्ट्रिशियन सिलेक्ट करें। काम पूरा होने के बाद ही पेमेंट करें। सभी बुकिंग पर **90 दिनों की वारंटी** है।",
+      product: "🛒 **मार्केटप्लेस उत्पाद:**<br>हम प्रीमियम प्रमाणित उत्पाद बेचते हैं जैसे Havells Coral स्मार्ट स्विच (₹349), Finolex तार (₹2299), Legrand USB सॉकेट (₹1249), Philips LED लाइट (₹449) और Crompton पंखे (₹2499)। इन्हें खरीदने के लिए Marketplace पेज पर जाएं।",
+      contact: "📞 **संपर्क जानकारी:**<br>• व्हाट्सऐप बिजनेस: <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a><br>• हेल्पलाइन: +91 91236 67258 / +91 97483 98418<br>• ईमेल: ampedge.info@gmail.com<br>• पता: West Bauria, Howrah 711307",
+      warranty: "🛡️ **वारंटी और रिफंड:**<br>हमारी सभी रिपेयर और इंस्टालेशन सेवाओं पर **90 दिनों की पोस्ट-सर्विस वारंटी** है। अनुपयोगी मार्केटप्लेस उत्पादों पर 7 दिनों की वापसी नीति है।",
+      plan: "👑 **सब्सक्रिप्शन प्लान:**<br>• बेस (₹199/माह): 1 फ्री सुरक्षा ऑडिट<br>• मॉड्यूलर (₹499/माह): 2 फ्री ऑडिट, 0 बुकिंग शुल्क<br>• प्रीमियम (₹999/माह): असीमित फ्री विजिट, 10% ऑफ उत्पाद।",
+      partner: "🤝 **साझेदारी कार्यक्रम:**<br>यदि आप एक इलेक्ट्रिशियन हैं, तो हमारे साथ जुड़ें। रोज़ाना कमाई सीधे बैंक अकाउंट में पाएं, दुर्घटना बीमा और काम के लचीले घंटे। आवेदन के लिए 'Become Partner' पेज पर जाएं।",
+      fallback: "नमस्ते! मैं एम्पएज सहायता एजेंट हूँ। मुझे बुकिंग, वारंटी, रिफंड, कांटेक्ट नंबर या योजनाओं के बारे में पूछें। मैं हिंदी, बंगाली और अंग्रेजी समेत सभी क्षेत्रीय भाषाएं समझ सकता हूँ।"
+    },
+    hinglish: {
+      booking: "⚡ **Booking Kaise Karein:**<br>Aap 'Book a Service' page par jaakar booking kar sakte hain. City aur pincode select karein, apna electrician chuney aur slot book karein. Kaam se satisfied hone par hi pay karein. Sabhi bookings par **90-day warranty** hai.",
+      product: "🛒 **Marketplace Products:**<br>Hum premium certified products jaise Havells Coral Smart Switch (₹349), Finolex Wire (₹2299), Legrand USB Socket (₹1249), Philips LED (₹449) aur Crompton Fan (₹2499) best price par deliver karte hain. Kharidne ke liye Marketplace page par jayein.",
+      contact: "📞 **Contact Support:**<br>• WhatsApp Business: <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a><br>• Call Support: +91 91236 67258 / +91 97483 98418<br>• Email ID: ampedge.info@gmail.com<br>• Address: West Bauria, Howrah",
+      warranty: "🛡️ **Warranty & Return Policy:**<br>Humari sabhi electrical services par auto-active **90-day post-service warranty** milti hai. Marketplace products ko aap 7 days ke andar return kar sakte hain.",
+      plan: "👑 **Subscription Plans:**<br>Humare pass 3 membership models hain:<br>• Base Plan (₹199/month): 1 Free safety audit.<br>• Modular Plan (₹499/month): 2 Free audits, zero platform booking fee.<br>• Premium Plan (₹999/month): Unlimited free emergency visits, 10% discount on marketplace products.",
+      partner: "🤝 **Electrician Partner Program:**<br>Electricians aur contractors humare sath jud kar daily payouts kama sakte hain. Steady job stream, accident insurance aur training ke liye 'Become Partner' page par apply karein.",
+      fallback: "Hello! Main AMPEdge Solutions ka AI Agent hoon. Mujhe booking, products, contact info, ya policies ke baare mein puchein. Main Hinglish, Hindi, Bengali, aur local regional languages samajh sakta hoon!"
+    },
+    bn: {
+      booking: "⚡ **বুকিং নির্দেশিকা:**<br>আপনি আমাদের 'Book a Service' পেজে গিয়ে খুব সহজেই বুক করতে পারেন। শহর এবং পিনকোড দিয়ে আপনার টেকনিশিয়ান বেছে নিন। কাজ সম্পূর্ণ হওয়ার পর বিল পে করুন। সমস্ত বুকিংয়ে **৯০ দিনের ওয়ারেন্টি** দেওয়া হয়।",
+      product: "🛒 **বাজারের পণ্য:**<br>আমাদের স্টোরে Havells Coral স্মার্ট সুইচ (₹349), Finolex ক্যাবল (₹2299), Legrand USB সকেট (₹1249), Philips LED লাইট (₹449) এবং Crompton ফ্যান (₹2499) রয়েছে। অর্ডার করতে Marketplace পেজে যান।",
+      contact: "📞 **যোগাযোগের তথ্য:**<br>• হোয়াটস্যাপ বিজনেস: <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a><br>• হেল্পলাইন: +91 91236 67258 / +91 97483 98418<br>• ইমেল: ampedge.info@gmail.com<br>• ঠিকানা: West Bauria, Howrah 711307",
+      warranty: "🛡️ **ওয়ারেন্টি ও রিফান্ড:**<br>আমাদের সমস্ত সার্ভিসের সাথে **৯০ দিনের অফিশিয়াল ওয়ারেন্টি** দেওয়া হয়। পণ্য ক্রয়ের পর পছন্দ না হলে ৭ দিনের রিটার্ন পলিসি রয়েছে।",
+      plan: "👑 **সাবস্ক্রিপশন প্ল্যান:**<br>• বেস (₹১৯৯/মাস): ১টি ফ্রি সেফটি অডিট<br>• মডুলার (₹৪৯৯/মাস): ২টি ফ্রি অডিট, ০ বুকিং চার্জ<br>• প্রিমিয়াম (₹৯৯৯/মাস): আনলিমিটেড এমার্জেন্সি ভিজিট, ১০% প্রোডাক্ট অফ।",
+      partner: "🤝 **পার্টনারশিপ প্রোগ্রাম:**<br>আমাদের সাথে যুক্ত হয়ে প্রতিদিনের উপার্জন সরাসরি ব্যাংক অ্যাকাউন্টে পান। রেজিষ্ট্রেশন করতে 'Become Partner' পেজে যান।",
+      fallback: "নমস্কার! আমি এ্যাম্পএজ হেল্প এজেন্ট। আমি বুকিং, ওয়ারেন্টি, রিফান্ড পলিসি ও যোগাযোগ নাম্বার সম্পর্কে সাহায্য করতে পারি। আমি বাংলা, হিন্দি ও ইংরেজি বুঝতে পারি।"
+    },
+    benglish: {
+      booking: "⚡ **Booking Process:**<br>Aapni 'Book a Service' page-e giye booking korte paren. City ebong pincode diye, electrician select korun ebong slot book korun. Kajer por payment korun. Sob service-e **90 days warranty** thakbe.",
+      product: "🛒 **Product Orders:**<br>Switches, wires, MCBs, LED lighting, fans amader Marketplace page theke order korte paren. Check out-er somoy installation add korte paren.",
+      contact: "📞 **Contact Support:**<br>• WhatsApp Business: <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a><br>• Phone support: +91 91236 67258 / +91 97483 98418<br>• Email ID: ampedge.info@gmail.com",
+      warranty: "🛡️ **Warranty & Refund:**<br>Amader sob electrical repair-e 90-day warranty royeche. Unused products 7 diner moddhe return korte paren.",
+      plan: "👑 **Subscription Plans:**<br>Base (₹199), Modular (₹499), ebong Premium (₹999) plan royeche. Subscriptions page theke choose korte paren.",
+      partner: "🤝 **Partner Program:**<br>Electrician ebong contractors amader sathe partner hisebe kaj korte paren. Partner page-e giye form fill-up korun.",
+      fallback: "Hello! Ami AMPEdge Solutions-er AI Agent. Amake booking, refund policy ba contact details niye jigges korte paren."
+    },
+    ta: {
+      booking: "⚡ **புக்கிங் வழிகாட்டி:**<br>எங்கள் இணையதளத்தில் 'Book a Service' பக்கத்திற்குச் சென்று எளிதாகப் புக் செய்யலாம். உங்கள் நகரம் மற்றும் பின்கோடைத் தேர்ந்தெடுத்து, எலக்ட்ரீஷியனைத் தேர்வு செய்யவும். வேலை முடிந்ததும் பணம் செலுத்தலாம். **90 நாட்கள் உத்தரவாதம்** உண்டு.",
+      product: "🛒 **மின் பொருட்கள்:**<br>ஹேவெல்ஸ் ஸ்மார்ட் ஸ்விட்ச் (₹349), ஃபினோலெக்ஸ் வயர் (₹2299), பிலிப்ஸ் எல்இடி விளக்கு (₹449) ஆகியவற்றை எங்கள் Marketplace பக்கத்தில் வாங்கலாம்.",
+      contact: "📞 **தொடர்பு கொள்ள:**<br>• வாட்ஸ்அப்: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• தொலைபேசி: +91 91236 67258 / +91 97483 98418<br>• மின்னஞ்சல்: ampedge.info@gmail.com",
+      warranty: "🛡️ **உத்தரவாதம் & ரீஃபண்ட்:**<br>அனைத்து பழுதுபார்க்கும் சேவைகளுக்கும் **90 நாட்கள் உத்தரவாதம்** வழங்கப்படுகிறது. பயன்படுத்தப்படாத தயாரிப்புகளுக்கு 7 நாட்கள் ரிட்டர்ன் வசதி உண்டு.",
+      fallback: "வணக்கம்! நான் ஏஎம்பிஎட்ஜ் உதவி முகவர். புக்கிங், பொருட்கள், உத்தரவாதம் அல்லது தொடர்பு விவரங்கள் பற்றி என்னிடம் கேட்கலாம்."
+    },
+    te: {
+      booking: "⚡ **బుకింగ్ గైడ్:**<br>మా వెబ్‌సైట్‌లో 'Book a Service' పేజీకి వెళ్లి సులభంగా బుకింగ్ చేసుకోవచ్చు. మీ నగరం మరియు పిన్‌కోడ్‌ని ఎంచుకుని, ఎలక్ట్రీషియన్‌ను ఎంచుకోండి. పని పూర్తయ్యాకే చెల్లించండి. **90 రోజుల వారంటీ** ఉంటుంది.",
+      product: "🛒 **ఉత్పత్తుల మార్కెట్‌ప్లేస్:**<br>హ్యావెల్స్ స్మార్ట్ స్విచ్‌లు (₹349), ఫినోలెక్స్ వైర్లు (₹2299), ఫిలిప్స్ ఎల్‌ఈడీ లైట్లు (₹449) మా Marketplace పేజీ నుండి ఆర్డర్ చేయవచ్చు.",
+      contact: "📞 **సహాయ కేంద్రం:**<br>• వాట్సాప్: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• హెల్ప్‌లైన్: +91 91236 67258 / +91 97483 98418",
+      warranty: "🛡️ **వారంటీ మరియు రిఫండ్:**<br>మా అన్ని సర్వీసులపై **90 రోజుల వారంటీ** ఉంటుంది. ఉపయోగించని ఉత్పత్తులను 7 రోజులలోపు తిరిగి ఇవ్వవచ్చు.",
+      fallback: "నమస్తే! నేను మీ ఏఎம்பிఎట్జ్ సహాయ ఏజెంట్‌ను. బుకింగ్, ఉత్పత్తులు, వారంటీ లేదా కాంటాక్ట్ సమాచారం కోసం అడగండి."
+    },
+    kn: {
+      booking: "⚡ **ಬುಕಿಂಗ್ ಮಾರ್ಗದರ್ಶಿ:**<br>ನಮ್ಮ ವೆಬ್‌ಸೈಟ್‌ನ 'Book a Service' ಪುಟಕ್ಕೆ ಹೋಗಿ ಸುಲಭವಾಗಿ ಬುಕ್ ಮಾಡಬಹುದು. ನಗರ ಮತ್ತು ಪಿನ್‌ಕೋಡ್ ನಮೂದಿಸಿ ಎಲೆಕ್ಟ್ರಿಷಿಯನ್ ಆಯ್ಕೆ ಮಾಡಿ. ಕೆಲಸ ಮುಗಿದ ನಂತರವೇ ಪಾವತಿಸಿ. **90 ದಿನಗಳ ವಾರಂಟಿ** ಇರುತ್ತದೆ.",
+      product: "🛒 **ಉತ್ಪನ್ನಗಳ ವಿವರ:**<br>ಹ್ಯಾವೆಲ್ಸ್ ಸ್ಮಾರ್ಟ್ ಸ್ವಿಚ್ (₹349), ಫಿನೋಲೆಕ್ಸ್ ವೈರ್ (₹2299), ಫಿಲಿಪ್ಸ್ ಎಲ್‌ಇಡಿ ಲೈಟ್ ಮತ್ತು ಕ್ರಾಂಪ್ಟನ್ ಫ್ಯಾನ್‌ಗಳನ್ನು ನಮ್ಮ Marketplace ಪುಟದಿಂದ ಖರೀದಿಸಬಹುದು.",
+      contact: "📞 **ಸಂಪರ್ಕಿಸಿ:**<br>• ವಾಟ್ಸಾಪ್: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• ಸಹಾಯವಾಣಿ: +91 91236 67258 / +91 97483 98418",
+      warranty: "🛡️ **ವಾರಂಟಿ ವಿವರ:**<br>ನಮ್ಮ ಎಲ್ಲಾ ಸೇವೆಗಳಿಗೆ **90 ದಿನಗಳ ವಾರಂಟಿ** ಇರುತ್ತದೆ. ಉತ್ಪನ್ನಗಳಿಗೆ 7 ದಿನಗಳ ರಿಟರ್ನ್ ಪಾಲಿಸಿ ಇದೆ.",
+      fallback: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಎಎಂಪಿಯೆಡ್ಜ್ ಸಹಾಯ ಏಜೆಂಟ್. ಬುಕಿಂಗ್, ಉತ್ಪನ್ನಗಳು ಅಥವಾ ಸಂಪರ್ಕ ಸಂಖ್ಯೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ."
+    },
+    ml: {
+      booking: "⚡ **ബുക്കിംഗ് ഗൈഡ്:**<br>ഞങ്ങളുടെ 'Book a Service' പേജിൽ പോയി നിങ്ങൾക്ക് എളുപ്പത്തിൽ ബുക്ക് ചെയ്യാം. നിങ്ങളുടെ നഗരവും പിൻകോഡും തിരഞ്ഞെടുത്ത് ഇലക്ട്രീഷ്യനെ തിരഞ്ഞെടുക്കുക. ജോലി കഴിഞ്ഞ ശേഷം മാത്രം പണം നൽകുക. **90 ദിവസത്തെ വാറന്റി** ഉണ്ട്.",
+      product: "🛒 **ഉൽപ്പന്നങ്ങൾ:**<br>സ്വിച്ചുകൾ (₹349), വയറുകൾ (₹2299), ഫാനുകൾ എന്നിവ ഞങ്ങളുടെ Marketplace പേജിൽ നിന്ന് വാങ്ങാം.",
+      contact: "📞 **ബന്ധപ്പെടുക:**<br>• വാട്ട്സ്ആപ്പ്: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• ഹെൽപ്‌ലൈൻ: +91 91236 67258 / +91 97483 98418",
+      warranty: "🛡️ **വാറന്റി:**<br>ഞങ്ങളുടെ എല്ലാ സേവനങ്ങൾക്കും **90 ദിവസത്തെ വാറന്റി** ലഭിക്കും. ഉൽപ്പന്നങ്ങൾക്ക് 7 ദിവസത്തെ റിട്ടേൺ പോളിസി ഉണ്ട്.",
+      fallback: "നമസ്കാരം! ഞാൻ നിങ്ങളുടെ എഎംപിഎഡ്ജ് സഹായ ഏജന്റാണ്. ബുക്കിംഗ്, ഉൽപ്പന്നങ്ങൾ അല്ലെങ്കിൽ കോൺടാക്റ്റ് വിവരങ്ങൾക്കായി ചോദിക്കുക."
+    },
+    gu: {
+      booking: "⚡ **બુકિંગ માર્ગદર્શિકા:**<br>અમારી વેબસાઇટ પર 'Book a Service' પેજ પર જઈને બુકિંગ કરી શકો છો. સિટી અને પિનકોડ પસંદ કરી તમારા ઇલેક્ટ્રિશિયનની પસંદગી કરો. કામ પૂર્ણ થયા પછી જ પેમેન્ટ કરો. **90 દિવસની વોરંટી** મળશે.",
+      product: "🛒 **પ્રોડક્ટ્સ માર્કેટપ્લેસ:**<br>સ્વિચ (₹349), વાયર (₹2299), કેબલ, એમસીબી અને ફેન ખરીદવા માટે અમારા Marketplace પેજની મુલાકાત લો.",
+      contact: "📞 **સંપર્ક માહિતી:**<br>• વોટ્સએપ: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• હેલ્પલાઇન: +91 91236 67258 / +91 97483 98418",
+      warranty: "🛡️ **વોરંટી અને રિફંડ:**<br>અમારી બધી જ રિપેરિંગ સેવાઓ પર **90 દિવસની વોરંટી** છે. વપરાશ વગરના ઉત્પાદનો પર 7 દિવસની રીટર્ન પોલિસી છે.",
+      fallback: "નમસ્તે! હું એએમપીએજ સહાયક એજન્ટ છું. બુકિંગ, વોરંટી, રિફંડ અથવા સંપર્ક નંબર વિશે પૂછો."
+    },
+    pa: {
+      booking: "⚡ **ਬੁਕਿੰਗ ਗਾਈਡ:**<br>ਤੁਸੀਂ ਸਾਡੀ ਵੈੱਬਸਾਈਟ 'ਤੇ 'Book a Service' ਪੇਜ 'ਤੇ ਜਾ ਕੇ ਬੁਕਿੰਗ ਕਰ ਸਕਦੇ ਹੋ। ਸ਼ਹਿਰ ਅਤੇ ਪਿਨਕੋਡ ਚੁਣੋ, ਫਿਰ ਇਲੈਕਟ੍ਰੀਸ਼ੀਅਨ ਸਿਲੈਕਟ ਕਰੋ। ਕੰਮ ਪੂਰਾ ਹੋਣ 'ਤੇ ਹੀ ਪੇਮੈਂਟ ਕਰੋ। **90 ਦਿਨਾਂ ਦੀ ਵਾਰੰਟੀ** ਹੈ।",
+      product: "🛒 **ਪ੍ਰੋਡਕਟ ਮਾਰਕੀਟਪਲੇਸ:**<br>ਸਵਿੱਚ (₹349), ਤਾਰਾਂ (₹2299), ਐਮਸੀਬੀ ਅਤੇ ਪੱਖੇ ਖਰੀਦਣ ਲਈ ਸਾਡੇ Marketplace ਪੇਜ 'ਤੇ ਜਾਓ।",
+      contact: "📞 **ਸੰਪਰਕ ਜਾਣਕਾਰੀ:**<br>• ਵਟਸਐਪ: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• ਹੈਲਪਲਾਈਨ: +91 91236 67258 / +91 97483 98418",
+      warranty: "🛡️ **ਵਾਰੰਟੀ ਅਤੇ ਰਿਫੰਡ:**<br>ਸਾਡੀਆਂ ਸਾਰੀਆਂ ਰਿਪੇਅਰ ਸੇਵਾਵਾਂ 'ਤੇ **90 ਦਿਨਾਂ ਦੀ ਵਾਰੰਟੀ** ਹੈ। ਉਤਪਾਦਾਂ 'ਤੇ 7 ਦਿਨਾਂ ਦੀ ਵਾਪਸੀ ਨੀਤੀ ਹੈ।",
+      fallback: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਏਐਮਪੀਐਜ ਸਹਾਇਤਾ ਏਜੰਟ ਹਾਂ। ਮੈਨੂੰ ਬੁਕਿੰਗ, ਵਾਰੰਟੀ, ਰਿਫੰਡ ਜਾਂ ਸੰਪਰਕ ਨੰਬਰ ਬਾਰੇ ਪੁੱਛੋ।"
+    },
+    en: {
+      booking: "⚡ **Booking Process:**<br>Go to the 'Book a Service' tab, select your city/pincode, choose your service type and preferred partner, select a slot, and confirm. Pay only after complete satisfaction! All bookings carry a **90-day warranty**.",
+      product: "🛒 **Products & Marketplace:**<br>We deliver genuine certified electrical products with best price guarantees:<br>• Havells Coral Smart Switch — ₹349<br>• Finolex PVC Wire — ₹2,299<br>• Legrand USB Socket — ₹1,249<br>• Philips LED Tube — ₹449<br>• Crompton Ceiling Fan — ₹2,499<br>Visit our Marketplace page to order.",
+      contact: "📞 **Contact Support:**<br>• WhatsApp Business: <a href='https://wa.me/919874600265' target='_blank' style='color:#25D366;font-weight:700'>+91 98746 00265</a><br>• Helpline: +91 91236 67258 / +91 97483 98418<br>• Email Support: ampedge.info@gmail.com<br>• Registered Office: West Bauria, Howrah 711307",
+      warranty: "🛡️ **Warranty & Refund:**<br>All repairs and installations carry a **90-day post-service warranty**. Unused products can be returned within 7 days for a 100% refund.",
+      plan: "👑 **Subscription Plans:**<br>Choose our Prime subscriptions to save on bookings and products:<br>• Base Plan (₹199/month): 1 Free safety audit.<br>• Modular Plan (₹499/month): 2 Free safety audits, zero platform booking fee.<br>• Premium Plan (₹999/month): Unlimited emergency visits, free checkups, 10% off products.",
+      partner: "🤝 **Partner Program:**<br>For electricians, technicians, and contractors. Work dynamically, accept service bookings near you, and withdraw earnings daily! Sign up on our Partnership page.",
+      fallback: "Hello! I am your AMPEdge Solutions AI Agent. How can I help you today? You can ask me about our services, marketplace products, booking, refund policy, subscription plans, or contact numbers. I support Hindi, Bengali, Tamil, Telugu, Kannada, Malayalam, Gujarati, and Punjabi!"
+    }
+  };
+
+  const currentLang = responses[lang] || responses['en'];
+  
+  if (isBooking) return currentLang.booking;
+  if (isProduct) return currentLang.product;
+  if (isContact) return currentLang.contact;
+  if (isWarranty) return currentLang.warranty;
+  if (isPlan && currentLang.plan) return currentLang.plan;
+  if (isPartner) return currentLang.partner;
+  
+  return currentLang.fallback;
 }
 
 const userMsgStyle = "max-width: 85%; padding: 14px 18px; border-radius: 12px; font-size: 14.5px; line-height: 1.5; background: #4169E1; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; border: none; box-shadow: 0 2px 4px rgba(65,105,225,0.2)";
