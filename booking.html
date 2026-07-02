@@ -217,17 +217,17 @@
       <div class="step-pill">Step 6 of 7</div>
       <h3 class="step-title">Your Full Address</h3>
       <div class="two-col">
-        <div class="field"><label>Full Name *</label><input class="f-input" id="bookingName" placeholder="Rahul Sharma"/></div>
-        <div class="field"><label>Phone Number *</label><input type="tel" class="f-input" id="bookingPhone" placeholder="98765 43210" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')"/></div>
+        <div class="field"><label>Full Name *</label><input class="f-input" id="bookingName" placeholder="Rahul Sharma" autocomplete="off"/></div>
+        <div class="field"><label>Phone Number *</label><input type="tel" class="f-input" id="bookingPhone" placeholder="98765 43210" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off"/></div>
       </div>
       <div class="field" style="display:flex; flex-direction:column;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
           <label style="margin:0;">Address Line 1 *</label>
           <button type="button" onclick="autofillLiveAddress(this)" class="btn btn-outline btn-xs" style="display:inline-flex; align-items:center; gap:4px; padding:4px 8px; font-size:11.5px; border-radius:6px; color:var(--blue); border-color:var(--blue); cursor:pointer; background:none;"><span style="font-size:12px;">📍</span> Use Live Location</button>
         </div>
-        <input class="f-input" id="bookingAddressLine1" placeholder="House/Flat No., Building Name"/>
+        <input class="f-input" id="bookingAddressLine1" placeholder="House/Flat No., Building Name" autocomplete="off"/>
       </div>
-      <div class="field"><label>Address Line 2</label><input class="f-input" id="bookingAddressLine2" placeholder="Street, Area, Landmark"/></div>
+      <div class="field"><label>Address Line 2</label><input class="f-input" id="bookingAddressLine2" placeholder="Street, Area, Landmark" autocomplete="off"/></div>
     </div>
 
     <!-- Step 7: Additional Details -->
@@ -680,7 +680,16 @@
               if (state) parts.push(state);
               if (postcode) parts.push(postcode);
               
-              const fullAddress = parts.filter(Boolean).join(', ') || data.name || 'Current Location';
+              // De-duplicate location parts
+              const uniqueParts = [];
+              parts.forEach(p => {
+                const cleaned = p.trim();
+                if (cleaned && !uniqueParts.includes(cleaned)) {
+                  uniqueParts.push(cleaned);
+                }
+              });
+              
+              const fullAddress = uniqueParts.join(', ') || data.name || 'Current Location';
               
               const line1Input = document.getElementById('bookingAddressLine1');
               const line2Input = document.getElementById('bookingAddressLine2');
