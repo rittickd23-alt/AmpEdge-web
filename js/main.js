@@ -1205,46 +1205,67 @@ function getBudgetRecommendations(limit, lang) {
 function getAIResponse(userText) {
   const text = userText.toLowerCase();
   
-  // 1. Language Detection
-  let lang = 'en'; // default
+  // 1. Language Detection / Selection Check
+  let lang = window.activeChatLanguage || 'en';
   
-  if (/[\u0900-\u097F]/.test(userText)) {
-    // Devanagari script (Hindi, Marathi, Konkani)
-    lang = 'hi'; 
-  } else if (/[\u0980-\u09FF]/.test(userText)) {
-    // Bengali script (Bengali, Assamese)
-    lang = 'bn';
-  } else if (/[\u0B80-\u0BFF]/.test(userText)) {
-    // Tamil script
-    lang = 'ta';
-  } else if (/[\u0C00-\u0C7F]/.test(userText)) {
-    // Telugu script
-    lang = 'te';
-  } else if (/[\u0C80-\u0CFF]/.test(userText)) {
-    // Kannada script
-    lang = 'kn';
-  } else if (/[\u0D00-\u0D7F]/.test(userText)) {
-    // Malayalam script
-    lang = 'ml';
-  } else if (/[\u0A80-\u0AFF]/.test(userText)) {
-    // Gujarati script
-    lang = 'gu';
-  } else if (/[\u0A00-\u0A7F]/.test(userText)) {
-    // Punjabi (Gurmukhi) script
-    lang = 'pa';
-  } else if (
-    text.includes('kaise') || text.includes('karna') || text.includes('karo') || text.includes('mera') || 
-    text.includes('kab') || text.includes('paise') || text.includes('refund') || text.includes('warranty') || 
-    text.includes('booking') || text.includes('hai') || text.includes('chahiye') || text.includes('karke') ||
-    text.includes('naam') || text.includes('dikhaiye') || text.includes('bataiye')
-  ) {
-    lang = 'hinglish';
-  } else if (
-    text.includes('kivabe') || text.includes('korbo') || text.includes('amar') || text.includes('kobe') || 
-    text.includes('taka') || text.includes('ferot') || text.includes('somossa') || text.includes('korun') ||
-    text.includes('bolun') || text.includes('dekhun')
-  ) {
-    lang = 'benglish';
+  // If greeting query, show the welcome message WITH language buttons!
+  const isGreeting = text.includes('hello') || text.includes('hi') || text.includes('hey') || text.includes('good morning') || text.includes('good evening') || text.includes('namaste') || text.includes('hola') || text.includes('ನಮಸ್ಕಾರ') || text.includes('வணக்கம்');
+  if (isGreeting) {
+    return `👋 **Welcome to AMPEdge Solutions!**<br><br>
+Please select your preferred language to begin / कृपया अपनी पसंदीदा भाषा चुनें:<br><br>
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('en', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">English 🇬🇧</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('hi', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Hindi (हिंदी) 🇮🇳</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('hinglish', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Hinglish 🇮🇳</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('bn', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Bengali (বাংলা) 🇧🇩</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('benglish', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Benglish 🇧🇩</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('ta', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Tamil (தமிழ்)</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('te', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Telugu (తెలుగు)</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('kn', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Kannada (ಕನ್ನಡ)</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('ml', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Malayalam (മലയാളം)</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('gu', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Gujarati (ગુજરાતી)</button>
+  <button class="btn btn-outline btn-xs" onclick="setChatLanguage('pa', this)" style="padding:6px 12px; font-size:12px; margin:0; cursor:pointer; background:#fff; border:1px solid var(--border); border-radius:6px;">Punjabi (ਪੰਜਾਬੀ)</button>
+</div>`;
+  }
+
+  if (!window.activeChatLanguage) {
+    if (/[\u0900-\u097F]/.test(userText)) {
+      lang = 'hi';
+    } else if (/[\u0980-\u09FF]/.test(userText)) {
+      // Bengali script (Bengali, Assamese)
+      lang = 'bn';
+    } else if (/[\u0B80-\u0BFF]/.test(userText)) {
+      // Tamil script
+      lang = 'ta';
+    } else if (/[\u0C00-\u0C7F]/.test(userText)) {
+      // Telugu script
+      lang = 'te';
+    } else if (/[\u0C80-\u0CFF]/.test(userText)) {
+      // Kannada script
+      lang = 'kn';
+    } else if (/[\u0D00-\u0D7F]/.test(userText)) {
+      // Malayalam script
+      lang = 'ml';
+    } else if (/[\u0A80-\u0AFF]/.test(userText)) {
+      // Gujarati script
+      lang = 'gu';
+    } else if (/[\u0A00-\u0A7F]/.test(userText)) {
+      // Punjabi (Gurmukhi) script
+      lang = 'pa';
+    } else if (
+      text.includes('kaise') || text.includes('karna') || text.includes('karo') || text.includes('mera') || 
+      text.includes('kab') || text.includes('paise') || text.includes('refund') || text.includes('warranty') || 
+      text.includes('booking') || text.includes('hai') || text.includes('chahiye') || text.includes('karke') ||
+      text.includes('naam') || text.includes('dikhaiye') || text.includes('bataiye')
+    ) {
+      lang = 'hinglish';
+    } else if (
+      text.includes('kivabe') || text.includes('korbo') || text.includes('amar') || text.includes('kobe') || 
+      text.includes('taka') || text.includes('ferot') || text.includes('somossa') || text.includes('korun') ||
+      text.includes('bolun') || text.includes('dekhun')
+    ) {
+      lang = 'benglish';
+    }
   }
 
   // 2. Budget/Price queries
@@ -2895,4 +2916,59 @@ function getHelpAgentResponse(userText) {
     return "💡 I am your AMPEdge Help Agent. You can ask me about our services, booking process, warranty, refund policy, or contact numbers. To submit a message to our Admin, type 'Raise Ticket'.";
   }
 }
+
+// ── Global Set Chat Language Option Click Handler ──────────
+window.setChatLanguage = function(langCode, btn) {
+  window.activeChatLanguage = langCode;
+  
+  if (btn) {
+    const parent = btn.parentNode;
+    if (parent) {
+      parent.querySelectorAll('button').forEach(b => {
+        b.style.pointerEvents = 'none';
+        b.style.opacity = '0.5';
+      });
+      btn.style.opacity = '1';
+      btn.style.background = 'var(--blue)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--blue)';
+    }
+  }
+
+  const welcomeNotes = {
+    en: "Great! I will assist you in English now. Ask me about our services, products, booking, refunds, or support options!",
+    hi: "बहुत बढ़िया! अब मैं हिंदी में आपकी सहायता करूँगा। हमारी सेवाओं, उत्पादों, बुकिंग, रिफंड या सपोर्ट के बारे में कुछ भी पूछें!",
+    hinglish: "Sahi hai! Ab main aapse Hinglish mein baat karunga. Humare products, services, booking ya refund ke baare mein kuch bhi puchein!",
+    bn: "অসাধারণ! এখন আমি আপনাকে বাংলায় সাহায্য করবো। আমাদের সার্ভিস, প্রোডাক্ট, বুকিং, রিফান্ড পলিসি বা যোগাযোগ নাম্বার সম্পর্কে জিজ্ঞাসা করতে পারেন!",
+    benglish: "Sahi bapar! Ami akhon aponake Benglish-e sahajjo korbo. Amader products, services ba support niye jigges korte paren!",
+    ta: "மிக நன்று! நான் இப்போது உங்களுக்கு தமிழில் உதவப் போகிறேன். எங்கள் சேவைகள், தயாரிப்புகள், புக்கிங் அல்லது ரீஃபண்ட் பற்றி கேட்கலாம்!",
+    te: "చాలా మంచిది! ఇప్పుడు నేను మీకు తెలుగులో సహాయం చేస్తాను. మా సేవలు, ఉత్పత్తులు, బుకింగ్స్ లేదా రిఫండ్ గురించి అడగండి!",
+    kn: "ಉತ್ತಮ! ನಾನು ಈಗ ನಿಮಗೆ ಕನ್ನಡದಲ್ಲಿ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ. ನಮ್ಮ ಸೇವೆಗಳು, ಉತ್ಪನ್ನಗಳು, ಬುಕಿಂಗ್ ಅಥವಾ ಮರುಪಾವತಿ ಬಗ್ಗೆ ಕೇಳಿ!",
+    ml: "കൊള്ളാം! ഞാൻ ഇപ്പോൾ മലയാളത്തിൽ സഹായിക്കാം. സേവനങ്ങൾ, ഉൽപ്പന്നങ്ങൾ, ബുക്കിംഗ് അല്ലെങ്കിൽ റീഫണ്ട് വിവരങ്ങൾ എന്നിവ ചോദിക്കാം!",
+    gu: "ખૂબ સરસ! હવે હું તમને ગુજરાતીમાં મદદ કરીશ. અમારી સેવાઓ, ઉત્પાદનો, બુકિંગ અથવા રિફંડ વિશે પૂછો!",
+    pa: "ਬਹੁਤ ਵਧੀਆ! ਹੁਣ ਮੈਂ ਪੰਜਾਬੀ ਵਿੱਚ ਤੁਹਾਡੀ ਮਦਦ ਕਰਾਂਗਾ। ਸਾਡੀਆਂ ਸੇਵਾਵਾਂ, ਉਤਪਾਦਾਂ, ਬੁਕਿੰਗ ਜਾਂ ਰਿਫੰਡ ਬਾਰੇ ਪੁੱਛੋ!"
+  };
+
+  const responseText = welcomeNotes[langCode] || welcomeNotes['en'];
+  
+  const embeddedBody = document.getElementById('embeddedChatBody');
+  const popupBody = document.getElementById('chatBody');
+  const drawerBody = document.getElementById('helpChatDrawerBody');
+  
+  const formattedMsg = `<div class="chat-msg bot-msg" style="${botMsgStyle}">🤖 ${responseText}</div>`;
+  
+  if (embeddedBody) {
+    embeddedBody.innerHTML += formattedMsg;
+    embeddedBody.scrollTop = embeddedBody.scrollHeight;
+  }
+  if (popupBody) {
+    popupBody.innerHTML += formattedMsg;
+    popupBody.scrollTop = popupBody.scrollHeight;
+  }
+  if (drawerBody) {
+    drawerBody.innerHTML += formattedMsg;
+    drawerBody.scrollTop = drawerBody.scrollHeight;
+  }
+};
+
 
