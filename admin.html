@@ -117,6 +117,7 @@
         <a class="nav-link" onclick="navigate('subscriptions')"><i data-lucide="award"></i> Subscriptions</a>
         <a class="nav-link" onclick="navigate('services')"><i data-lucide="wrench"></i> Services</a>
         <a class="nav-link" onclick="navigate('store')"><i data-lucide="shopping-cart"></i> Store</a>
+        <a class="nav-link" onclick="navigate('tickets')"><i data-lucide="help-circle"></i> Help Tickets</a>
         <a class="nav-link" onclick="navigate('analysis')"><i data-lucide="bar-chart-2"></i> Tech Analysis</a>
         <a class="nav-link" onclick="navigate('settings')"><i data-lucide="settings"></i> Payment Settings</a>
       </nav>
@@ -281,6 +282,7 @@
       else if (page === 'subscriptions') content.innerHTML = renderSubscriptions();
       else if (page === 'services') content.innerHTML = renderServices();
       else if (page === 'store') content.innerHTML = renderStore();
+      else if (page === 'tickets') content.innerHTML = renderTickets();
       else if (page === 'analysis') content.innerHTML = renderAnalysis();
       else if (page === 'settings') content.innerHTML = renderSettings();
       
@@ -1295,9 +1297,83 @@
       }
     };
 
+    function renderTickets() {
+      const tickets = JSON.parse(localStorage.getItem('ampedge_help_tickets') || '[]');
+
+      let html = `
+        <div class="page-header" style="animation: fadeIn 0.4s">
+          <div>
+            <h1 class="page-title">Help Centre Tickets</h1>
+            <p class="page-subtitle">View and respond to customer queries raised via the Help Centre or AI Chat Agent</p>
+          </div>
+        </div>
+        <div class="data-table-wrap" style="animation: fadeIn 0.5s">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Customer / Contact</th>
+                <th>Query Details</th>
+                <th>Received Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      if (tickets.length === 0) {
+        html += `<tr><td colspan="6" style="text-align:center; padding: 40px; color: var(--text-muted)">No help tickets found.</td></tr>`;
+      } else {
+        // Show newest tickets first
+        tickets.slice().reverse().forEach((t, index) => {
+          const badgeClass = t.status === 'Resolved' ? 'badge-green' : 'badge-orange';
+          const actualIndex = tickets.length - 1 - index;
+          html += `
+            <tr>
+              <td><span style="font-weight:700; color:var(--text-dark)">#${t.id || 'TKT-' + (1000 + actualIndex)}</span></td>
+              <td>
+                <div style="font-weight:600; color:var(--text-dark)">${t.name || 'Anonymous'}</div>
+                <div style="font-size:12px; color:var(--text-muted)">${t.phone || 'N/A'}</div>
+              </td>
+              <td style="max-width:300px; white-space:normal; line-height:1.4">
+                <div style="font-size:13.5px; color:var(--text-dark); word-break:break-word;">${t.message}</div>
+                ${t.source ? `<div style="font-size:11px; margin-top:4px; display:inline-block; padding:2px 6px; border-radius:4px; background:var(--bg2); color:var(--text-muted); font-weight:600;">${t.source}</div>` : ''}
+              </td>
+              <td><div style="font-size:13px; color:var(--text-dark)">${t.date || 'Just now'}</div></td>
+              <td><span class="badge ${badgeClass}">${t.status}</span></td>
+              <td>
+                ${t.status === 'Pending' ? 
+                  `<button class="btn btn-primary btn-xs" onclick="resolveTicket(${actualIndex})" style="padding:4px 8px; font-size:11px; margin:0;">Mark Resolved</button>` : 
+                  `<span style="color:var(--text-muted); font-size:12px; font-weight:600;">✓ Completed</span>`
+                }
+              </td>
+            </tr>
+          `;
+        });
+      }
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      return html;
+    }
+
+    window.resolveTicket = function(index) {
+      const tickets = JSON.parse(localStorage.getItem('ampedge_help_tickets') || '[]');
+      if (tickets[index]) {
+        tickets[index].status = 'Resolved';
+        localStorage.setItem('ampedge_help_tickets', JSON.stringify(tickets));
+        navigate('tickets');
+        showToast("Ticket marked as Resolved");
+      }
+    };
+
     // Listen for storage changes to sync across tabs instantly
     window.addEventListener('storage', (e) => {
-      if (['ampedge_services', 'ampedge_products', 'ampedge_bookings', 'ampedge_payments', 'ampedge_customers', 'ampedge_cart'].includes(e.key)) {
+      if (['ampedge_services', 'ampedge_products', 'ampedge_bookings', 'ampedge_payments', 'ampedge_customers', 'ampedge_cart', 'ampedge_help_tickets'].includes(e.key)) {
         navigate(currentPage);
       }
     });

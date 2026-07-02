@@ -2254,7 +2254,7 @@ window.showFooterInfoModal = function(type) {
       title: "Help Centre & FAQ ❓",
       body: `
         <p>Need assistance? Here are quick answers to our most common customer queries:</p>
-        <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 16px; margin-bottom:24px;">
           <div>
             <h5 style="color: var(--blue); margin: 0 0 6px 0; font-size: 15px; font-weight:700;">Q: How do I book an electrician partner?</h5>
             <p style="margin: 0;">A: Go to the "Book a Service" tab, select your city and pincode, pick your property type, select the specific services needed, choose your preferred electrician partner based on distance/ratings, select a date and slot, and confirm. Done!</p>
@@ -2267,6 +2267,18 @@ window.showFooterInfoModal = function(type) {
             <h5 style="color: var(--blue); margin: 0 0 6px 0; font-size: 15px; font-weight:700;">Q: How does the Marketplace work?</h5>
             <p style="margin: 0;">A: You can purchase switches, wires, cables, MCBs, LED fittings, and fans directly from our platform. At checkout, you can also optionally choose to add professional installation by verified partners near you.</p>
           </div>
+        </div>
+        
+        <hr style="border:none; border-top:1px solid var(--border); margin:20px 0 16px 0;"/>
+        <h5 style="color:var(--text-dark); font-size:15px; margin:0 0 6px 0; font-weight:700;">📨 Submit a Custom Query to Admin</h5>
+        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-muted);">If your query is not resolved above, type your message in any language below. Our admin support team will review and contact you shortly.</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <input type="text" id="helpTicketName" placeholder="Your Name" style="padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px; outline:none; background:var(--bg); color:var(--text-dark);" autocomplete="off"/>
+            <input type="tel" id="helpTicketPhone" placeholder="Your Phone Number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" style="padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px; outline:none; background:var(--bg); color:var(--text-dark);" autocomplete="off"/>
+          </div>
+          <textarea id="helpTicketMsg" rows="3" placeholder="Write your problem here in English, Hindi, Bengali, etc..." style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; font-size:13.5px; outline:none; resize:none; font-family:inherit; background:var(--bg); color:var(--text-dark);" autocomplete="off"></textarea>
+          <button type="button" class="btn btn-primary" onclick="submitHelpTicket(this)" style="padding:10px 16px; font-size:13px; align-self:flex-start; margin:0;">Send Message ⚡</button>
         </div>
       `
     },
@@ -2348,6 +2360,278 @@ window.showFooterInfoModal = function(type) {
     titleEl.textContent = content.title;
     bodyEl.innerHTML = content.body;
     modal.classList.add('active');
+    
+    // Auto-expand Help AI Agent Chat Drawer on the right when Help is clicked
+    if (type === 'help' && typeof openHelpChatDrawer === 'function') {
+      setTimeout(() => {
+        openHelpChatDrawer();
+      }, 300);
+    }
   }
 };
+
+// ── Help Centre Webform Submission to Admin ──────────────────
+window.submitHelpTicket = function(btn) {
+  const nameInput = document.getElementById('helpTicketName');
+  const phoneInput = document.getElementById('helpTicketPhone');
+  const msgInput = document.getElementById('helpTicketMsg');
+  
+  if (!msgInput || !msgInput.value.trim()) {
+    alert("⚠️ Please type your message/problem first.");
+    return;
+  }
+  
+  const name = nameInput ? nameInput.value.trim() : 'Anonymous';
+  const phone = phoneInput ? phoneInput.value.trim() : 'N/A';
+  const msg = msgInput.value.trim();
+  
+  const tickets = JSON.parse(localStorage.getItem('ampedge_help_tickets') || '[]');
+  const newId = 'TKT-' + (1000 + tickets.length);
+  const now = new Date();
+  
+  tickets.push({
+    id: newId,
+    name: name,
+    phone: phone,
+    message: msg,
+    status: 'Pending',
+    date: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+    source: 'Help Centre Webform'
+  });
+  
+  localStorage.setItem('ampedge_help_tickets', JSON.stringify(tickets));
+  
+  // Clear inputs
+  if (nameInput) nameInput.value = '';
+  if (phoneInput) phoneInput.value = '';
+  msgInput.value = '';
+  
+  // Visual success feedback
+  const oldText = btn.innerHTML;
+  btn.innerHTML = '✓ Sent Successfully!';
+  btn.style.background = '#059669';
+  btn.style.borderColor = '#059669';
+  btn.style.pointerEvents = 'none';
+  
+  setTimeout(() => {
+    btn.innerHTML = oldText;
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.pointerEvents = 'auto';
+    alert("📍 Message forwarded to Admin Portal. Ticket ID: " + newId);
+  }, 1500);
+};
+
+// ── Multilingual Help AI Agent Sidebar Chat Drawer ──────────
+document.addEventListener('DOMContentLoaded', () => {
+  const drawerHTML = `
+    <div id="helpChatDrawer" style="position:fixed; top:0; right:-380px; width:360px; height:100vh; background:var(--bg); border-left:1px solid var(--border); z-index:100010; display:flex; flex-direction:column; box-shadow:-10px 0 30px rgba(0,0,0,0.15); transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+      <!-- Drawer Header -->
+      <div style="background: linear-gradient(135deg, var(--blue) 0%, #8A2BE2 100%); padding: 18px 20px; color:#fff; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold;">🤖</div>
+          <div>
+            <h4 style="margin:0; font-size:15px; font-family:var(--font-pjs); font-weight:700;">AMPEdge Help Agent</h4>
+            <span style="font-size:11.5px; opacity:0.85; display:flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; background:#4ade80; border-radius:50%; display:inline-block;"></span> Online | Multilingual Support</span>
+          </div>
+        </div>
+        <button style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer; font-weight:700;" onclick="closeHelpChatDrawer()">✕</button>
+      </div>
+      
+      <!-- Drawer Messages Body -->
+      <div id="helpChatDrawerBody" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background:var(--bg2);">
+        <!-- Welcome Message -->
+      </div>
+      
+      <!-- Quick Options Panel -->
+      <div style="padding:10px 14px; background:var(--bg); border-top:1px solid var(--border); display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-xs" onclick="sendQuickHelpMsg('How to book service?')">How to book?</button>
+        <button class="btn btn-outline btn-xs" onclick="sendQuickHelpMsg('Warranty policy?')">Warranty?</button>
+        <button class="btn btn-outline btn-xs" onclick="sendQuickHelpMsg('Raise support ticket')">Raise Ticket 📨</button>
+      </div>
+
+      <!-- Drawer Input Area -->
+      <div style="padding:14px 16px; background:var(--bg); border-top:1px solid var(--border); display:flex; gap:10px; align-items:center;">
+        <input type="text" id="helpChatDrawerInput" placeholder="Type message in Hindi, English, বাংলা..." onkeypress="if(event.key==='Enter') sendHelpChatMsg()" style="flex:1; padding:12px 16px; border:1px solid var(--border); border-radius:24px; outline:none; font-size:13.5px; background:var(--bg2); color:var(--text-dark);" autocomplete="off"/>
+        <button onclick="sendHelpChatMsg()" style="background: var(--blue); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(65,105,225,0.25); transition: transform 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">➔</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', drawerHTML);
+});
+
+window.openHelpChatDrawer = function() {
+  const drawer = document.getElementById('helpChatDrawer');
+  if (drawer) {
+    drawer.style.right = '0';
+    // Load initial welcome message
+    const body = document.getElementById('helpChatDrawerBody');
+    if (body && body.children.length === 0) {
+      body.innerHTML = `
+        <div class="chat-msg bot-msg" style="${botMsgStyle}">
+          <strong>English:</strong> Hello! I am your Help Center AI Agent. I can guide you about our services, booking process, warranties, or how to contact our team. How can I help you?
+        </div>
+        <div class="chat-msg bot-msg" style="${botMsgStyle}">
+          <strong>हिंदी:</strong> नमस्ते! मैं आपका सहायता एजेंट हूँ। मैं आपको हमारी सेवाओं, बुकिंग, वारंटी या सपोर्ट टीम से संपर्क करने के बारे में जानकारी दे सकता हूँ।
+        </div>
+        <div class="chat-msg bot-msg" style="${botMsgStyle}">
+          <strong>বাংলা:</strong> নমস্কার! আমি আপনার সাহায্যকারী এজেন্ট। আমি আমাদের সার্ভিস, বুকিং প্রসেস, ওয়ারেন্টি অথবা কন্ট্যাক্ট করার বিষয় নিয়ে আপনাকে সাহায্য করতে পারি।
+        </div>
+      `;
+    }
+  }
+};
+
+window.closeHelpChatDrawer = function() {
+  const drawer = document.getElementById('helpChatDrawer');
+  if (drawer) drawer.style.right = '-380px';
+};
+
+window.sendHelpChatMsg = function() {
+  const inp = document.getElementById('helpChatDrawerInput');
+  if (!inp) return;
+  const txt = inp.value.trim();
+  if (!txt) return;
+  
+  const body = document.getElementById('helpChatDrawerBody');
+  if (!body) return;
+  
+  // 1. Append user message
+  body.innerHTML += `<div class="chat-msg user-msg" style="${userMsgStyle}">${txt}</div>`;
+  inp.value = '';
+  body.scrollTop = body.scrollHeight;
+  
+  // 2. Append typing indicator
+  body.innerHTML += typingHTML;
+  body.scrollTop = body.scrollHeight;
+  
+  setTimeout(() => {
+    // Remove typing indicator
+    const ti = body.querySelector('.typing-indicator');
+    if (ti) ti.remove();
+    
+    let reply = "";
+    
+    // Check if user is submitting a ticket via hashtag
+    if (txt.toLowerCase().startsWith('#ticket') || txt.toLowerCase().includes('raise ticket')) {
+      if (txt.toLowerCase().startsWith('#ticket')) {
+        const ticketContent = txt.substring(7).trim();
+        if (ticketContent) {
+          const tickets = JSON.parse(localStorage.getItem('ampedge_help_tickets') || '[]');
+          const newId = 'TKT-' + (1000 + tickets.length);
+          const now = new Date();
+          tickets.push({
+            id: newId,
+            name: 'Chatbot User',
+            phone: 'From Help AI Chat',
+            message: ticketContent,
+            status: 'Pending',
+            date: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+            source: 'Help AI Agent'
+          });
+          localStorage.setItem('ampedge_help_tickets', JSON.stringify(tickets));
+          reply = `📨 **Ticket Raised Successfully!**<br><br>Your query has been forwarded to the Admin Portal. our team will review it shortly.<br>• **Ticket ID:** ${newId}<br>• **Content:** "${ticketContent}"`;
+        } else {
+          reply = "⚠️ Please specify your query after the #ticket tag.<br>Example: `#ticket Please check my solar panel wiring.`";
+        }
+      } else {
+        reply = "📨 **Raise a Support Ticket:**<br>Please type your message starting with **#ticket** followed by your query.<br>Example:<br>`#ticket Please repair my switchboard.`";
+      }
+    } else {
+      reply = getHelpAgentResponse(txt);
+    }
+    
+    body.innerHTML += `<div class="chat-msg bot-msg" style="${botMsgStyle}">${reply}</div>`;
+    body.scrollTop = body.scrollHeight;
+  }, 1000);
+};
+
+window.sendQuickHelpMsg = function(msgText) {
+  const inp = document.getElementById('helpChatDrawerInput');
+  if (inp) {
+    inp.value = msgText;
+    window.sendHelpChatMsg();
+  }
+};
+
+function getHelpAgentResponse(userText) {
+  const text = userText.toLowerCase();
+  
+  // Detect Language
+  let lang = 'en'; // default English
+  if (
+    text.includes('नमस्ते') || text.includes('हैलो') || text.includes('बुक') || text.includes('रिफंड') || 
+    text.includes('वारंटी') || text.includes('फ़ोन') || text.includes('नंबर') || text.includes('काम') ||
+    text.includes('शिकायत') || text.includes('कॉल') || text.includes('मदद') || text.includes('संपर्क')
+  ) {
+    lang = 'hi';
+  } else if (
+    text.includes('নমস্কার') || text.includes('হ্যালো') || text.includes('বুক') || text.includes('রিফান্ড') || 
+    text.includes('ওয়ারেন্টি') || text.includes('নাম্বার') || text.includes('যোগাযোগ') || text.includes('সাহায্য') ||
+    text.includes('কল') || text.includes('কেমন') || text.includes('করবো')
+  ) {
+    lang = 'bn';
+  }
+  
+  // Check keywords
+  const isBooking = text.includes('book') || text.includes('service') || text.includes('बुक') || text.includes('সার্ভিস') || text.includes('বুক');
+  const isRefund = text.includes('refund') || text.includes('return') || text.includes('cancel') || text.includes('रिफंड') || text.includes('वापसी') || text.includes('ফেরত') || text.includes('রিফান্ড');
+  const isContact = text.includes('contact') || text.includes('phone') || text.includes('call') || text.includes('whatsapp') || text.includes('नंबर') || text.includes('संपर्क') || text.includes('কন্ট্যাক্ট') || text.includes('হোয়াটস্যাপ') || text.includes('ফোন');
+  const isWarranty = text.includes('warranty') || text.includes('guarantee') || text.includes('वारंटी') || text.includes('ওয়ারেন্টি');
+  const isTicket = text.includes('ticket') || text.includes('raise') || text.includes('sms') || text.includes('forwd') || text.includes('सपोर्ट') || text.includes('टिकट') || text.includes('মেসেজ');
+  
+  if (lang === 'hi') {
+    if (isBooking) {
+      return "⚡ **बुकिंग गाइड:**<br>आप हमारी वेबसाइट पर 'Book a Service' पर जाकर बुकिंग कर सकते हैं। शहर और पिनकोड चुनें, फिर अपनी आवश्यकतानुसार इलेक्ट्रिशियन सिलेक्ट करें। काम पूरा होने के बाद ही पेमेंट करें।";
+    }
+    if (isRefund) {
+      return "💳 **रिफंड और कैंसिलेशन:**<br>मार्केटप्लेस प्रॉडक्ट्स पर 7 दिनों की वापसी नीति है। आप अपॉइंटमेंट से 2 घंटे पहले बुकिंग मुफ्त में कैंसिल कर सकते हैं।";
+    }
+    if (isContact) {
+      return "📞 **संपर्क जानकारी:**<br>• व्हाट्सऐप: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• कॉल: +91 91236 67258 / +91 97483 98418<br>• ईमेल: ampedge.info@gmail.com";
+    }
+    if (isWarranty) {
+      return "🛡️ **वारंटी पॉलिसी:**<br>हमारी सभी रिपेयर और इंस्टालेशन सेवाओं पर ऑटोमैटिकली 90 दिनों की पोस्ट-सर्विस वारंटी मिलती है।";
+    }
+    if (isTicket) {
+      return "📨 **टिकट सबमिट:**<br>अगर आपकी समस्या हल नहीं हुई है, तो आप फुटर में 'Help Centre' फ़ॉर्म भरकर या यहाँ अपनी डिटेल्स देकर एडमिन के पास सीधे टिकट सबमिट कर सकते हैं।";
+    }
+    return "💡 मैं एम्पएज सहायता एजेंट हूँ। मुझे बुकिंग, वारंटी, रिफंड या कांटेक्ट नंबर के बारे में पूछें। आप 'Raise Ticket' लिखकर एडमिन को भी संदेश भेज सकते हैं।";
+  } else if (lang === 'bn') {
+    if (isBooking) {
+      return "⚡ **বুকিং গাইড:**<br>আমাদের 'Book a Service' পেজে গিয়ে আপনি সহজে বুক করতে পারেন। শহর এবং পিনকোড দিয়ে আপনার পছন্দের টেকনিশিয়ান নির্বাচন করুন। সম্পূর্ণ সন্তুষ্ট হওয়ার পর বিল পরিশোধ করুন।";
+    }
+    if (isRefund) {
+      return "💳 **রিফান্ড ও ক্যান্সেলেশন:**<br>অব্যবহৃত প্রোডাক্ট ৭ দিনের মধ্যে রিটার্ন করতে পারেন। বুকিং ক্যানসেল করার জন্য কোনো চার্জ লাগবে না যদি আপনি টেকনিশিয়ান বের হওয়ার ২ ঘণ্টা আগে ক্যানসেল করেন।";
+    }
+    if (isContact) {
+      return "📞 **যোগাযোগের তথ্য:**<br>• হোয়াটস্যাপ: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• হেল্পলাইন: +91 91236 67258 / +91 97483 98418<br>• ইমেইল: ampedge.info@gmail.com";
+    }
+    if (isWarranty) {
+      return "🛡️ **ওয়ারেন্টি পলিসি:**<br>প্রতিটি ইলেকট্রিক্যাল সার্ভিসের সাথে ৯০ দিনের অফিশিয়াল ওয়ারেন্টি দেওয়া হয়। কোনো সমস্যা হলে সম্পূর্ণ ফ্রিতে পুনরায় মেরামত করে দেওয়া হবে।";
+    }
+    if (isTicket) {
+      return "📨 **টিকিট সাবমিট:**<br>আপনার সমস্যা এডমিন টিমের কাছে পাঠাতে হেল্প সেন্টার ফর্মটি ফিলাপ করুন অথবা সরাসরি এখানে আপনার ডিটেইলস পাঠিয়ে দিন।";
+    }
+    return "💡 আমি এ্যাম্পএজ হেল্প এজেন্ট। আমি বুকিং, ওয়ারেন্টি, রিফান্ড পলিসি ও যোগাযোগ নাম্বার সম্পর্কে সাহায্য করতে পারি। আপনি অ্যাডমিনকে মেসেজ পাঠাতে চাইলে 'Raise Ticket' লিখতে পারেন।";
+  } else {
+    // English (fallback)
+    if (isBooking) {
+      return "⚡ **Booking Process:**<br>Go to the 'Book a Service' tab, select your city/pincode, choose your service type and preferred partner, select a slot, and confirm. Pay only after complete satisfaction!";
+    }
+    if (isRefund) {
+      return "💳 **Refunds & Cancellation:**<br>We offer a 7-day return policy on unused products. Service cancellations are free up to 2 hours before the scheduled time slot.";
+    }
+    if (isContact) {
+      return "📞 **Contact Support:**<br>• WhatsApp: <a href='https://wa.me/919874600265' target='_blank'>+91 98746 00265</a><br>• Helpline: +91 91236 67258 / +91 97483 98418<br>• Email: ampedge.info@gmail.com";
+    }
+    if (isWarranty) {
+      return "🛡️ **90-Day Warranty:**<br>All electrical repairs and installation services carry an automated 90-day warranty. Any recurrence will be fixed free.";
+    }
+    if (isTicket) {
+      return "📨 **Raise Support Ticket:**<br>You can submit a custom query directly to our Admin team. Simply type 'Raise Ticket' or fill out the form in the Help Centre modal.";
+    }
+    return "💡 I am your AMPEdge Help Agent. You can ask me about our services, booking process, warranty, refund policy, or contact numbers. To submit a message to our Admin, type 'Raise Ticket'.";
+  }
+}
 
