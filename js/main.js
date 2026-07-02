@@ -1405,14 +1405,77 @@ Please select your preferred language to begin / कृपया अपनी �
 
   const currentLang = responses[lang] || responses['en'];
   
-  if (isBooking) return currentLang.booking;
-  if (isProduct) return currentLang.product;
-  if (isContact) return currentLang.contact;
-  if (isWarranty) return currentLang.warranty;
-  if (isPlan && currentLang.plan) return currentLang.plan;
-  if (isPartner) return currentLang.partner;
+  let reply = currentLang.fallback;
+  let detectedIntent = 'fallback';
   
-  return currentLang.fallback;
+  if (isBooking) {
+    reply = currentLang.booking;
+    detectedIntent = 'booking';
+  } else if (isProduct) {
+    reply = currentLang.product;
+    detectedIntent = 'product';
+  } else if (isContact) {
+    reply = currentLang.contact;
+    detectedIntent = 'contact';
+  } else if (isWarranty) {
+    reply = currentLang.warranty;
+    detectedIntent = 'warranty';
+  } else if (isPlan && currentLang.plan) {
+    reply = currentLang.plan;
+    detectedIntent = 'plan';
+  } else if (isPartner) {
+    reply = currentLang.partner;
+    detectedIntent = 'partner';
+  }
+  
+  // Appends redirection button if applicable
+  if (detectedIntent === 'booking') {
+    let btnText = "Book Service ⚡";
+    if (lang === 'hi') btnText = "सर्विस बुक करें ⚡";
+    else if (lang === 'bn') btnText = "সার্ভিস বুক করুন ⚡";
+    else if (lang === 'ta') btnText = "சேவை புக் செய்க ⚡";
+    else if (lang === 'te') btnText = "సర్వీస్ బుక్ చేయండి ⚡";
+    else if (lang === 'kn') btnText = "ಸೇವೆ ಬುಕ್ ಮಾಡಿ ⚡";
+    else if (lang === 'ml') btnText = "ബുക്കിംഗ് ചെയ്യുക ⚡";
+    else if (lang === 'gu') btnText = "સેવા બુક કરો ⚡";
+    else if (lang === 'pa') btnText = "ਸੇਵਾ ਬੁੱਕ ਕਰੋ ⚡";
+    reply += `<br/><br/><a href="booking.html" class="btn btn-primary btn-sm" style="display:inline-block; background:var(--blue); color:#fff !important; padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; text-decoration:none; margin-top:8px; box-shadow:0 4px 10px rgba(65,105,225,0.2)">${btnText}</a>`;
+  } else if (detectedIntent === 'product') {
+    let btnText = "Go to Marketplace 🛒";
+    if (lang === 'hi') btnText = "मार्केटप्लेस पर जाएं 🛒";
+    else if (lang === 'bn') btnText = "মার্কেটপ্লেসে যান 🛒";
+    else if (lang === 'ta') btnText = "பொருட்கள் வாங்க 🛒";
+    else if (lang === 'te') btnText = "మార్కెట్‌ప్లేస్ కి వెళ్ళండి 🛒";
+    else if (lang === 'kn') btnText = "ಮಾರುಕಟ್ಟೆಗೆ ಹೋಗಿ 🛒";
+    else if (lang === 'ml') btnText = "മാർക്കറ്റ് പ്ലേസ് 🛒";
+    else if (lang === 'gu') btnText = "માર્કેટપ્લેસ પર જાઓ 🛒";
+    else if (lang === 'pa') btnText = "ਮਾਰਕੀਟਪਲੇਸ 'ਤੇ ਜਾਓ 🛒";
+    reply += `<br/><br/><a href="marketplace.html" class="btn btn-primary btn-sm" style="display:inline-block; background:var(--blue); color:#fff !important; padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; text-decoration:none; margin-top:8px; box-shadow:0 4px 10px rgba(65,105,225,0.2)">${btnText}</a>`;
+  } else if (detectedIntent === 'plan') {
+    let btnText = "View Subscription Plans 👑";
+    if (lang === 'hi') btnText = "सब्सक्रिप्शन प्लान्स 👑";
+    else if (lang === 'bn') btnText = "মেম্বারশিপ প্ল্যান 👑";
+    else if (lang === 'ta') btnText = "பிளான்கள் பார்க்க 👑";
+    else if (lang === 'te') btnText = "ప్లాన్స్ చూడండి 👑";
+    else if (lang === 'kn') btnText = "ಯೋಜನೆಗಳನ್ನು ನೋಡಿ 👑";
+    else if (lang === 'ml') btnText = "പ്ലാനുകൾ കാണുക 👑";
+    else if (lang === 'gu') btnText = "યોજનાઓ જુઓ 👑";
+    else if (lang === 'pa') btnText = "ਪਲਾਨ ਦੇਖੋ 👑";
+    reply += `<br/><br/><a href="subscription.html" class="btn btn-primary btn-sm" style="display:inline-block; background:var(--blue); color:#fff !important; padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; text-decoration:none; margin-top:8px; box-shadow:0 4px 10px rgba(65,105,225,0.2)">${btnText}</a>`;
+  } else if (detectedIntent === 'partner') {
+    let btnText = "Become Partner 🤝";
+    if (lang === 'hi') btnText = "पार्टनर बनें 🤝";
+    else if (lang === 'bn') btnText = "পার্টনার হোন 🤝";
+    else if (lang === 'ta') btnText = "பங்குதாரராக 🤝";
+    else if (lang === 'te') btnText = "భాగస్వామి అవ్వండి 🤝";
+    else if (lang === 'kn') btnText = "ಪಾಲುದಾರರಾಗಿ 🤝";
+    else if (lang === 'ml') btnText = "പങ്കാളിയാകുക 🤝";
+    else if (lang === 'gu') btnText = "ભાગીદાર બનો 🤝";
+    else if (lang === 'pa') btnText = "ਭਾਗੀਦਾਰ ਬਣੋ 🤝";
+    reply += `<br/><br/><a href="partner.html" class="btn btn-primary btn-sm" style="display:inline-block; background:var(--blue); color:#fff !important; padding:8px 16px; border-radius:8px; font-weight:700; font-size:13px; text-decoration:none; margin-top:8px; box-shadow:0 4px 10px rgba(65,105,225,0.2)">${btnText}</a>`;
+  }
+  
+  return reply;
 }
 
 const userMsgStyle = "max-width: 85%; padding: 14px 18px; border-radius: 12px; font-size: 14.5px; line-height: 1.5; background: #4169E1; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; border: none; box-shadow: 0 2px 4px rgba(65,105,225,0.2)";
