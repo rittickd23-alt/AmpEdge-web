@@ -2,7 +2,7 @@
    AMPEDGE — Premium Main JavaScript
    ============================================ */
 
-// ── Data Version: bump this when default data changes ──
+// ── Data Version: force trigger build for restored stable state ──
 const AMPEDGE_DATA_VERSION = '7.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
