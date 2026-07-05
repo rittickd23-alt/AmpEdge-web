@@ -331,13 +331,22 @@
     }
 
     function dbGet(key, defaultVal) {
-      const encrypted = localStorage.getItem(key);
-      if (!encrypted) return defaultVal;
+      const raw = localStorage.getItem(key);
+      if (!raw) return defaultVal;
+      // First, try parsing as plain JSON (legacy / unencrypted data)
       try {
-        const decrypted = decryptData(encrypted);
-        return JSON.parse(decrypted);
-      } catch (e) {
-        return defaultVal;
+        const parsed = JSON.parse(raw);
+        // If it successfully parses, it's legacy plain data. Migrate it to encrypted.
+        dbSet(key, parsed);
+        return parsed;
+      } catch (e1) {
+        // Not plain JSON, try decrypting
+        try {
+          const decrypted = decryptData(raw);
+          return JSON.parse(decrypted);
+        } catch (e2) {
+          return defaultVal;
+        }
       }
     }
 
