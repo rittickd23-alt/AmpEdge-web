@@ -307,53 +307,22 @@
       otpLength: 6
     };
 
-    // Layer 5 Encryption Helpers (Encryption at rest for LocalStorage)
-    function encryptData(text) {
-      let result = "";
-      for (let i = 0; i < text.length; i++) {
-        result += String.fromCharCode(text.charCodeAt(i) ^ DB_KEY.charCodeAt(i % DB_KEY.length));
-      }
-      return btoa(unescape(encodeURIComponent(result)));
-    }
-
-    function decryptData(ciphertext) {
-      if (!ciphertext) return "";
-      try {
-        let text = decodeURIComponent(escape(atob(ciphertext)));
-        let result = "";
-        for (let i = 0; i < text.length; i++) {
-          result += String.fromCharCode(text.charCodeAt(i) ^ DB_KEY.charCodeAt(i % DB_KEY.length));
-        }
-        return result;
-      } catch (e) {
-        return ciphertext; // fallback
-      }
-    }
+    // Layer 5: Data Persistence (Plain JSON — shared format with main website)
+    // Both admin.html and main.js use the same plain JSON localStorage format
+    // to ensure bookings, payments, customers, etc. sync in real-time across tabs.
 
     function dbGet(key, defaultVal) {
       const raw = localStorage.getItem(key);
       if (!raw) return defaultVal;
-      // First, try parsing as plain JSON (legacy / unencrypted data)
       try {
-        const parsed = JSON.parse(raw);
-        // If it successfully parses, it's legacy plain data. Migrate it to encrypted.
-        dbSet(key, parsed);
-        return parsed;
-      } catch (e1) {
-        // Not plain JSON, try decrypting
-        try {
-          const decrypted = decryptData(raw);
-          return JSON.parse(decrypted);
-        } catch (e2) {
-          return defaultVal;
-        }
+        return JSON.parse(raw);
+      } catch (e) {
+        return defaultVal;
       }
     }
 
     function dbSet(key, val) {
-      const text = JSON.stringify(val);
-      const encrypted = encryptData(text);
-      localStorage.setItem(key, encrypted);
+      localStorage.setItem(key, JSON.stringify(val));
     }
 
     // Default Seed Data
@@ -759,6 +728,24 @@
       switchAuthTab('login');
       showLoginStep(1);
     }
+
+    // ============================
+    // CROSS-TAB REAL-TIME SYNC
+    // When a user makes a booking/payment/subscription on the website,
+    // the admin dashboard auto-refreshes to show new data instantly.
+    // ============================
+    window.addEventListener('storage', function(e) {
+      const syncKeys = [
+        'ampedge_bookings', 'ampedge_payments', 'ampedge_customers',
+        'ampedge_services', 'ampedge_products', 'ampedge_help_tickets',
+        'ampedge_subscriptions'
+      ];
+      if (syncKeys.includes(e.key) && window.currentUser) {
+        // Re-render the current page to show updated data
+        navigate(currentPage);
+        showToast('📡 Live data updated from website', 'info');
+      }
+    });
 
     // ============================
     // NAVIGATION & VIEW SWITCHING
