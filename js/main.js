@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: force trigger build for restored stable state ──
-const AMPEDGE_DATA_VERSION = '9.0';
+const AMPEDGE_DATA_VERSION = '10.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -96,8 +96,15 @@ window.getAmpEdgeServices = () => {
 };
 
 window.getAmpEdgeProducts = () => {
-  const data = localStorage.getItem('ampedge_products');
-  if (data) return JSON.parse(data).filter(p => p.active);
+  try {
+    const data = localStorage.getItem('ampedge_products');
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.filter(p => p.active !== false);
+      }
+    }
+  } catch (e) {}
   localStorage.setItem('ampedge_products', JSON.stringify(defaultProducts));
   return defaultProducts;
 };
@@ -3893,13 +3900,20 @@ window.closeUserDashboardModal = function() {
   }
 };
 
-// Initialize
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.ensureAuthModalInDOM();
-    window.renderAuthNavbar();
-  });
-} else {
-  window.ensureAuthModalInDOM();
-  window.renderAuthNavbar();
+// Initialize all components safely
+function initAmpEdgeApp() {
+  if (typeof window.ensureAuthModalInDOM === 'function') window.ensureAuthModalInDOM();
+  if (typeof window.renderAuthNavbar === 'function') window.renderAuthNavbar();
+  if (typeof window.renderMarketplaceProducts === 'function') window.renderMarketplaceProducts();
+  if (typeof window.renderBookingServices === 'function') window.renderBookingServices();
+  if (typeof window.renderHomeDynamicSections === 'function') window.renderHomeDynamicSections();
+  if (typeof window.updateCartBadge === 'function') window.updateCartBadge();
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAmpEdgeApp);
+} else {
+  initAmpEdgeApp();
+}
+window.addEventListener('load', initAmpEdgeApp);
+
