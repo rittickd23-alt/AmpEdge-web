@@ -3288,15 +3288,13 @@ window.setChatLanguage = function(langCode, btn) {
   }
 };
 
-
-
-
 // ── GLOBAL AUTHENTICATION & USER PROFILE ENGINE ─────────
 
 // Current active auth state
 let currentAuthRole = 'customer'; // 'customer' or 'partner'
 let currentAuthTab = 'signin';    // 'signin' or 'signup'
 let currentAuthMethod = 'google'; // 'google', 'phone', 'email'
+let isOtpSent = false;
 
 // Helper to get authenticated user
 window.getAmpEdgeAuthUser = function() {
@@ -3308,8 +3306,132 @@ window.getAmpEdgeAuthUser = function() {
   }
 };
 
-// Open Auth Modal with specified default role & tab
+// Ensure Auth Modals HTML is injected in DOM
+window.ensureAuthModalInDOM = function() {
+  if (document.getElementById('authModal')) return;
+  
+  const authModalHTML = `
+    <!-- AUTH MODAL (Customer & Electrician Partner) -->
+    <div id="authModal" class="modal-overlay" style="z-index: 100008; display:none; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: all 0.3s ease; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(10, 15, 44, 0.75); backdrop-filter: blur(10px); padding: 16px; box-sizing:border-box;">
+      <div class="modal-content" style="max-width: 460px; width: 100%; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.45); background: #ffffff; position: relative; border:1px solid rgba(255,255,255,0.2);">
+        
+        <button type="button" class="btn-icon" style="position:absolute; top:14px; right:14px; background:#f1f5f9; border:none; width:32px; height:32px; border-radius:50%; font-size:15px; font-weight:700; cursor:pointer; color:#64748b; z-index:10; display:flex; align-items:center; justify-content:center;" onclick="closeAuthModal()">✕</button>
+        
+        <!-- Role Selector Switcher -->
+        <div style="background: #f8fafc; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px;">
+          <button id="authRoleCustomer" type="button" onclick="setAuthRole('customer')" style="flex:1; padding:9px; border-radius:12px; border:1.5px solid #4169E1; background:#4169E1; color:#fff; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:0.2s;">
+            <span>👤</span> Customer (ग्राहक)
+          </button>
+          <button id="authRolePartner" type="button" onclick="setAuthRole('partner')" style="flex:1; padding:9px; border-radius:12px; border:1.5px solid #cbd5e1; background:#ffffff; color:#64748b; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:0.2s;">
+            <span>⚡</span> Electrician Partner
+          </button>
+        </div>
+
+        <div style="padding: 22px 24px;">
+          <!-- Tabs (Sign In vs Sign Up) -->
+          <div style="display:flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 18px;">
+            <button id="authTabSignIn" type="button" onclick="setAuthTab('signin')" style="flex:1; padding:8px; background:none; border:none; border-bottom:2.5px solid var(--blue); color:var(--text-dark); font-weight:800; font-size:14.5px; cursor:pointer;">
+              Sign In
+            </button>
+            <button id="authTabSignUp" type="button" onclick="setAuthTab('signup')" style="flex:1; padding:8px; background:none; border:none; border-bottom:2.5px solid transparent; color:var(--muted); font-weight:600; font-size:14.5px; cursor:pointer;">
+              Create Account
+            </button>
+          </div>
+
+          <div style="text-align:center; margin-bottom:18px;">
+            <h3 id="authModalHeading" style="font-family:var(--font-pjs); font-size:20px; font-weight:900; color:var(--text-dark); margin:0 0 4px;">Welcome Back!</h3>
+            <p id="authModalSubheading" style="color:var(--muted); font-size:12.5px; margin:0; line-height:1.5;">Access your bookings, AMC shield status, and orders.</p>
+          </div>
+
+          <!-- 1. Google Auth Primary Button -->
+          <button id="btnGoogleSubmit" onclick="handleGoogleAuth()" type="button" class="btn" style="width:100%; background:#ffffff; border:1.5px solid #cbd5e1; color:#0f172a; padding:11px 16px; border-radius:12px; font-weight:800; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor='#4169E1'; this.style.boxShadow='0 4px 12px rgba(65,105,225,0.15)'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.04)'">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+            Continue with Google
+          </button>
+
+          <!-- Divider -->
+          <div style="display:flex; align-items:center; gap:10px; margin:16px 0;">
+            <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+            <span style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase;">or continue with</span>
+            <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+          </div>
+
+          <!-- Method Pills (Phone vs Email) -->
+          <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <button id="authMethodPhone" type="button" onclick="setAuthMethod('phone')" style="flex:1; padding:7px; border-radius:10px; border:1px solid #cbd5e1; background:#ffffff; font-size:12px; font-weight:700; color:#64748b; cursor:pointer;">
+              📱 Mobile OTP
+            </button>
+            <button id="authMethodEmail" type="button" onclick="setAuthMethod('email')" style="flex:1; padding:7px; border-radius:10px; border:1px solid #cbd5e1; background:#ffffff; font-size:12px; font-weight:700; color:#64748b; cursor:pointer;">
+              ✉️ Email ID
+            </button>
+          </div>
+
+          <!-- 2. Phone OTP Form -->
+          <div id="authFormPhone" style="display:none;">
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11.5px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Mobile Number</label>
+              <div style="display:flex; border:1px solid #cbd5e1; border-radius:10px; overflow:hidden;">
+                <span style="background:#f1f5f9; padding:10px 12px; font-weight:800; font-size:13px; color:#475569; border-right:1px solid #cbd5e1;">🇮🇳 +91</span>
+                <input id="authPhoneInput" type="tel" placeholder="Enter 10-digit number" maxlength="10" style="flex:1; padding:10px 12px; border:none; outline:none; font-size:13.5px; font-weight:600;"/>
+              </div>
+            </div>
+            
+            <div id="authOtpRow" style="display:none; margin-bottom:12px;">
+              <label style="font-size:11.5px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Enter 6-Digit OTP Code</label>
+              <input id="authOtpInput" type="text" placeholder="e.g. 449800" maxlength="6" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; outline:none; font-size:15px; font-weight:800; letter-spacing:4px; text-align:center; box-sizing:border-box;"/>
+            </div>
+
+            <button id="btnPhoneSubmit" onclick="handlePhoneOtpAuth()" type="button" class="btn btn-primary" style="width:100%; justify-content:center; padding:11px; font-weight:800; border-radius:10px;">
+              Get OTP Verification Code →
+            </button>
+          </div>
+
+          <!-- 3. Email Form -->
+          <form id="authFormEmail" onsubmit="handleEmailAuth(event)" style="display:none;">
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11.5px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Email Address</label>
+              <input id="authEmailInput" type="email" placeholder="name@example.com" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; outline:none; font-size:13px; box-sizing:border-box;"/>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+              <label style="font-size:11.5px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Password</label>
+              <input id="authPasswordInput" type="password" placeholder="••••••••" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; outline:none; font-size:13px; box-sizing:border-box;"/>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:11px; font-weight:800; border-radius:10px;">
+              Sign In with Email →
+            </button>
+          </form>
+
+        </div>
+        
+        <div style="background:#f8fafc; padding:12px 18px; border-top:1px solid #e2e8f0; text-align:center; font-size:11px; color:#64748b;">
+          By continuing, you agree to AMPEdge's <a href="terms.html" style="color:var(--blue); font-weight:700;">Terms</a> & <a href="privacy-policy.html" style="color:var(--blue); font-weight:700;">Privacy Policy</a>.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- USER DASHBOARD MODAL -->
+    <div id="userDashboardModal" class="modal-overlay" style="z-index: 100009; display:none; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: all 0.3s ease; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(10, 15, 44, 0.75); backdrop-filter: blur(10px); padding: 16px; box-sizing:border-box;">
+      <div class="modal-content" style="max-width: 520px; width: 100%; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.45); background: #ffffff; position: relative;">
+        <div style="padding:18px 22px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+          <h3 style="font-family:var(--font-pjs); font-size:18px; font-weight:800; color:#0f172a; margin:0;">Account Dashboard</h3>
+          <button type="button" class="btn-icon" style="background:#f1f5f9; border:none; width:32px; height:32px; border-radius:50%; font-size:15px; font-weight:700; cursor:pointer; color:#64748b; display:flex; align-items:center; justify-content:center;" onclick="closeUserDashboardModal()">✕</button>
+        </div>
+        <div id="userDashboardBody" style="padding:22px;">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', authModalHTML);
+};
+
+// Open Auth Modal
 window.openAuthModal = function(role = 'customer', tab = 'signin') {
+  window.ensureAuthModalInDOM();
   currentAuthRole = role;
   currentAuthTab = tab;
   
@@ -3317,27 +3439,37 @@ window.openAuthModal = function(role = 'customer', tab = 'signin') {
   if (!modal) return;
   
   updateAuthModalUI();
-  modal.classList.add('active');
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+  }, 10);
 };
 
 window.closeAuthModal = function() {
   const modal = document.getElementById('authModal');
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 250);
+  }
 };
 
-// Switch Role between Customer and Electrician Partner
+// Switch Role
 window.setAuthRole = function(role) {
   currentAuthRole = role;
   updateAuthModalUI();
 };
 
-// Switch Tab between Sign In and Sign Up
+// Switch Tab
 window.setAuthTab = function(tab) {
   currentAuthTab = tab;
   updateAuthModalUI();
 };
 
-// Switch Auth Method (Google, Phone OTP, Email/Password)
+// Switch Method
 window.setAuthMethod = function(method) {
   currentAuthMethod = method;
   updateAuthModalUI();
@@ -3351,7 +3483,6 @@ function updateAuthModalUI() {
   const titleEl = document.getElementById('authModalHeading');
   const subEl = document.getElementById('authModalSubheading');
   
-  const methodGoogle = document.getElementById('authMethodGoogle');
   const methodPhone = document.getElementById('authMethodPhone');
   const methodEmail = document.getElementById('authMethodEmail');
   
@@ -3359,28 +3490,28 @@ function updateAuthModalUI() {
   const formPhone = document.getElementById('authFormPhone');
   const formEmail = document.getElementById('authFormEmail');
   
-  // Update Role Buttons
+  // Role Buttons
   if (roleCustBtn && rolePartBtn) {
     if (currentAuthRole === 'customer') {
       roleCustBtn.style.background = '#4169E1';
       roleCustBtn.style.color = '#ffffff';
       roleCustBtn.style.borderColor = '#4169E1';
       
-      rolePartBtn.style.background = '#f8fafc';
+      rolePartBtn.style.background = '#ffffff';
       rolePartBtn.style.color = '#64748b';
-      rolePartBtn.style.borderColor = '#e2e8f0';
+      rolePartBtn.style.borderColor = '#cbd5e1';
     } else {
       rolePartBtn.style.background = '#059669';
       rolePartBtn.style.color = '#ffffff';
       rolePartBtn.style.borderColor = '#059669';
       
-      roleCustBtn.style.background = '#f8fafc';
+      roleCustBtn.style.background = '#ffffff';
       roleCustBtn.style.color = '#64748b';
-      roleCustBtn.style.borderColor = '#e2e8f0';
+      roleCustBtn.style.borderColor = '#cbd5e1';
     }
   }
   
-  // Update Tabs
+  // Tabs
   if (tabSignIn && tabSignUp) {
     if (currentAuthTab === 'signin') {
       tabSignIn.style.borderBottom = '2.5px solid var(--blue)';
@@ -3401,7 +3532,7 @@ function updateAuthModalUI() {
     }
   }
   
-  // Update Heading Texts
+  // Heading Texts
   if (titleEl) {
     if (currentAuthRole === 'customer') {
       titleEl.innerHTML = currentAuthTab === 'signin' ? 'Welcome Back, Customer!' : 'Create Customer Account';
@@ -3417,32 +3548,40 @@ function updateAuthModalUI() {
     }
   }
   
-  // Update Auth Method Pills
-  [
-    { btn: methodGoogle, val: 'google' },
-    { btn: methodPhone, val: 'phone' },
-    { btn: methodEmail, val: 'email' }
-  ].forEach(item => {
-    if (item.btn) {
-      if (currentAuthMethod === item.val) {
-        item.btn.style.background = '#0f172a';
-        item.btn.style.color = '#ffffff';
-        item.btn.style.borderColor = '#0f172a';
-      } else {
-        item.btn.style.background = '#ffffff';
-        item.btn.style.color = '#64748b';
-        item.btn.style.borderColor = '#cbd5e1';
-      }
+  // Auth Method Pills
+  if (methodPhone && methodEmail) {
+    if (currentAuthMethod === 'phone') {
+      methodPhone.style.background = '#0f172a';
+      methodPhone.style.color = '#ffffff';
+      methodPhone.style.borderColor = '#0f172a';
+      
+      methodEmail.style.background = '#ffffff';
+      methodEmail.style.color = '#64748b';
+      methodEmail.style.borderColor = '#cbd5e1';
+    } else if (currentAuthMethod === 'email') {
+      methodEmail.style.background = '#0f172a';
+      methodEmail.style.color = '#ffffff';
+      methodEmail.style.borderColor = '#0f172a';
+      
+      methodPhone.style.background = '#ffffff';
+      methodPhone.style.color = '#64748b';
+      methodPhone.style.borderColor = '#cbd5e1';
+    } else {
+      methodPhone.style.background = '#ffffff';
+      methodPhone.style.color = '#64748b';
+      methodPhone.style.borderColor = '#cbd5e1';
+      methodEmail.style.background = '#ffffff';
+      methodEmail.style.color = '#64748b';
+      methodEmail.style.borderColor = '#cbd5e1';
     }
-  });
+  }
   
-  // Toggle Forms
-  if (formGoogle) formGoogle.style.display = currentAuthMethod === 'google' ? 'block' : 'none';
+  // Forms
   if (formPhone) formPhone.style.display = currentAuthMethod === 'phone' ? 'block' : 'none';
   if (formEmail) formEmail.style.display = currentAuthMethod === 'email' ? 'block' : 'none';
 }
 
-// 1. Google One-Click Authentication Handler
+// 1. Google Auth
 window.handleGoogleAuth = function() {
   const btn = document.getElementById('btnGoogleSubmit');
   if (btn) {
@@ -3462,11 +3601,7 @@ window.handleGoogleAuth = function() {
         avatar: 'R',
         joined: 'August 2026',
         amcActive: true,
-        amcPlan: 'AMPEdge 360° Total Home & AC Annual AMC',
-        recentBookings: [
-          { id: 'BK-9402', service: 'AC Deep Power Jet Service', date: 'Today, 2:30 PM', status: 'Dispatched ⚡ (15 mins away)', amount: '₹0 (Free under AMC)' },
-          { id: 'BK-8921', service: 'MCB Tripping Fix', date: '12 Aug 2026', status: 'Completed ✓', amount: '₹0 (Free under AMC)' }
-        ]
+        amcPlan: 'AMPEdge 360° Total Home & AC Annual AMC'
       };
     } else {
       mockUser = {
@@ -3493,11 +3628,10 @@ window.handleGoogleAuth = function() {
       btn.innerHTML = 'Continue with Google';
       btn.style.pointerEvents = 'auto';
     }
-  }, 1100);
+  }, 900);
 };
 
-// 2. Phone OTP Authentication Handler
-let isOtpSent = false;
+// 2. Phone OTP Auth
 window.handlePhoneOtpAuth = function() {
   const phoneInput = document.getElementById('authPhoneInput');
   const otpInput = document.getElementById('authOtpInput');
@@ -3517,7 +3651,7 @@ window.handlePhoneOtpAuth = function() {
       btn.innerHTML = 'Verify OTP & Log In →';
       alert('📲 OTP Sent! Demo Verification Code is: 449800');
       if (otpInput) otpInput.value = '449800';
-    }, 900);
+    }, 700);
   } else {
     if (!otpInput || otpInput.value !== '449800') {
       alert('Invalid OTP. Please enter 449800');
@@ -3545,14 +3679,13 @@ window.handlePhoneOtpAuth = function() {
   }
 };
 
-// 3. Email & Password Authentication Handler
+// 3. Email Auth
 window.handleEmailAuth = function(e) {
   if (e && e.preventDefault) e.preventDefault();
   
   const email = document.getElementById('authEmailInput').value;
   const pass = document.getElementById('authPasswordInput').value;
-  const nameEl = document.getElementById('authNameInput');
-  const name = (nameEl && nameEl.value) ? nameEl.value : (email ? email.split('@')[0] : 'User');
+  const name = email ? email.split('@')[0] : 'User';
   
   if (!email || !pass) {
     alert('Please enter your email and password.');
@@ -3560,7 +3693,7 @@ window.handleEmailAuth = function(e) {
   }
   
   const user = {
-    name: name,
+    name: name.charAt(0).toUpperCase() + name.slice(1),
     email: email,
     phone: '+91 98765 00000',
     role: currentAuthRole === 'customer' ? 'Customer' : 'Electrician Partner',
@@ -3577,7 +3710,7 @@ window.handleEmailAuth = function(e) {
   alert(`🎉 Logged in successfully! Welcome, ${user.name}`);
 };
 
-// User Logout
+// Logout
 window.handleUserLogout = function() {
   localStorage.removeItem('ampedge_auth_user');
   renderAuthNavbar();
@@ -3585,7 +3718,7 @@ window.handleUserLogout = function() {
   alert('🚪 You have been safely logged out.');
 };
 
-// Toggle Dropdown Menu
+// Toggle Menu
 window.toggleUserMenu = function(e) {
   if (e) e.stopPropagation();
   const dropdown = document.getElementById('userMenuDropdown');
@@ -3594,7 +3727,6 @@ window.toggleUserMenu = function(e) {
   }
 };
 
-// Close dropdown on outside click
 document.addEventListener('click', () => {
   const dropdown = document.getElementById('userMenuDropdown');
   if (dropdown) dropdown.style.display = 'none';
@@ -3616,7 +3748,6 @@ window.renderAuthNavbar = function() {
       authArea.style.flexShrink = '0';
       nav.appendChild(authArea);
     } else {
-      // Ensure it is at the end next to Shop Now
       if (nav.lastElementChild !== authArea) {
         nav.appendChild(authArea);
       }
@@ -3625,7 +3756,7 @@ window.renderAuthNavbar = function() {
     if (user) {
       authArea.innerHTML = `
         <div class="user-profile-dropdown" style="position:relative; flex-shrink:0;">
-          <button onclick="toggleUserMenu(event)" class="btn" title="${user.name} (${user.role})" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #4169E1, #5CE1E6); color:#fff; font-weight:900; font-size:13.5px; border:2px solid #ffffff; box-shadow:0 3px 10px rgba(65,105,225,0.35); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; padding:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <button type="button" onclick="toggleUserMenu(event)" class="btn" title="${user.name} (${user.role})" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #4169E1, #5CE1E6); color:#fff; font-weight:900; font-size:13.5px; border:2px solid #ffffff; box-shadow:0 3px 10px rgba(65,105,225,0.35); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; padding:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
             ${user.avatar || 'U'}
             <span style="position:absolute; bottom:-1px; right:-1px; width:9px; height:9px; background:#10b981; border:2px solid #fff; border-radius:50%;"></span>
           </button>
@@ -3665,76 +3796,6 @@ window.renderAuthNavbar = function() {
       `;
     }
   });
-}; color:${user.role === 'Customer' ? '#1e40af' : '#065f46'}; padding:2px 8px; border-radius:10px; font-weight:800; text-transform:uppercase;">${user.role}</div>
-            </div>
-            
-            <a href="javascript:void(0)" onclick="openUserDashboardModal()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>📊</span> My Dashboard & Bookings
-            </a>
-            
-            <a href="subscription.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>👑</span> My AMC & Active Plans
-            </a>
-            
-            <a href="marketplace.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>🛒</span> My Product Orders
-            </a>
-            
-            <hr style="margin:4px 0; border:none; border-top:1px solid #f1f5f9;"/>
-            
-            <a href="javascript:void(0)" onclick="handleUserLogout()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#ef4444; text-decoration:none; border-radius:8px; font-weight:800; transition:background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='transparent'">
-              <span>🚪</span> Log Out
-            </a>
-          </div>
-        </div>
-      `;
-    } else {
-      authArea.innerHTML = `
-        <a href="javascript:void(0)" onclick="openAuthModal('customer', 'signin')" class="btn-auth-avatar-icon" title="Sign In / My Account" style="display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:#ffffff; border:1.5px solid #cbd5e1; color:#0f172a; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.06); transition:all 0.2s; position:relative; flex-shrink:0; text-decoration:none;" onmouseover="this.style.borderColor='#4169E1'; this.style.color='#4169E1'; this.style.transform='scale(1.08)'; this.style.boxShadow='0 4px 14px rgba(65,105,225,0.2)'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#0f172a'; this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span style="position:absolute; top:-1px; right:-1px; width:9px; height:9px; background:#4169E1; border:2px solid #fff; border-radius:50%;"></span>
-        </a>
-      `;
-    }
-  });
-}; color:${user.role === 'Customer' ? '#1e40af' : '#065f46'}; padding:1px 6px; border-radius:8px; font-weight:800; text-transform:uppercase;">${user.role === 'Customer' ? 'Customer' : 'Partner'}</span>
-            <span style="font-size:10px; color:#64748b;">▼</span>
-          </button>
-          
-          <div id="userMenuDropdown" style="display:none; position:absolute; top:115%; right:0; width:240px; background:#ffffff; border-radius:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #e2e8f0; padding:8px; z-index:100010;">
-            <div style="padding:10px 12px; border-bottom:1px solid #f1f5f9; margin-bottom:4px;">
-              <div style="font-size:13.5px; font-weight:800; color:#0f172a;">${user.name}</div>
-              <div style="font-size:11.5px; color:#64748b;">${user.email || user.phone}</div>
-            </div>
-            
-            <a href="javascript:void(0)" onclick="openUserDashboardModal()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>📊</span> My Dashboard & Bookings
-            </a>
-            
-            <a href="subscription.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>👑</span> My AMC & Active Plans
-            </a>
-            
-            <a href="marketplace.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-              <span>🛒</span> My Product Orders
-            </a>
-            
-            <hr style="margin:4px 0; border:none; border-top:1px solid #f1f5f9;"/>
-            
-            <a href="javascript:void(0)" onclick="handleUserLogout()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#ef4444; text-decoration:none; border-radius:8px; font-weight:800; transition:background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='transparent'">
-              <span>🚪</span> Log Out
-            </a>
-          </div>
-        </div>
-      `;
-    } else {
-      authArea.innerHTML = `
-        <a href="javascript:void(0)" onclick="openAuthModal('customer', 'signin')" class="btn btn-outline btn-sm" style="font-weight:800; border-radius:20px; padding:7px 14px; display:inline-flex; align-items:center; gap:6px; border-color:#cbd5e1; color:#0f172a;" onmouseover="this.style.borderColor='#4169E1'; this.style.color='#4169E1'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#0f172a'">
-          <span>👤</span> Sign In
-        </a>
-      `;
-    }
-  });
 };
 
 // Open Interactive User Dashboard Modal
@@ -3745,67 +3806,68 @@ window.openUserDashboardModal = function() {
     return;
   }
   
+  window.ensureAuthModalInDOM();
   const modal = document.getElementById('userDashboardModal');
   const content = document.getElementById('userDashboardBody');
   if (!modal || !content) return;
   
   if (user.role === 'Customer') {
     content.innerHTML = `
-      <div style="background:linear-gradient(135deg, #0a0f2c, #1e1b4b); border-radius:18px; padding:22px; color:#fff; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+      <div style="background:linear-gradient(135deg, #0a0f2c, #1e1b4b); border-radius:18px; padding:20px; color:#fff; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-          <div style="font-size:12px; color:#ffd700; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">👑 Active Plan Status</div>
-          <div style="font-size:18px; font-weight:800; color:#fff; font-family:var(--font-pjs);">AMPEdge 360° Total Home & AC Annual AMC</div>
-          <div style="font-size:12.5px; color:rgba(255,255,255,0.7); margin-top:2px;">Valid until: <strong>19 August 2027</strong> (365 Days Active)</div>
+          <div style="font-size:11px; color:#ffd700; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">👑 Active Plan Status</div>
+          <div style="font-size:17px; font-weight:800; color:#fff; font-family:var(--font-pjs);">AMPEdge 360° Total Home & AC Annual AMC</div>
+          <div style="font-size:12px; color:rgba(255,255,255,0.7); margin-top:2px;">Valid until: <strong>19 August 2027</strong> (365 Days Active)</div>
         </div>
-        <div style="background:#10b981; color:#fff; padding:6px 14px; border-radius:20px; font-weight:900; font-size:12px;">ACTIVE SHIELD ✓</div>
+        <div style="background:#10b981; color:#fff; padding:5px 12px; border-radius:20px; font-weight:900; font-size:11px;">ACTIVE SHIELD ✓</div>
       </div>
       
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px;">
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px;">
           <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">AC Services Remaining</div>
-          <div style="font-size:22px; font-weight:900; color:#0f172a; font-family:var(--font-pjs); margin-top:2px;">4 of 4 Free</div>
+          <div style="font-size:20px; font-weight:900; color:#0f172a; font-family:var(--font-pjs); margin-top:2px;">4 of 4 Free</div>
         </div>
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px;">
           <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Breakdown Visits</div>
-          <div style="font-size:22px; font-weight:900; color:#10b981; font-family:var(--font-pjs); margin-top:2px;">Unlimited (Free)</div>
+          <div style="font-size:20px; font-weight:900; color:#10b981; font-family:var(--font-pjs); margin-top:2px;">Unlimited (Free)</div>
         </div>
       </div>
       
-      <h4 style="font-size:15px; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Recent Service Bookings & Live Status</h4>
-      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:22px;">
-        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; display:flex; justify-content:space-between; align-items:center;">
+      <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin:0 0 10px 0;">Recent Service Bookings & Live Status</h4>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-size:14px; font-weight:800; color:#0f172a;">❄️ AC Deep Power Jet Service</div>
-            <div style="font-size:12px; color:#64748b;">Scheduled: Today, 2:30 PM • Engineer: Ramesh Kumar</div>
+            <div style="font-size:13.5px; font-weight:800; color:#0f172a;">❄️ AC Deep Power Jet Service</div>
+            <div style="font-size:11.5px; color:#64748b;">Scheduled: Today, 2:30 PM • Engineer: Ramesh Kumar</div>
           </div>
           <div style="text-align:right;">
-            <span style="background:#dbeafe; color:#1e40af; font-size:11px; font-weight:800; padding:3px 10px; border-radius:10px;">⚡ Dispatched (18 min)</span>
-            <div style="font-size:12px; font-weight:800; color:#10b981; margin-top:4px;">₹0 (Free under AMC)</div>
+            <span style="background:#dbeafe; color:#1e40af; font-size:11px; font-weight:800; padding:2px 8px; border-radius:8px;">⚡ Dispatched</span>
+            <div style="font-size:11.5px; font-weight:800; color:#10b981; margin-top:2px;">₹0 (AMC Free)</div>
           </div>
         </div>
       </div>
       
       <div style="display:flex; gap:10px;">
         <a href="booking.html" class="btn btn-primary" style="flex:1; justify-content:center;">⚡ Book New Service</a>
-        <a href="tel:+919123667258" class="btn btn-outline" style="flex:1; justify-content:center;">📞 Call 24/7 Helpline</a>
+        <a href="tel:+919123667258" class="btn btn-outline" style="flex:1; justify-content:center;">📞 Call Helpline</a>
       </div>
     `;
   } else {
     content.innerHTML = `
-      <div style="background:linear-gradient(135deg, #064e3b, #059669); border-radius:18px; padding:22px; color:#fff; margin-bottom:20px;">
-        <div style="font-size:12px; color:#a7f3d0; font-weight:800; text-transform:uppercase;">⚡ Electrician Partner Portal</div>
-        <div style="font-size:22px; font-weight:800; color:#fff; font-family:var(--font-pjs); margin-top:2px;">${user.name}</div>
-        <div style="font-size:13px; color:#d1fae5; margin-top:4px;">Rating: 4.9 ★ • Completed: 418 Jobs • Verified Pro ID: AMP-P-882</div>
+      <div style="background:linear-gradient(135deg, #064e3b, #059669); border-radius:18px; padding:20px; color:#fff; margin-bottom:18px;">
+        <div style="font-size:11px; color:#a7f3d0; font-weight:800; text-transform:uppercase;">⚡ Electrician Partner Portal</div>
+        <div style="font-size:20px; font-weight:800; color:#fff; font-family:var(--font-pjs); margin-top:2px;">${user.name}</div>
+        <div style="font-size:12px; color:#d1fae5; margin-top:4px;">Rating: 4.9 ★ • Completed: 418 Jobs • Verified Pro ID: AMP-P-882</div>
       </div>
       
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px;">
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px;">
           <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">This Month's Earnings</div>
-          <div style="font-size:22px; font-weight:900; color:#059669; font-family:var(--font-pjs); margin-top:2px;">₹34,800</div>
+          <div style="font-size:20px; font-weight:900; color:#059669; font-family:var(--font-pjs); margin-top:2px;">₹34,800</div>
         </div>
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:14px;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px;">
           <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Nearby Active Leads</div>
-          <div style="font-size:22px; font-weight:900; color:#4169E1; font-family:var(--font-pjs); margin-top:2px;">3 Jobs Waiting</div>
+          <div style="font-size:20px; font-weight:900; color:#4169E1; font-family:var(--font-pjs); margin-top:2px;">3 Jobs Waiting</div>
         </div>
       </div>
       
@@ -3813,142 +3875,31 @@ window.openUserDashboardModal = function() {
     `;
   }
   
-  modal.classList.add('active');
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+  }, 10);
 };
 
 window.closeUserDashboardModal = function() {
   const modal = document.getElementById('userDashboardModal');
-  if (modal) modal.classList.remove('active');
+  if (modal) {
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 250);
+  }
 };
 
-// ── INJECT AUTH MODAL HTML ON PAGE LOAD ───────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const authModalHTML = `
-    <!-- AUTH MODAL (Customer & Electrician Partner) -->
-    <div id="authModal" class="modal-overlay" style="z-index: 100008; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(10, 15, 44, 0.75); backdrop-filter: blur(12px); padding: 16px;">
-      <div class="modal-content" style="max-width: 480px; width: 100%; border-radius: 26px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4); background: #ffffff; position: relative;">
-        
-        <button class="btn-icon" style="position:absolute; top:16px; right:16px; background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:16px; font-weight:700; cursor:pointer; color:#64748b; z-index:10;" onclick="closeAuthModal()">✕</button>
-        
-        <!-- Role Selector Switcher -->
-        <div style="background: #f8fafc; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 10px;">
-          <button id="authRoleCustomer" type="button" onclick="setAuthRole('customer')" style="flex:1; padding:10px; border-radius:12px; border:1px solid #4169E1; background:#4169E1; color:#fff; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:0.2s;">
-            <span>👤</span> Customer (ग्राहक)
-          </button>
-          <button id="authRolePartner" type="button" onclick="setAuthRole('partner')" style="flex:1; padding:10px; border-radius:12px; border:1px solid #e2e8f0; background:#f8fafc; color:#64748b; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:0.2s;">
-            <span>⚡</span> Electrician Partner
-          </button>
-        </div>
-
-        <div style="padding: 24px 28px;">
-          <!-- Tabs (Sign In vs Sign Up) -->
-          <div style="display:flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px;">
-            <button id="authTabSignIn" type="button" onclick="setAuthTab('signin')" style="flex:1; padding:10px; background:none; border:none; border-bottom:2.5px solid var(--blue); color:var(--text-dark); font-weight:800; font-size:15px; cursor:pointer;">
-              Sign In
-            </button>
-            <button id="authTabSignUp" type="button" onclick="setAuthTab('signup')" style="flex:1; padding:10px; background:none; border:none; border-bottom:2.5px solid transparent; color:var(--muted); font-weight:600; font-size:15px; cursor:pointer;">
-              Create Account
-            </button>
-          </div>
-
-          <div style="text-align:center; margin-bottom:20px;">
-            <h3 id="authModalHeading" style="font-family:var(--font-pjs); font-size:22px; font-weight:900; color:var(--text-dark); margin:0 0 6px;">Welcome Back!</h3>
-            <p id="authModalSubheading" style="color:var(--muted); font-size:13px; margin:0; line-height:1.5;">Access your bookings, AMC shield status, and orders.</p>
-          </div>
-
-          <!-- 1. Google Auth Primary Button -->
-          <button id="btnGoogleSubmit" onclick="handleGoogleAuth()" type="button" class="btn" style="width:100%; background:#ffffff; border:1.5px solid #cbd5e1; color:#0f172a; padding:12px 18px; border-radius:14px; font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor='#4169E1'; this.style.boxShadow='0 4px 15px rgba(65,105,225,0.15)'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'">
-            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
-            Continue with Google
-          </button>
-
-          <!-- Divider -->
-          <div style="display:flex; align-items:center; gap:12px; margin:18px 0;">
-            <div style="flex:1; height:1px; background:#e2e8f0;"></div>
-            <span style="font-size:11.5px; color:#94a3b8; font-weight:700; text-transform:uppercase;">or continue with</span>
-            <div style="flex:1; height:1px; background:#e2e8f0;"></div>
-          </div>
-
-          <!-- Method Pills (Phone vs Email) -->
-          <div style="display:flex; gap:8px; margin-bottom:16px;">
-            <button id="authMethodPhone" type="button" onclick="setAuthMethod('phone')" style="flex:1; padding:8px; border-radius:10px; border:1px solid #cbd5e1; background:#ffffff; font-size:12.5px; font-weight:700; color:#64748b; cursor:pointer;">
-              📱 Mobile OTP
-            </button>
-            <button id="authMethodEmail" type="button" onclick="setAuthMethod('email')" style="flex:1; padding:8px; border-radius:10px; border:1px solid #cbd5e1; background:#ffffff; font-size:12.5px; font-weight:700; color:#64748b; cursor:pointer;">
-              ✉️ Email ID
-            </button>
-          </div>
-
-          <!-- 2. Phone OTP Form -->
-          <div id="authFormPhone" style="display:none;">
-            <div style="margin-bottom:14px;">
-              <label style="font-size:12px; font-weight:700; color:#0f172a; display:block; margin-bottom:6px;">Mobile Number</label>
-              <div style="display:flex; border:1px solid #cbd5e1; border-radius:12px; overflow:hidden;">
-                <span style="background:#f1f5f9; padding:12px 14px; font-weight:800; font-size:13.5px; color:#475569; border-right:1px solid #cbd5e1;">🇮🇳 +91</span>
-                <input id="authPhoneInput" type="tel" placeholder="Enter 10-digit number" maxlength="10" style="flex:1; padding:12px 14px; border:none; outline:none; font-size:14px; font-weight:600;"/>
-              </div>
-            </div>
-            
-            <div id="authOtpRow" style="display:none; margin-bottom:14px;">
-              <label style="font-size:12px; font-weight:700; color:#0f172a; display:block; margin-bottom:6px;">Enter 6-Digit OTP Code</label>
-              <input id="authOtpInput" type="text" placeholder="e.g. 449800" maxlength="6" style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; outline:none; font-size:16px; font-weight:800; letter-spacing:4px; text-align:center; box-sizing:border-box;"/>
-            </div>
-
-            <button id="btnPhoneSubmit" onclick="handlePhoneOtpAuth()" type="button" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:800; border-radius:12px;">
-              Get OTP Verification Code →
-            </button>
-          </div>
-
-          <!-- 3. Email Form -->
-          <form id="authFormEmail" onsubmit="handleEmailAuth(event)" style="display:none;">
-            <div style="margin-bottom:12px;">
-              <label style="font-size:12px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Email Address</label>
-              <input id="authEmailInput" type="email" placeholder="name@example.com" style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; outline:none; font-size:13.5px; box-sizing:border-box;"/>
-            </div>
-            
-            <div style="margin-bottom:14px;">
-              <label style="font-size:12px; font-weight:700; color:#0f172a; display:block; margin-bottom:4px;">Password</label>
-              <input id="authPasswordInput" type="password" placeholder="••••••••" style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; outline:none; font-size:13.5px; box-sizing:border-box;"/>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-weight:800; border-radius:12px;">
-              Sign In with Email →
-            </button>
-          </form>
-
-        </div>
-        
-        <div style="background:#f8fafc; padding:14px 20px; border-top:1px solid #e2e8f0; text-align:center; font-size:11.5px; color:#64748b;">
-          By continuing, you agree to AMPEdge's <a href="terms.html" style="color:var(--blue); font-weight:700;">Terms</a> & <a href="privacy-policy.html" style="color:var(--blue); font-weight:700;">Privacy Policy</a>.
-        </div>
-
-      </div>
-    </div>
-
-    <!-- USER DASHBOARD MODAL -->
-    <div id="userDashboardModal" class="modal-overlay" style="z-index: 100009; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(10, 15, 44, 0.75); backdrop-filter: blur(12px); padding: 16px;">
-      <div class="modal-content" style="max-width: 560px; width: 100%; border-radius: 26px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4); background: #ffffff; position: relative;">
-        <div style="padding:22px 24px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-          <h3 style="font-family:var(--font-pjs); font-size:20px; font-weight:800; color:#0f172a; margin:0;">Account Dashboard</h3>
-          <button class="btn-icon" style="background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:16px; font-weight:700; cursor:pointer; color:#64748b;" onclick="closeUserDashboardModal()">✕</button>
-        </div>
-        <div id="userDashboardBody" style="padding:24px;">
-          <!-- Dynamic Content -->
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', authModalHTML);
-  
-  const authStyle = document.createElement('style');
-  authStyle.textContent = `
-    #authModal.active, #userDashboardModal.active {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-    }
-  `;
-  document.head.appendChild(authStyle);
-  
-  // Render navbar auth state on load
-  renderAuthNavbar();
-});
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.ensureAuthModalInDOM();
+    window.renderAuthNavbar();
+  });
+} else {
+  window.ensureAuthModalInDOM();
+  window.renderAuthNavbar();
+}
