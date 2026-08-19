@@ -2572,38 +2572,92 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })();
 
-// ── GLOBAL DOWNLOAD APP MODAL SYSTEM ───────────────────
+// ── GLOBAL DOWNLOAD APP CUSTOMIZED MODAL SYSTEM ─────────
 document.addEventListener('DOMContentLoaded', () => {
   const downloadModalHTML = `
-    <div id="downloadAppModal" class="modal-overlay" style="z-index: 100005; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: opacity 0.3s ease;">
-      <div class="modal-content" style="max-width: 480px; width:92%; padding: 32px 28px; border-radius: 24px; text-align:center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--border); background: #ffffff; position:relative;">
-        <button class="btn-icon" style="position:absolute; top:18px; right:18px; background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:16px; font-weight:700; cursor:pointer; color:#64748b;" onclick="closeDownloadAppModal()">✕</button>
+    <div id="downloadAppModal" class="modal-overlay" style="z-index: 100005; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(10, 15, 44, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 16px;">
+      <div class="modal-content" style="max-width: 540px; width: 100%; border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.15); background: #ffffff; position: relative; transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
         
-        <div style="width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,#4169E1,#5CE1E6); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 24px rgba(65,105,225,0.3); font-size:30px;">
-          📲
+        <!-- Close Button -->
+        <button class="btn-icon" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.2); border:none; width:36px; height:36px; border-radius:50%; font-size:18px; font-weight:700; cursor:pointer; color:#ffffff; backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:10; transition:transform 0.2s, background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'; this.style.transform='scale(1.08)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='scale(1)'" onclick="closeDownloadAppModal()">✕</button>
+
+        <!-- Header Hero Graphic -->
+        <div style="background: linear-gradient(145deg, #0a0f2c 0%, #131a4a 60%, #1e293b 100%); padding: 36px 28px 28px; color: #ffffff; text-align: center; position: relative; overflow: hidden;">
+          <!-- Ambient Glow Circles -->
+          <div style="position:absolute; top:-40px; left:50%; transform:translateX(-50%); width:220px; height:220px; background:radial-gradient(circle, rgba(92,225,230,0.35) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+          
+          <!-- App Icon with Badge -->
+          <div style="position:relative; width:76px; height:76px; margin:0 auto 16px; z-index:2;">
+            <div style="width:100%; height:100%; border-radius:22px; background:linear-gradient(135deg, #4169E1 0%, #5CE1E6 100%); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 30px rgba(65,105,225,0.45); border:2px solid rgba(255,255,255,0.4); font-size:36px;">
+              ⚡
+            </div>
+            <div style="position:absolute; bottom:-4px; right:-6px; background:#10b981; color:#fff; border-radius:12px; padding:2px 8px; font-size:10px; font-weight:800; border:2px solid #0a0f2c; letter-spacing:0.5px;">PRO</div>
+          </div>
+
+          <h2 style="font-family:var(--font-pjs); font-size: clamp(22px, 3.5vw, 26px); font-weight:900; margin:0 0 6px; letter-spacing:-0.5px; color:#ffffff;">
+            AMPEdge <span style="background:linear-gradient(135deg, #5CE1E6, #ffd700); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Official App</span>
+          </h2>
+          <p style="color:rgba(255,255,255,0.75); font-size:13.5px; margin:0 0 14px; line-height:1.4;">India's Smartest Electrical & Solar On-Demand Platform</p>
+          
+          <!-- Rating & Version Pill -->
+          <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); border-radius:30px; padding:6px 16px; font-size:12px; font-weight:700;">
+            <span style="color:#ffd700;">★★★★★</span>
+            <span>4.9 / 5.0</span>
+            <span style="opacity:0.4;">|</span>
+            <span style="color:#5CE1E6;">10,000+ Installs</span>
+          </div>
         </div>
-        
-        <h3 style="font-family:var(--font-pjs); font-size:24px; color:var(--text-dark); margin:0 0 8px 0; font-weight:800;">Get the AMPEdge App</h3>
-        <p style="color:var(--text-muted); font-size:14px; margin:0 0 24px 0; line-height:1.5;">Faster bookings, live electrician GPS tracking, and exclusive discounts right on your smartphone.</p>
-        
-        <div style="background:var(--bg2); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;">
-          <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap;">
-            <!-- QR Code Graphic -->
-            <div style="background:#fff; padding:10px; border-radius:12px; border:1px solid var(--border2); display:flex; flex-direction:column; align-items:center;">
-              <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Body Section -->
+        <div style="padding: 26px 28px; background: #ffffff;">
+          
+          <!-- Key Features Grid -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px;">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;">
+              <div style="font-size:22px;">⚡</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:#0f172a;">15-Min Dispatch</div>
+                <div style="font-size:11px; color:#64748b;">Instant nearby pro matchmaking</div>
+              </div>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;">
+              <div style="font-size:22px;">📍</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:#0f172a;">Live GPS Map</div>
+                <div style="font-size:11px; color:#64748b;">Real-time electrician tracking</div>
+              </div>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;">
+              <div style="font-size:22px;">🎁</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:#0f172a;">₹150 App Bonus</div>
+                <div style="font-size:11px; color:#64748b;">Flat discount on first booking</div>
+              </div>
+            </div>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:12px; display:flex; align-items:center; gap:10px;">
+              <div style="font-size:22px;">🛡️</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:#0f172a;">Digital Warranty</div>
+                <div style="font-size:11px; color:#64748b;">90-day auto-saved service card</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR & APK Card -->
+          <div style="background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%); border: 1.5px dashed #22c55e; border-radius: 18px; padding: 18px; display: flex; align-items: center; gap: 18px; margin-bottom: 22px;">
+            <!-- QR Code -->
+            <div style="background:#ffffff; padding:8px; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05); flex-shrink:0;">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="100" height="100" fill="white"/>
                 <rect x="8" y="8" width="28" height="28" rx="4" fill="#0f172a"/>
                 <rect x="14" y="14" width="16" height="16" rx="2" fill="white"/>
                 <rect x="18" y="18" width="8" height="8" fill="#4169E1"/>
-                
                 <rect x="64" y="8" width="28" height="28" rx="4" fill="#0f172a"/>
                 <rect x="70" y="14" width="16" height="16" rx="2" fill="white"/>
                 <rect x="74" y="18" width="8" height="8" fill="#4169E1"/>
-                
                 <rect x="8" y="64" width="28" height="28" rx="4" fill="#0f172a"/>
                 <rect x="14" y="70" width="16" height="16" rx="2" fill="white"/>
                 <rect x="18" y="74" width="8" height="8" fill="#4169E1"/>
-                
                 <rect x="42" y="10" width="6" height="6" fill="#0f172a"/>
                 <rect x="50" y="18" width="8" height="6" fill="#0f172a"/>
                 <rect x="42" y="28" width="12" height="6" fill="#0f172a"/>
@@ -2618,29 +2672,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 <rect x="76" y="66" width="14" height="6" fill="#0f172a"/>
                 <rect x="84" y="78" width="6" height="12" fill="#0f172a"/>
               </svg>
-              <span style="font-size:10.5px; font-weight:700; color:#64748b; margin-top:4px;">Scan to Download</span>
             </div>
             
-            <div style="flex:1; min-width:160px; text-align:left;">
-              <div style="font-size:13px; font-weight:700; color:var(--text-dark); margin-bottom:4px;">⚡ AMPEdge Android v1.0</div>
-              <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Size: ~18 MB • Android 8.0+</div>
-              <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#059669; font-weight:700;">
-                <span>🛡️</span> Verified Clean & Secure
+            <div style="flex:1;">
+              <div style="display:inline-flex; align-items:center; gap:6px; background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:800; margin-bottom:4px;">
+                <span>📷</span> Scan with Phone Camera
               </div>
+              <div style="font-size:13.5px; font-weight:800; color:#0f172a; margin-bottom:2px;">Quick Instant Install</div>
+              <div style="font-size:11.5px; color:#64748b;">Package: <code style="background:#e2e8f0; padding:1px 4px; border-radius:4px;">in.co.ampedge.app</code> (18.4 MB)</div>
             </div>
           </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Google Play Store Button -->
+            <a href="https://play.google.com/store" target="_blank" class="btn" style="background:#0f172a; color:#ffffff; padding:14px 20px; border-radius:16px; display:flex; align-items:center; justify-content:center; gap:12px; text-decoration:none; box-shadow:0 6px 20px rgba(15,23,42,0.25); transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.609 1.814L13.792 12 3.61 22.186a2.37 2.37 0 0 1-.61-.925V2.739c.16-.367.37-.68.61-.925z" fill="#00E676"/>
+                <path d="M15.212 13.417l-1.42-1.417 1.42-1.417 3.642 2.048c1.03.579 1.03 1.523 0 2.102l-3.642 2.048c-.001 0-.001 0 0 0z" fill="#FFD600"/>
+                <path d="M13.792 12L3.609 1.814l11.45 6.442L13.792 12z" fill="#00B0FF"/>
+                <path d="M3.609 22.186L13.792 12l1.267 3.744-11.45 6.442z" fill="#FF3D00"/>
+              </svg>
+              <div style="text-align:left; line-height:1.2;">
+                <div style="font-size:10.5px; text-transform:uppercase; opacity:0.8; letter-spacing:0.5px;">GET IT ON</div>
+                <div style="font-size:16px; font-weight:800; font-family:var(--font-pjs);">Google Play Store</div>
+              </div>
+            </a>
+
+            <!-- Direct APK Button with Simulated Download Progress -->
+            <button id="directApkBtn" onclick="triggerCustomApkDownload()" class="btn" style="background:linear-gradient(135deg, #4169E1 0%, #2563eb 100%); color:#ffffff; padding:14px 20px; border-radius:16px; display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; font-size:14px; box-shadow:0 6px 20px rgba(65,105,225,0.35); transition:transform 0.2s; position:relative; overflow:hidden;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              <span style="font-size:18px;">📥</span>
+              <span id="directApkBtnText">Direct APK Download (v1.0.4)</span>
+            </button>
+          </div>
+
+          <!-- Security Footer -->
+          <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:16px; font-size:12px; color:#64748b;">
+            <span>🔒 100% Virus Free</span>
+            <span>•</span>
+            <span>📱 Android 8.0+</span>
+            <span>•</span>
+            <span>⚡ Instant Setup</span>
+          </div>
+
         </div>
-        
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <a href="https://play.google.com/store" target="_blank" class="btn btn-primary" style="justify-content:center; padding:14px; font-weight:800; font-size:14.5px; border-radius:14px; gap:8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.37 2.37 0 0 1-.61-.925V2.739c.16-.367.37-.68.61-.925zm11.603 11.603l2.493 2.493-11.45 6.442 8.957-8.935zm0-2.834L6.255 1.648l11.45 6.442-2.493 2.493zm1.414 1.417l3.642 2.048c1.03.579 1.03 1.523 0 2.102l-3.642 2.048-2.124-2.124 2.124-2.074z"/></svg>
-            Get on Google Play Store
-          </a>
-          
-          <a href="javascript:void(0)" onclick="startDirectApkDownload()" class="btn btn-outline" style="justify-content:center; padding:12px; font-weight:700; font-size:13.5px; border-radius:14px;">
-            📥 Direct APK Download (Android)
-          </a>
-        </div>
+
       </div>
     </div>
   `;
@@ -2651,6 +2727,9 @@ document.addEventListener('DOMContentLoaded', () => {
     #downloadAppModal.active {
       opacity: 1 !important;
       pointer-events: auto !important;
+    }
+    #downloadAppModal.active .modal-content {
+      transform: scale(1) !important;
     }
   `;
   document.head.appendChild(dlStyle);
@@ -2666,10 +2745,43 @@ window.closeDownloadAppModal = function() {
   if (modal) modal.classList.remove('active');
 };
 
-window.startDirectApkDownload = function() {
-  alert("📲 AMPEdge Android App download initiated! (Package: in.co.ampedge.app)");
-  window.closeDownloadAppModal();
+window.triggerCustomApkDownload = function() {
+  const btn = document.getElementById('directApkBtn');
+  const txt = document.getElementById('directApkBtnText');
+  if (!btn || !txt) return;
+
+  btn.style.pointerEvents = 'none';
+  txt.innerHTML = '⏳ Preparing Download (18.4 MB)...';
+  btn.style.background = '#059669';
+
+  setTimeout(() => {
+    txt.innerHTML = '⚡ Downloading: AMPEdge-v1.0.4.apk (45%)...';
+  }, 700);
+
+  setTimeout(() => {
+    txt.innerHTML = '✓ Download Complete! (Check Notifications)';
+    btn.style.background = '#10b981';
+    
+    // Create simulated file download
+    const blob = new Blob(['AMPEdge Android Official Package v1.0.4 - Certified Build'], { type: 'application/vnd.android.package-archive' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AMPEdge-v1.0.4.apk';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }, 1600);
+
+  setTimeout(() => {
+    btn.style.pointerEvents = 'auto';
+    btn.style.background = 'linear-gradient(135deg, #4169E1 0%, #2563eb 100%)';
+    txt.innerHTML = '📥 Direct APK Download (v1.0.4)';
+    window.closeDownloadAppModal();
+  }, 3500);
 };
+
 
 // 2. Global Footer Info Modal System
 document.addEventListener('DOMContentLoaded', () => {
