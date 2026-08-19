@@ -3600,7 +3600,7 @@ document.addEventListener('click', () => {
   if (dropdown) dropdown.style.display = 'none';
 });
 
-// Render Dynamic Navbar State with Compact Circular User Logo
+// Render Dynamic Navbar State with Small Person Icon Next to Shop Now
 window.renderAuthNavbar = function() {
   const user = window.getAmpEdgeAuthUser();
   const navRights = document.querySelectorAll('.nav-right');
@@ -3612,17 +3612,22 @@ window.renderAuthNavbar = function() {
       authArea.className = 'nav-auth-area';
       authArea.style.display = 'inline-flex';
       authArea.style.alignItems = 'center';
-      authArea.style.marginRight = '8px';
+      authArea.style.marginLeft = '8px';
       authArea.style.flexShrink = '0';
-      nav.insertBefore(authArea, nav.firstChild);
+      nav.appendChild(authArea);
+    } else {
+      // Ensure it is at the end next to Shop Now
+      if (nav.lastElementChild !== authArea) {
+        nav.appendChild(authArea);
+      }
     }
     
     if (user) {
       authArea.innerHTML = `
         <div class="user-profile-dropdown" style="position:relative; flex-shrink:0;">
-          <button onclick="toggleUserMenu(event)" class="btn" title="${user.name} (${user.role})" style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #4169E1, #5CE1E6); color:#fff; font-weight:900; font-size:14px; border:2px solid #ffffff; box-shadow:0 3px 12px rgba(65,105,225,0.35); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; padding:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <button onclick="toggleUserMenu(event)" class="btn" title="${user.name} (${user.role})" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #4169E1, #5CE1E6); color:#fff; font-weight:900; font-size:13.5px; border:2px solid #ffffff; box-shadow:0 3px 10px rgba(65,105,225,0.35); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; padding:0; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
             ${user.avatar || 'U'}
-            <span style="position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; background:#10b981; border:2px solid #fff; border-radius:50%;"></span>
+            <span style="position:absolute; bottom:-1px; right:-1px; width:9px; height:9px; background:#10b981; border:2px solid #fff; border-radius:50%;"></span>
           </button>
           
           <div id="userMenuDropdown" style="display:none; position:absolute; top:115%; right:0; width:240px; background:#ffffff; border-radius:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); border:1px solid #e2e8f0; padding:8px; z-index:100010;">
@@ -3630,6 +3635,37 @@ window.renderAuthNavbar = function() {
               <div style="font-size:13.5px; font-weight:800; color:#0f172a;">${user.name}</div>
               <div style="font-size:11.5px; color:#64748b;">${user.email || user.phone}</div>
               <div style="display:inline-block; margin-top:4px; font-size:10px; background:${user.role === 'Customer' ? '#dbeafe' : '#d1fae5'}; color:${user.role === 'Customer' ? '#1e40af' : '#065f46'}; padding:2px 8px; border-radius:10px; font-weight:800; text-transform:uppercase;">${user.role}</div>
+            </div>
+            
+            <a href="javascript:void(0)" onclick="openUserDashboardModal()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+              <span>📊</span> My Dashboard & Bookings
+            </a>
+            
+            <a href="subscription.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+              <span>👑</span> My AMC & Active Plans
+            </a>
+            
+            <a href="marketplace.html" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+              <span>🛒</span> My Product Orders
+            </a>
+            
+            <hr style="margin:4px 0; border:none; border-top:1px solid #f1f5f9;"/>
+            
+            <a href="javascript:void(0)" onclick="handleUserLogout()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#ef4444; text-decoration:none; border-radius:8px; font-weight:800; transition:background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='transparent'">
+              <span>🚪</span> Log Out
+            </a>
+          </div>
+        </div>
+      `;
+    } else {
+      authArea.innerHTML = `
+        <a href="javascript:void(0)" onclick="openAuthModal('customer', 'signin')" class="btn-auth-avatar-icon" title="My Account / Sign In" style="display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; background:#ffffff; border:1.5px solid #cbd5e1; color:#0f172a; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:all 0.2s; position:relative; flex-shrink:0; text-decoration:none;" onmouseover="this.style.borderColor='#4169E1'; this.style.color='#4169E1'; this.style.transform='scale(1.08)'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.color='#0f172a'; this.style.transform='scale(1)'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+      `;
+    }
+  });
+}; color:${user.role === 'Customer' ? '#1e40af' : '#065f46'}; padding:2px 8px; border-radius:10px; font-weight:800; text-transform:uppercase;">${user.role}</div>
             </div>
             
             <a href="javascript:void(0)" onclick="openUserDashboardModal()" style="display:flex; align-items:center; gap:8px; padding:10px 12px; font-size:13px; color:#0f172a; text-decoration:none; border-radius:8px; font-weight:700; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
