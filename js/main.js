@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: force trigger build for restored stable state ──
-const AMPEDGE_DATA_VERSION = '7.0';
+const AMPEDGE_DATA_VERSION = '8.5';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -22,16 +22,48 @@ const defaultServices = [
 ];
 
 const defaultProducts = [
-  { id: 'p1', name: 'Havells Coral Smart Switch', description: '6A wifi-enabled smart switch.', category: 'SMART_HOME', basePrice: 349, stock: 50, active: true, image: 'images/product_switch.png' },
-  { id: 'p2', name: 'Finolex FR PVC Wire', description: '2.5sqmm 90m coil.', category: 'WIRING_MATERIALS', basePrice: 2299, stock: 35, active: true, image: '🪢' },
-  { id: 'p3', name: 'Legrand Arteor USB', description: 'Fast charging wall socket.', category: 'WIRING_MATERIALS', basePrice: 1249, stock: 15, active: true, image: 'images/product_usb.png' },
-  { id: 'p4', name: 'Philips LED Batten', description: '20W ultra slim LED tube.', category: 'LIGHTING_FIXTURES', basePrice: 449, stock: 100, active: true, image: 'images/product_led.png' },
-  { id: 'p5', name: 'Crompton Aura Fan', description: 'Anti-dust 1200mm ceiling fan.', category: 'APPLIANCES', basePrice: 2499, stock: 20, active: true, image: 'images/product_fan.png' },
-  { id: 'p6', name: 'Luminous Solar Panel 335W', description: 'Monocrystalline 335W rooftop solar panel with 25yr warranty.', category: 'SOLAR', basePrice: 8999, stock: 30, active: true, image: 'images/product_solar_panel.png' },
-  { id: 'p7', name: 'Luminous Cruze 2kVA Inverter', description: 'Pure sinewave solar inverter for home use with MPPT charge controller.', category: 'SOLAR', basePrice: 12499, stock: 18, active: true, image: 'images/product_inverter.png' },
-  { id: 'p8', name: 'Amaron Solar Battery 150Ah', description: 'Tall-tubular deep cycle solar battery with 3yr warranty.', category: 'SOLAR', basePrice: 14999, stock: 12, active: true, image: 'images/product_battery.png' },
-  { id: 'p9', name: 'Solar Mounting Structure Kit', description: 'Adjustable GI rooftop mounting frame for 2-panel setup.', category: 'SOLAR', basePrice: 2499, stock: 40, active: true, image: 'images/product_structure.png' },
-  { id: 'p10', name: 'Solar Net Meter Kit', description: 'Government-approved bi-directional energy meter for grid feed-in.', category: 'SOLAR', basePrice: 3499, stock: 25, active: true, image: 'images/product_net_meter.png' }
+  // Wires & Cables
+  { id: 'p1', name: 'Finolex FR PVC Wire 1.5 sq mm', description: '90m Coil • 100% Pure Electrolytic Copper wire with fire retardant insulation.', category: 'WIRES_CABLES', brand: 'Finolex', basePrice: 1899, stock: 45, active: true, image: 'images/product_wire_finolex.svg' },
+  { id: 'p2', name: 'Polycab FlameGuard 2.5 sq mm', description: '90m Coil • Heavy duty flame retardant copper wire for high wattage appliances.', category: 'WIRES_CABLES', brand: 'Polycab', basePrice: 2499, stock: 35, active: true, image: 'images/product_wire_polycab.svg' },
+  { id: 'p3', name: 'Havells LifeLine Plus 4.0 sq mm', description: 'HRFR heat-resistant industrial & heavy load wiring for AC/Geysers.', category: 'WIRES_CABLES', brand: 'Havells', basePrice: 3899, stock: 25, active: true, image: 'images/product_wire_havells.svg' },
+  { id: 'p4', name: 'Solar DC Cable 4.0 sq mm', description: 'UV protected dual-insulated tinned copper rooftop solar wire.', category: 'WIRES_CABLES', brand: 'Solar Max', basePrice: 1299, stock: 60, active: true, image: 'images/product_wire_solar.svg' },
+  { id: 'p5', name: 'Anchor 1.0 sq mm Flexible Wire', description: 'Multi-strand pure copper lighting wire for home electrical conduits.', category: 'WIRES_CABLES', brand: 'Anchor', basePrice: 1199, stock: 50, active: true, image: 'images/product_wire_anchor.svg' },
+
+  // Switches & Sockets
+  { id: 'p6', name: 'Havells Coral Smart Switch', description: '6A WiFi & Touch-enabled smart switch with app automation.', category: 'SWITCHES_SOCKETS', brand: 'Havells', basePrice: 349, stock: 50, active: true, image: 'images/product_switch.png' },
+  { id: 'p7', name: 'Legrand Arteor USB Socket', description: 'Fast charging Type-C & Type-A wall socket modular unit.', category: 'SWITCHES_SOCKETS', brand: 'Legrand', basePrice: 1249, stock: 25, active: true, image: 'images/product_usb.png' },
+  { id: 'p8', name: 'Anchor Roma 16A 2-Way Switch', description: 'Heavy duty polycarbonate modular power switch for geysers and AC.', category: 'SWITCHES_SOCKETS', brand: 'Anchor', basePrice: 189, stock: 80, active: true, image: 'images/product_switch_roma.svg' },
+  { id: 'p9', name: 'Schneider AvatarOn Touch Switch', description: 'Frameless glossy white minimalist luxury designer switch.', category: 'SWITCHES_SOCKETS', brand: 'Schneider', basePrice: 429, stock: 40, active: true, image: 'images/product_switch_schneider.svg' },
+  { id: 'p10', name: 'Goldmedal Curve 16A Socket', description: 'Power socket with safety shutter and neon indicator.', category: 'SWITCHES_SOCKETS', brand: 'Goldmedal', basePrice: 220, stock: 75, active: true, image: 'images/product_socket_goldmedal.svg' },
+
+  // MCB & Distribution Boards
+  { id: 'p11', name: 'Havells Euroload 32A DP MCB', description: '10kA high short circuit capacity double pole main breaker.', category: 'MCB_DB', brand: 'Havells', basePrice: 649, stock: 30, active: true, image: 'images/product_mcb_havells.svg' },
+  { id: 'p12', name: 'Schneider Acti9 63A 4P RCCB', description: '30mA human shock protection residual current isolator.', category: 'MCB_DB', brand: 'Schneider', basePrice: 2899, stock: 15, active: true, image: 'images/product_rccb_schneider.svg' },
+  { id: 'p13', name: 'Legrand 4-Way SPN DB Enclosure', description: 'IP43 sheet steel powder coated distribution box with busbar.', category: 'MCB_DB', brand: 'Legrand', basePrice: 1450, stock: 20, active: true, image: 'images/product_db_legrand.svg' },
+
+  // LED Lighting
+  { id: 'p14', name: 'Philips 20W LED Batten Tube', description: '20W ultra slim glare-free cool daylight LED tube light.', category: 'LIGHTING_FIXTURES', brand: 'Philips', basePrice: 449, stock: 100, active: true, image: 'images/product_led.png' },
+  { id: 'p15', name: 'Syska 12W Inverter Emergency Bulb', description: '4-hour battery backup automatic rechargeable emergency LED.', category: 'LIGHTING_FIXTURES', brand: 'Syska', basePrice: 389, stock: 65, active: true, image: 'images/product_syska_bulb.svg' },
+  { id: 'p16', name: 'Crompton 15W Round Downlight', description: '15W surface panel ceiling LED with 4kV surge protection.', category: 'LIGHTING_FIXTURES', brand: 'Crompton', basePrice: 499, stock: 55, active: true, image: 'images/product_downlight_crompton.svg' },
+  { id: 'p17', name: 'Wipro Garnet 5m Smart RGB Strip', description: 'WiFi enabled 16 million colors LED strip with Alexa sync.', category: 'LIGHTING_FIXTURES', brand: 'Wipro', basePrice: 1199, stock: 30, active: true, image: 'images/product_wipro_strip.svg' },
+
+  // Fans & Appliances
+  { id: 'p18', name: 'Crompton Aura 1200mm Fan', description: 'Anti-dust 1200mm high-speed metallic finish ceiling fan.', category: 'APPLIANCES', brand: 'Crompton', basePrice: 2499, stock: 20, active: true, image: 'images/product_fan.png' },
+  { id: 'p19', name: 'Havells Stealth Air BLDC Fan', description: '28W 5-star super silent energy saver BLDC ceiling fan with remote.', category: 'APPLIANCES', brand: 'Havells', basePrice: 4299, stock: 15, active: true, image: 'images/product_fan_bldc.svg' },
+  { id: 'p20', name: 'Orient 400mm Wall Mount Fan', description: 'High airflow aerodynamic blades with smooth oscillation.', category: 'APPLIANCES', brand: 'Orient', basePrice: 2199, stock: 18, active: true, image: 'images/product_fan_wall.svg' },
+  { id: 'p21', name: 'Bajaj Maxima 200mm Exhaust Fan', description: 'Heavy duty rust-proof high suction kitchen & bathroom exhaust.', category: 'APPLIANCES', brand: 'Bajaj', basePrice: 1099, stock: 35, active: true, image: 'images/product_fan_exhaust.svg' },
+
+  // Solar Energy Solutions
+  { id: 'p22', name: 'Luminous Solar Panel 335W', description: 'Monocrystalline 335W rooftop solar panel with 25yr warranty.', category: 'SOLAR', brand: 'Luminous', basePrice: 8999, stock: 30, active: true, image: 'images/product_solar_panel.png' },
+  { id: 'p23', name: 'Luminous Cruze 2kVA Inverter', description: 'Pure sinewave solar inverter with smart MPPT charge controller.', category: 'SOLAR', brand: 'Luminous', basePrice: 12499, stock: 18, active: true, image: 'images/product_inverter.png' },
+  { id: 'p24', name: 'Amaron Solar Battery 150Ah', description: 'Tall-tubular deep cycle solar battery with 3yr replacement warranty.', category: 'SOLAR', brand: 'Amaron', basePrice: 14999, stock: 12, active: true, image: 'images/product_battery.png' },
+  { id: 'p25', name: 'Solar Mounting Structure Kit', description: 'Adjustable GI rooftop mounting frame for 2-panel setup.', category: 'SOLAR', brand: 'Solar Max', basePrice: 2499, stock: 40, active: true, image: 'images/product_structure.png' },
+  { id: 'p26', name: 'Solar Net Meter Kit', description: 'Government-approved bi-directional energy meter for grid feed-in.', category: 'SOLAR', brand: 'Solar Max', basePrice: 3499, stock: 25, active: true, image: 'images/product_net_meter.png' },
+
+  // Tools & Safety
+  { id: 'p27', name: 'Digital True-RMS Multimeter', description: 'AC/DC voltage, resistance, diode & continuity tester with probes.', category: 'TOOLS_SAFETY', brand: 'AmpEdge Pro', basePrice: 899, stock: 50, active: true, image: 'images/product_multimeter.svg' },
+  { id: 'p28', name: 'Insulated Wire Stripper & Crimper', description: '8-in-1 precision electrician cutter and crimping tool.', category: 'TOOLS_SAFETY', brand: 'AmpEdge Pro', basePrice: 449, stock: 65, active: true, image: 'images/product_wire_stripper.svg' },
+  { id: 'p29', name: 'High Voltage Safety Kit', description: 'Class 0 dielectric rubber gloves and shock-resistant safety gear.', category: 'TOOLS_SAFETY', brand: 'AmpEdge Safe', basePrice: 1299, stock: 30, active: true, image: 'images/product_safety_gloves.svg' }
 ];
 
 window.mockElectricians = [
@@ -633,11 +665,14 @@ function renderMarketplaceProducts() {
     // filter by category
     if (currentCategoryFilter !== 'ALL') {
       const match = {
-        'Switches': ['SMART_HOME', 'WIRING_MATERIALS'],
-        'Wires & Cables': ['WIRING_MATERIALS'],
-        'MCB & DB': ['WIRING_MATERIALS'],
+        'Switches': ['SMART_HOME', 'SWITCHES_SOCKETS', 'WIRING_MATERIALS'],
+        'Wires & Cables': ['WIRES_CABLES', 'WIRING_MATERIALS'],
+        'MCB & DB': ['MCB_DB', 'WIRING_MATERIALS'],
         'LED Lighting': ['LIGHTING_FIXTURES'],
         'Fans': ['APPLIANCES'],
+        'Tools & Safety': ['TOOLS_SAFETY'],
+        '☀️ Solar': ['SOLAR'],
+        'Solar': ['SOLAR']
       }[currentCategoryFilter] || [];
       if (!match.includes(p.category)) return false;
     }
@@ -667,7 +702,7 @@ function renderMarketplaceProducts() {
         <div class="prod-wish">♡</div>
       </div>
       <div class="product-info">
-        <div class="prod-brand">${p.category.replace('_', ' ')}</div>
+        <div class="prod-brand">${p.brand ? p.brand : p.category.replace(/_/g, ' ')}</div>
         <div class="prod-name">${p.name}</div>
         <div class="prod-rating"><span class="stars">★★★★★</span>4.8</div>
         <div class="prod-footer">
