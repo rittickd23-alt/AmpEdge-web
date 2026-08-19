@@ -2572,6 +2572,105 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })();
 
+// ── GLOBAL DOWNLOAD APP MODAL SYSTEM ───────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const downloadModalHTML = `
+    <div id="downloadAppModal" class="modal-overlay" style="z-index: 100005; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition: opacity 0.3s ease;">
+      <div class="modal-content" style="max-width: 480px; width:92%; padding: 32px 28px; border-radius: 24px; text-align:center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--border); background: #ffffff; position:relative;">
+        <button class="btn-icon" style="position:absolute; top:18px; right:18px; background:#f1f5f9; border:none; width:34px; height:34px; border-radius:50%; font-size:16px; font-weight:700; cursor:pointer; color:#64748b;" onclick="closeDownloadAppModal()">✕</button>
+        
+        <div style="width:64px; height:64px; border-radius:18px; background:linear-gradient(135deg,#4169E1,#5CE1E6); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 8px 24px rgba(65,105,225,0.3); font-size:30px;">
+          📲
+        </div>
+        
+        <h3 style="font-family:var(--font-pjs); font-size:24px; color:var(--text-dark); margin:0 0 8px 0; font-weight:800;">Get the AMPEdge App</h3>
+        <p style="color:var(--text-muted); font-size:14px; margin:0 0 24px 0; line-height:1.5;">Faster bookings, live electrician GPS tracking, and exclusive discounts right on your smartphone.</p>
+        
+        <div style="background:var(--bg2); padding:20px; border-radius:16px; border:1px solid var(--border); margin-bottom:20px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap;">
+            <!-- QR Code Graphic -->
+            <div style="background:#fff; padding:10px; border-radius:12px; border:1px solid var(--border2); display:flex; flex-direction:column; align-items:center;">
+              <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" fill="white"/>
+                <rect x="8" y="8" width="28" height="28" rx="4" fill="#0f172a"/>
+                <rect x="14" y="14" width="16" height="16" rx="2" fill="white"/>
+                <rect x="18" y="18" width="8" height="8" fill="#4169E1"/>
+                
+                <rect x="64" y="8" width="28" height="28" rx="4" fill="#0f172a"/>
+                <rect x="70" y="14" width="16" height="16" rx="2" fill="white"/>
+                <rect x="74" y="18" width="8" height="8" fill="#4169E1"/>
+                
+                <rect x="8" y="64" width="28" height="28" rx="4" fill="#0f172a"/>
+                <rect x="14" y="70" width="16" height="16" rx="2" fill="white"/>
+                <rect x="18" y="74" width="8" height="8" fill="#4169E1"/>
+                
+                <rect x="42" y="10" width="6" height="6" fill="#0f172a"/>
+                <rect x="50" y="18" width="8" height="6" fill="#0f172a"/>
+                <rect x="42" y="28" width="12" height="6" fill="#0f172a"/>
+                <rect x="10" y="44" width="10" height="6" fill="#0f172a"/>
+                <rect x="26" y="44" width="8" height="12" fill="#0f172a"/>
+                <rect x="40" y="40" width="20" height="20" rx="4" fill="#5CE1E6"/>
+                <rect x="46" y="46" width="8" height="8" fill="#0f172a"/>
+                <rect x="66" y="44" width="12" height="6" fill="#0f172a"/>
+                <rect x="84" y="44" width="6" height="12" fill="#0f172a"/>
+                <rect x="44" y="66" width="6" height="14" fill="#0f172a"/>
+                <rect x="56" y="72" width="14" height="6" fill="#0f172a"/>
+                <rect x="76" y="66" width="14" height="6" fill="#0f172a"/>
+                <rect x="84" y="78" width="6" height="12" fill="#0f172a"/>
+              </svg>
+              <span style="font-size:10.5px; font-weight:700; color:#64748b; margin-top:4px;">Scan to Download</span>
+            </div>
+            
+            <div style="flex:1; min-width:160px; text-align:left;">
+              <div style="font-size:13px; font-weight:700; color:var(--text-dark); margin-bottom:4px;">⚡ AMPEdge Android v1.0</div>
+              <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Size: ~18 MB • Android 8.0+</div>
+              <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#059669; font-weight:700;">
+                <span>🛡️</span> Verified Clean & Secure
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <a href="https://play.google.com/store" target="_blank" class="btn btn-primary" style="justify-content:center; padding:14px; font-weight:800; font-size:14.5px; border-radius:14px; gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a2.37 2.37 0 0 1-.61-.925V2.739c.16-.367.37-.68.61-.925zm11.603 11.603l2.493 2.493-11.45 6.442 8.957-8.935zm0-2.834L6.255 1.648l11.45 6.442-2.493 2.493zm1.414 1.417l3.642 2.048c1.03.579 1.03 1.523 0 2.102l-3.642 2.048-2.124-2.124 2.124-2.074z"/></svg>
+            Get on Google Play Store
+          </a>
+          
+          <a href="javascript:void(0)" onclick="startDirectApkDownload()" class="btn btn-outline" style="justify-content:center; padding:12px; font-weight:700; font-size:13.5px; border-radius:14px;">
+            📥 Direct APK Download (Android)
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', downloadModalHTML);
+  
+  const dlStyle = document.createElement('style');
+  dlStyle.textContent = `
+    #downloadAppModal.active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+  `;
+  document.head.appendChild(dlStyle);
+});
+
+window.openDownloadAppModal = function() {
+  const modal = document.getElementById('downloadAppModal');
+  if (modal) modal.classList.add('active');
+};
+
+window.closeDownloadAppModal = function() {
+  const modal = document.getElementById('downloadAppModal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.startDirectApkDownload = function() {
+  alert("📲 AMPEdge Android App download initiated! (Package: in.co.ampedge.app)");
+  window.closeDownloadAppModal();
+};
+
 // 2. Global Footer Info Modal System
 document.addEventListener('DOMContentLoaded', () => {
   const modalHTML = `
