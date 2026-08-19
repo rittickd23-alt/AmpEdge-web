@@ -3,7 +3,7 @@
    ============================================ */
 
 // ── Data Version: force trigger build for restored stable state ──
-const AMPEDGE_DATA_VERSION = '8.5';
+const AMPEDGE_DATA_VERSION = '9.0';
 if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
   localStorage.removeItem('ampedge_services');
   localStorage.removeItem('ampedge_products');
@@ -12,13 +12,21 @@ if (localStorage.getItem('ampedge_data_ver') !== AMPEDGE_DATA_VERSION) {
 
 // ── Global Data Store ────────────────────────
 const defaultServices = [
-  { id: 's1', name: 'Wiring Repair', description: 'Fix faulty wires and circuits safely.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true, image: 'images/svc_wiring.png' },
-  { id: 's2', name: 'MCB Setup', description: 'Install distribution boards and MCBs.', category: 'INSTALLATION', basePrice: 2299, duration: 120, city: 'Howrah', active: true, image: 'images/svc_mcb.png' },
-  { id: 's3', name: 'Smart Home Hub', description: 'Automated lighting and switches.', category: 'INSTALLATION', basePrice: 4999, duration: 180, city: 'Kolkata', active: true, image: 'images/svc_switchboard.png' },
-  { id: 's4', name: 'Emergency Visit', description: 'Quick dispatch 24/7 for urgent failures.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true, image: 'images/svc_emergency.png' },
-  { id: 's5', name: 'Solar Panel Installation', description: 'Professional rooftop solar panel installation with net metering setup.', category: 'SOLAR', basePrice: 12999, duration: 480, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
-  { id: 's6', name: 'Solar System Maintenance', description: 'Annual solar panel cleaning, performance check and inverter inspection.', category: 'SOLAR', basePrice: 1499, duration: 120, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
-  { id: 's7', name: 'Solar Rooftop Survey', description: 'Site visit to assess rooftop area, shadow analysis and kW capacity planning.', category: 'SOLAR', basePrice: 299, duration: 60, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
+  // 👑 AMC Sector Plan (₹14,000 / Year)
+  { id: 's_amc_14k', name: 'Annual AMC 360° Complete Shield (₹14,000/yr)', description: 'Full 365-day home & AC coverage. Unlimited free breakdown visits, 4x Free AC deep services, electrical safety audit. (Labor 100% free, Materials extra).', category: 'AMC', basePrice: 14000, duration: 365, city: 'Howrah', active: true, image: 'images/svc_switchboard.png' },
+
+  // 🛠️ Housing & Electrical Repairing Sector
+  { id: 's_mcb_repair', name: 'MCB & DB Board Repair / Tripping Fix', description: 'Diagnose short circuits, fix tripping MCB switches, and repair distribution boxes.', category: 'REPAIR', basePrice: 299, duration: 45, city: 'Howrah', active: true, image: 'images/svc_mcb.png' },
+  { id: 's_switch_repair', name: 'Switchboard & Modular Socket Repair', description: 'Repair burnt switches, loose sockets, fan regulators, and smart switch replacement.', category: 'REPAIR', basePrice: 199, duration: 30, city: 'Howrah', active: true, image: 'images/svc_switchboard.png' },
+  { id: 's_fan_repair', name: 'Ceiling / Wall / Exhaust Fan Repair', description: 'Fix humming noise, capacitor change, motor winding test, and speed issue diagnosis.', category: 'REPAIR', basePrice: 249, duration: 45, city: 'Howrah', active: true, image: 'images/product_fan.png' },
+  { id: 's_light_repair', name: 'LED Light & Batten / Chandelier Repair', description: 'Install or repair LED tube lights, downlights, profile lighting, and false ceiling fixtures.', category: 'REPAIR', basePrice: 199, duration: 30, city: 'Howrah', active: true, image: 'images/product_led.png' },
+  { id: 's_ac_deep_clean', name: 'AC Deep Servicing & Cooling Repair', description: 'Deep foam jet cleaning, indoor/outdoor coil wash, gas pressure check, and cooling fix.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true, image: 'images/svc_wiring.png' },
+  { id: 's_inverter_repair', name: 'Inverter & Battery Wiring Repair', description: 'Fix battery backup issues, change heavy DC lugs, repair inverter bypass switch.', category: 'REPAIR', basePrice: 349, duration: 45, city: 'Howrah', active: true, image: 'images/product_inverter.png' },
+  { id: 's_wiring_repair', name: 'House Wiring & Short Circuit Troubleshooting', description: 'Emergency fault detection, concealed conduit rewiring, and neutral earth leakage fix.', category: 'REPAIR', basePrice: 499, duration: 60, city: 'Howrah', active: true, image: 'images/svc_wiring.png' },
+
+  // Solar & Emergency
+  { id: 's_solar_inst', name: 'Rooftop Solar System Installation', description: 'Complete rooftop solar panel setup with net metering liaisoning and structure mounting.', category: 'SOLAR', basePrice: 12999, duration: 480, city: 'Howrah', active: true, image: 'images/solar_hero.png' },
+  { id: 's_emerg_visit', name: '24/7 Emergency Electrician Dispatch', description: 'Rapid 30-min emergency response for sudden blackouts, spark hazards, and wire fire risks.', category: 'EMERGENCY', basePrice: 899, duration: 30, city: 'Howrah', active: true, image: 'images/svc_emergency.png' }
 ];
 
 const defaultProducts = [
