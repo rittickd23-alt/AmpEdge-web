@@ -21,7 +21,8 @@
   <div class="hamburger" onclick="openMob()"><span></span><span></span><span></span></div>
 </div>
 </nav>
-<div class="mobile-nav" id="mobNav"><div class="mob-overlay" onclick="closeMob()"></div><div class="mob-drawer"><span class="mob-close" onclick="closeMob()">✕</span>
+<div class="mobile-nav" id="mobNav"><div class="mob-overlay" onclick="closeMob()"></div><div class="mob-drawer">
+    <a href="javascript:void(0)" onclick="closeMob(); openAuthModal('customer', 'signin')" class="btn" style="background:#0f172a;color:#fff;justify-content:center;margin-bottom:8px;border:none;font-weight:700;">Sign In / Sign Up</a>\n    <span class="mob-close" onclick="closeMob()">✕</span>
     <a href="javascript:void(0)" onclick="closeMob(); openDownloadAppModal()" class="btn" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);color:#fff;justify-content:center;margin-bottom:10px;border:none;font-weight:700;">📲 Download Android App</a>
     <a href="index.html">Home</a><a href="marketplace.html">Marketplace</a><a href="booking.html">Book a Service</a><a href="subscription.html">Subscriptions</a><a href="partner.html">Become a Partnership</a></div></div>
 
